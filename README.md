@@ -74,3 +74,4 @@ import "adje-shared-ui/theme.css";        // en layout.tsx, tras globals.css
 - Las apps consumidoras deben mantener versiones compatibles de `next`, `react`,
   `tailwindcss` y `lucide-react` (hoy: next 14.2.15, react 18.3, tailwind 3.4,
   lucide 1.24), ya que son `peerDependencies`.
+"# AdjeUI" 
