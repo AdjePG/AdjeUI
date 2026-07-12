@@ -1,6 +1,6 @@
 "use client";
 
-// Design system compartido por MisFinanzas y Adje Store (librería AdjeStyling).
+// Design system compartido por MisFinanzas y Adje Store (librería AdjeUI).
 // Cualquier cambio aquí afecta a AMBAS apps: probar las dos tras editar.
 // Los colores de identidad (--app-gradient, --accent-*, etc.) los define cada
 // app en su globals.css; aquí solo se consumen via var(--...).
