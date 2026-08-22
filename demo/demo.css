@@ -1,0 +1,26 @@
+@import "../theme.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Identidad de la demo: cada app define la suya en su globals.css; aquí
+   usamos una neutra azul/violeta para el escaparate. */
+:root {
+  --accent-pink: #8b5cf6;
+  --accent-blue: #227cd1;
+  --app-gradient: linear-gradient(120deg, #8b5cf6, #227cd1);
+  --blue-shadow: 0 0 24px -6px #227cd166;
+  --scrollbar-thumb: #227dd170;
+  --scrollbar-thumb-hover: #5b66bd70;
+}
+
+/* La demo hace scroll de página normal (theme.css lo bloquea para las apps
+   con layout .principal). */
+body {
+  overflow: auto;
+}
+
+.text-muted {
+  color: var(--muted);
+}

@@ -17,6 +17,15 @@
   --hover: light-dark(#00000012, #ffffff12);
   --positive: light-dark(#137a4b, #34d399);
   --negative: light-dark(#c02a4a, #f87171);
+  --warning: light-dark(#b07708, #e0a025);
+
+  /* Tamaños CONCRETOS de los controles: Button, Input, Select y el resto de
+     controles de línea miden exactamente esto, para que nunca haya un botón
+     más alto que un input (incluido el input de fecha nativo). */
+  --control-h-sm: 32px;
+  --control-h: 38px;
+  --control-h-lg: 46px;
+
   color-scheme: light dark;
 }
 
@@ -159,6 +168,26 @@ body {
   margin: 8px 0;
 }
 
+/* Skeleton (placeholder de carga) */
+@keyframes skeleton-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--hover) 25%,
+    var(--border) 50%,
+    var(--hover) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
 /* Drawer lateral */
 @keyframes drawer-in {
   from {
@@ -192,6 +221,28 @@ select,
 textarea {
   font-family: inherit;
   font-size: inherit;
+}
+
+/* Inputs nativos de fecha/hora: normalizados para que midan y se vean como
+   el resto de controles (el nativo trae altura y tipografía distintas). */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+input[type="month"],
+input[type="week"] {
+  appearance: none;
+  -webkit-appearance: none;
+}
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input[type="month"]::-webkit-calendar-picker-indicator,
+input[type="week"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.65;
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
 }
 
 /* Debe coincidir con el breakpoint md de Tailwind (768px), que es donde la barra
