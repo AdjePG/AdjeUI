@@ -7,7 +7,9 @@
 //
 // Escritorio (≥ md): rail de 232px a la izquierda (layout .principal), que se
 // puede CONTRAER a solo iconos (72px) con el botón de abajo; la preferencia se
-// recuerda (localStorage). En compacto, top/bottom muestran `topCompact` /
+// recuerda (localStorage). Medidas: filas de 48px (px-2 py-2, icono de 32) en
+// expandido y cuadrados de 48×48 en compacto, con el mismo padding del rail
+// (12px): el icono no se mueve de sitio al contraer. En compacto, top/bottom muestran `topCompact` /
 // `bottomCompact` si se dan (SideNavUser y SideNavButton se adaptan solos).
 // Móvil (< md): oculta a la izquierda (off-canvas), siempre completa; se abre
 // con la hamburguesa que el PageHeader pinta solo cuando hay un SideNav
@@ -75,10 +77,10 @@ export function SideNav({
   }, [open]);
 
   const topNode = compact
-    ? topCompact ?? (logo && !top ? <A href={logoHref} className="flex items-center justify-center py-1" onClick={() => sideNavState.close()}>{logo}</A> : null)
+    ? topCompact ?? (logo && !top ? <A href={logoHref} className="flex items-center justify-center w-12 h-12 mx-auto" onClick={() => sideNavState.close()}>{logo}</A> : null)
     : top ??
       (logo && (
-        <A href={logoHref} className="flex items-center gap-2 px-2.5 py-1 select-none" onClick={() => sideNavState.close()}>
+        <A href={logoHref} className="flex items-center gap-2 px-2 py-2 select-none" onClick={() => sideNavState.close()}>
           {logo}
         </A>
       ));
@@ -86,7 +88,7 @@ export function SideNav({
   return (
     <>
       <nav
-        className={`sidenav h-full flex flex-col bg-[var(--secondary)] border-r border-[var(--border)] py-4 gap-3 ${compact ? "px-2" : "px-3"}`}
+        className="sidenav h-full flex flex-col bg-[var(--secondary)] border-r border-[var(--border)] px-3 py-4 gap-3"
         data-open={open || undefined}
         data-collapsed={collapsed || undefined}
         aria-label="Navegación principal"
@@ -117,7 +119,7 @@ export function SideNav({
                   aria-current={active ? "page" : undefined}
                   title={compact ? item.label : undefined}
                   onClick={() => sideNavState.close()}
-                  className={`flex items-center gap-2.5 rounded-xl transition min-w-0 ${compact ? "w-full h-12 justify-center" : "px-2.5 py-2"} ${
+                  className={`flex items-center gap-2.5 rounded-xl transition min-w-0 ${compact ? "w-12 h-12 mx-auto justify-center" : "px-2 py-2"} ${
                     active ? "bg-[var(--hover)] font-semibold" : "hover:bg-[var(--hover)]"
                   }`}
                 >
@@ -143,7 +145,7 @@ export function SideNav({
             title={collapsed ? "Expandir menú" : "Contraer menú"}
             aria-pressed={collapsed}
             className={`hidden md:flex items-center gap-2.5 rounded-xl text-muted hover:bg-[var(--hover)] hover:text-[var(--foreground)] transition text-[12px] ${
-              compact ? "w-full h-11 justify-center" : "px-2.5 py-1.5"
+              compact ? "w-12 h-12 mx-auto justify-center" : "px-2 py-2"
             }`}
           >
             <span className="inline-flex items-center justify-center w-8 h-8 shrink-0">
@@ -193,7 +195,7 @@ export function SideNavButton({
       onClick={onClick}
       title={compact ? tip : undefined}
       aria-label={compact ? tip : undefined}
-      className={`flex items-center gap-3 rounded-xl hover:bg-[var(--hover)] text-sm text-left ${compact ? "w-full h-12 justify-center" : "w-full px-2.5 py-2"}`}
+      className={`flex items-center gap-3 rounded-xl hover:bg-[var(--hover)] text-sm text-left ${compact ? "w-12 h-12 mx-auto justify-center" : "w-full px-2 py-2"}`}
     >
       <span className="inline-flex items-center justify-center w-8 h-8 shrink-0">{icon}</span>
       {!compact && children}
@@ -237,7 +239,7 @@ export function SideNavAction({
       aria-expanded={toggle ? open : undefined}
       title={compact ? label : undefined}
       aria-label={compact ? label : undefined}
-      className={`flex items-center gap-3 rounded-xl text-sm text-left transition ${compact ? "w-full h-12 justify-center" : "w-full px-2.5 py-2"} ${
+      className={`flex items-center gap-3 rounded-xl text-sm text-left transition ${compact ? "w-12 h-12 mx-auto justify-center" : "w-full px-2 py-2"} ${
         open || active ? "bg-[var(--hover)]" : "hover:bg-[var(--hover)]"
       }`}
     >
@@ -329,7 +331,7 @@ export function SideNavUser({
           aria-expanded={open}
           aria-haspopup="menu"
           title={compact ? name : undefined}
-          className={`flex items-center gap-2.5 rounded-xl text-left transition ${compact ? "w-full h-11 justify-center" : "w-full px-2.5 py-1.5"} ${
+          className={`flex items-center gap-2.5 rounded-xl text-left transition ${compact ? "w-12 h-12 mx-auto justify-center" : "w-full px-2 py-2"} ${
             open ? "bg-[var(--hover)]" : "hover:bg-[var(--hover)]"
           }`}
         >

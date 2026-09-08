@@ -139,7 +139,7 @@ function Showcase() {
     <div className="principal">
       <SideNav
         top={
-          <a href="#tokens" className="flex items-center gap-2 px-2.5 py-1 select-none">
+          <a href="#tokens" className="flex items-center gap-2 px-2 py-2 select-none">
             <IconChip size="lg">
               <Sparkles size={16} />
             </IconChip>
@@ -148,7 +148,7 @@ function Showcase() {
           </a>
         }
         topCompact={
-          <a href="#tokens" className="flex items-center justify-center py-1" title="AdjeUI">
+          <a href="#tokens" className="flex items-center justify-center w-12 h-12 mx-auto" title="AdjeUI">
             <IconChip size="lg">
               <Sparkles size={16} />
             </IconChip>
