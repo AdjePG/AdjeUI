@@ -6,10 +6,11 @@
 //   bottom  → lo que sea: en general el usuario (SideNavUser) y sus cosas
 //
 // Escritorio (≥ md): rail de 232px a la izquierda (layout .principal), que se
-// puede CONTRAER a solo iconos (72px) con el botón de abajo; la preferencia se
+// puede CONTRAER a solo iconos (73px) con el botón de abajo; la preferencia se
 // recuerda (localStorage). Medidas: filas de 48px (px-2 py-2, icono de 32) en
 // expandido y cuadrados de 48×48 en compacto, con el mismo padding del rail
-// (12px): el icono no se mueve de sitio al contraer. En compacto, top/bottom muestran `topCompact` /
+// (12px): el icono no se mueve de sitio al contraer. Las filas van siempre a todo
+// el ancho (siguen la animación del rail) y las etiquetas se funden con opacidad. En compacto, top/bottom muestran `topCompact` /
 // `bottomCompact` si se dan (SideNavUser y SideNavButton se adaptan solos).
 // Móvil (< md): oculta a la izquierda (off-canvas), siempre completa; se abre
 // con la hamburguesa que el PageHeader pinta solo cuando hay un SideNav
@@ -95,7 +96,7 @@ export function SideNav({
       >
         {/* top */}
         {(topNode || !compact) && (
-          <div className={`flex items-start gap-2 shrink-0 ${compact ? "justify-center" : ""}`}>
+          <div key={compact ? "c" : "f"} className={`flex items-start gap-2 shrink-0 drawer-fade ${compact ? "justify-center" : ""}`}>
             <div className={`min-w-0 ${compact ? "" : "flex-1"}`}>{topNode}</div>
             <button
               type="button"
@@ -119,7 +120,7 @@ export function SideNav({
                   aria-current={active ? "page" : undefined}
                   title={compact ? item.label : undefined}
                   onClick={() => sideNavState.close()}
-                  className={`flex items-center gap-2.5 rounded-xl transition min-w-0 ${compact ? "w-12 h-12 mx-auto justify-center" : "px-2 py-2"} ${
+                  className={`flex items-center gap-2.5 rounded-xl transition min-w-0 overflow-hidden px-2 py-2 ${
                     active ? "bg-[var(--hover)] font-semibold" : "hover:bg-[var(--hover)]"
                   }`}
                 >
@@ -129,7 +130,9 @@ export function SideNav({
                   >
                     {item.icon}
                   </span>
-                  {!compact && <span className="text-sm truncate">{item.label}</span>}
+                  <span className={`text-sm truncate transition-opacity duration-150 ${compact ? "opacity-0" : "opacity-100"}`} aria-hidden={compact || undefined}>
+                    {item.label}
+                  </span>
                 </A>
               </li>
             );
@@ -144,14 +147,12 @@ export function SideNav({
             aria-label={collapsed ? "Expandir menú" : "Contraer menú"}
             title={collapsed ? "Expandir menú" : "Contraer menú"}
             aria-pressed={collapsed}
-            className={`hidden md:flex items-center gap-2.5 rounded-xl text-muted hover:bg-[var(--hover)] hover:text-[var(--foreground)] transition text-[12px] ${
-              compact ? "w-12 h-12 mx-auto justify-center" : "px-2 py-2"
-            }`}
+            className="hidden md:flex items-center gap-2.5 rounded-xl text-muted hover:bg-[var(--hover)] hover:text-[var(--foreground)] transition text-[12px] min-w-0 overflow-hidden px-2 py-2"
           >
             <span className="inline-flex items-center justify-center w-8 h-8 shrink-0">
               {collapsed ? <ChevronsRight size={16} /> : <ChevronsLeft size={16} />}
             </span>
-            {!compact && "Contraer"}
+            <span className={`truncate transition-opacity duration-150 ${compact ? "opacity-0" : "opacity-100"}`}>Contraer</span>
           </button>
         )}
 
@@ -195,10 +196,10 @@ export function SideNavButton({
       onClick={onClick}
       title={compact ? tip : undefined}
       aria-label={compact ? tip : undefined}
-      className={`flex items-center gap-3 rounded-xl hover:bg-[var(--hover)] text-sm text-left ${compact ? "w-12 h-12 mx-auto justify-center" : "w-full px-2 py-2"}`}
+      className="flex items-center gap-2.5 rounded-xl hover:bg-[var(--hover)] text-sm text-left w-full min-w-0 overflow-hidden px-2 py-2"
     >
       <span className="inline-flex items-center justify-center w-8 h-8 shrink-0">{icon}</span>
-      {!compact && children}
+      <span className={`flex-1 min-w-0 truncate transition-opacity duration-150 ${compact ? "opacity-0" : "opacity-100"}`}>{children}</span>
     </button>
   );
 }
@@ -239,7 +240,7 @@ export function SideNavAction({
       aria-expanded={toggle ? open : undefined}
       title={compact ? label : undefined}
       aria-label={compact ? label : undefined}
-      className={`flex items-center gap-3 rounded-xl text-sm text-left transition ${compact ? "w-12 h-12 mx-auto justify-center" : "w-full px-2 py-2"} ${
+      className={`flex items-center gap-2.5 rounded-xl text-sm text-left transition w-full min-w-0 overflow-hidden px-2 py-2 ${
         open || active ? "bg-[var(--hover)]" : "hover:bg-[var(--hover)]"
       }`}
     >
@@ -251,7 +252,7 @@ export function SideNavAction({
           </span>
         )}
       </span>
-      {!compact && <span className="flex-1 truncate">{label}</span>}
+      <span className={`flex-1 min-w-0 truncate transition-opacity duration-150 ${compact ? "opacity-0" : "opacity-100"}`}>{label}</span>
     </button>
   );
 
@@ -331,20 +332,18 @@ export function SideNavUser({
           aria-expanded={open}
           aria-haspopup="menu"
           title={compact ? name : undefined}
-          className={`flex items-center gap-2.5 rounded-xl text-left transition ${compact ? "w-12 h-12 mx-auto justify-center" : "w-full px-2 py-2"} ${
+          className={`flex items-center gap-2.5 rounded-xl text-left transition w-full min-w-0 overflow-hidden px-2 py-2 ${
             open ? "bg-[var(--hover)]" : "hover:bg-[var(--hover)]"
           }`}
         >
           {av}
-          {!compact && (
-            <>
-              <span className="flex-1 min-w-0">
-                <span className="block text-sm font-semibold truncate">{name}</span>
-                {subtitle && <span className="block text-[11px] text-muted truncate">{subtitle}</span>}
-              </span>
-              <ChevronsUpDown size={14} className="text-muted shrink-0" />
-            </>
-          )}
+          <span className={`flex-1 min-w-0 flex items-center gap-2.5 transition-opacity duration-150 ${compact ? "opacity-0" : "opacity-100"}`} aria-hidden={compact || undefined}>
+            <span className="flex-1 min-w-0">
+              <span className="block text-sm font-semibold truncate">{name}</span>
+              {subtitle && <span className="block text-[11px] text-muted truncate">{subtitle}</span>}
+            </span>
+            <ChevronsUpDown size={14} className="text-muted shrink-0" />
+          </span>
         </button>
       )}
     >

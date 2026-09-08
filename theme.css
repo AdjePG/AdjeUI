@@ -277,7 +277,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     transition: width 0.2s ease-out;
   }
   .sidenav[data-collapsed] {
-    width: 72px;
+    width: 73px; /* 12 + 48 (cuadrado) + 12 + 1 de borde */
   }
 }
 
