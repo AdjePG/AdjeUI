@@ -16,7 +16,7 @@ Un componente por archivo, agrupado por categoría en `src/`:
 | `src/forms` | Field, Input, Textarea, Select, ChipEditor, `useFormErrors` + `rules` (validación), `inputCls`; RichTextEditor/RichText (entrypoint aparte `adje-shared-ui/rich-text`) |
 | `src/overlays` | Modal, Drawer, ConfirmDialog, HelpTip, ToastProvider/useToast, Popover + Menu |
 | `src/data` | Stat, ProgressBar, Pagination, Table |
-| `src/layout` | PageHeader, SectionTitle, Collapsible, SideNav + SideNavAction/SideNavButton/SideNavUser, `useTheme` |
+| `src/layout` | PageHeader, SectionTitle, Collapsible, SideNav + SideNavBrand/SideNavAction/SideNavButton/SideNavUser, `useTheme` |
 | `src/tokens` | `palette(name, shade)`, `paletteHex`, `PALETTE` — paleta fija de 15 colores × 10 tonos |
 
 Los gráficos (recharts) siguen viviendo en MisFinanzas (`src/components/charts.tsx`):
@@ -59,8 +59,8 @@ de `adje-shared-ui` a secas.
   `var(--c-green-600)`; `PALETTE.green[600]` da el hex para destinos sin CSS
   (canvas, SVG exportado). Los tonos no cambian con el tema: 500–600 en claro,
   300–400 en oscuro. Se ven todos en la sección Tokens del demo.
-- **Navegación en tres zonas.** `SideNav` tiene `top` (logo o lo más
-  importante: selector de sitio, avisos), el menú (`items`) y `bottom` (lo que
+- **Navegación en tres zonas.** `SideNav` tiene `top` (normalmente `SideNavBrand`:
+  icono + nombre de la app; o lo que sea: selector de sitio, avisos), el menú (`items`) y `bottom` (lo que
   sea; normalmente `SideNavUser`: avatar + nombre que abre un `Menu` con tema,
   ajustes, salir) y `SideNavAction` (icono + etiqueta + badge, con acción o
   popover: notificaciones, avisos…). En escritorio es el rail de 232px del layout

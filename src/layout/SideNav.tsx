@@ -17,7 +17,7 @@
 // montado (sideNavState), y se cierra al navegar, con la X, Escape o el fondo.
 //
 //   <SideNav
-//     top={<Logo/>} topCompact={<LogoChip/>}     // o logo/logoHref (compat)
+//     top={<SideNavBrand icon={<IconChip…/>} href="/">Aula Propia</SideNavBrand>}
 //     items={[{ href, label, icon }]}
 //     activePath={usePathname()}
 //     LinkComponent={Link}                       // next/link
@@ -46,7 +46,7 @@ export function SideNav({
   children,
 }: {
   top?: ReactNode; // zona superior libre (no es un enlace)
-  topCompact?: ReactNode; // versión para el modo compacto (si no, no se muestra top)
+  topCompact?: ReactNode; // versión para el modo compacto (si no, se muestra `top`: usa SideNavBrand o useSideNavCompact)
   logo?: ReactNode; // compat: logo enlazado a logoHref (si no hay `top`)
   logoHref?: string;
   items: { href: string; label: string; icon: ReactNode }[];
@@ -77,14 +77,14 @@ export function SideNav({
     return () => document.removeEventListener("keydown", onEsc);
   }, [open]);
 
-  const topNode = compact
-    ? topCompact ?? (logo && !top ? <A href={logoHref} className="flex items-center justify-center w-12 h-12 mx-auto" onClick={() => sideNavState.close()}>{logo}</A> : null)
-    : top ??
-      (logo && (
-        <A href={logoHref} className="flex items-center gap-2 px-2 py-2 select-none" onClick={() => sideNavState.close()}>
-          {logo}
-        </A>
-      ));
+  const logoNode = logo && (
+    <A href={logoHref} className="flex items-center gap-2 px-2 py-2 select-none min-w-0 overflow-hidden" onClick={() => sideNavState.close()}>
+      {logo}
+    </A>
+  );
+  const topNode = compact ? topCompact ?? top ?? logoNode : top ?? logoNode;
+  // Solo hay "salto" de contenido cuando se intercambia top/topCompact: ahí se funde.
+  const topKey = topCompact !== undefined ? (compact ? "c" : "f") : "top";
 
   return (
     <>
@@ -96,8 +96,8 @@ export function SideNav({
       >
         {/* top */}
         {(topNode || !compact) && (
-          <div key={compact ? "c" : "f"} className={`flex items-start gap-2 shrink-0 drawer-fade ${compact ? "justify-center" : ""}`}>
-            <div className={`min-w-0 ${compact ? "" : "flex-1"}`}>{topNode}</div>
+          <div key={topKey} className={`flex items-start gap-2 shrink-0 ${topCompact !== undefined ? "drawer-fade" : ""}`}>
+            <div className="min-w-0 flex-1">{topNode}</div>
             <button
               type="button"
               onClick={() => sideNavState.close()}
@@ -172,6 +172,46 @@ export function SideNav({
       </nav>
       {open && <div className="sidenav-backdrop md:hidden" onClick={() => sideNavState.close()} aria-hidden />}
     </>
+  );
+}
+
+// Marca de la app para la zona top: icono (normalmente un IconChip) + nombre,
+// enlazados a la portada. Misma fila de 48px que los items; en compacto el
+// icono se queda en su sitio y el nombre se funde.
+//   <SideNavBrand icon={<IconChip size="lg"><Sparkles size={16} /></IconChip>} href="/panel" LinkComponent={Link}>
+//     Aula Propia
+//   </SideNavBrand>
+export function SideNavBrand({
+  icon,
+  children,
+  href = "/",
+  LinkComponent,
+  title,
+}: {
+  icon: ReactNode;
+  children: ReactNode;
+  href?: string;
+  LinkComponent?: LinkLike;
+  title?: string; // tooltip en compacto (si children no es texto)
+}) {
+  const A: LinkLike = LinkComponent ?? "a";
+  const compact = useSideNavCompact();
+  const tip = title ?? (typeof children === "string" ? children : undefined);
+  return (
+    <A
+      href={href}
+      title={compact ? tip : undefined}
+      onClick={() => sideNavState.close()}
+      className="flex items-center gap-2.5 rounded-xl px-2 py-2 min-w-0 overflow-hidden select-none transition hover:bg-[var(--hover)]"
+    >
+      <span className="inline-flex items-center justify-center w-8 h-8 shrink-0">{icon}</span>
+      <span
+        className={`flex-1 min-w-0 flex items-center gap-2 font-bold text-lg truncate transition-opacity duration-150 ${compact ? "opacity-0" : "opacity-100"}`}
+        aria-hidden={compact || undefined}
+      >
+        {children}
+      </span>
+    </A>
   );
 }
 

@@ -36,6 +36,7 @@ import {
   Menu,
   Popover,
   SideNavAction,
+  SideNavBrand,
   SideNavUser,
   Button,
   Card,
@@ -139,20 +140,9 @@ function Showcase() {
     <div className="principal">
       <SideNav
         top={
-          <a href="#tokens" className="flex items-center gap-2 px-2 py-2 select-none">
-            <IconChip size="lg">
-              <Sparkles size={16} />
-            </IconChip>
-            <span className="font-bold text-lg">AdjeUI</span>
-            <Pill color={palette("violet", 600)}>v2</Pill>
-          </a>
-        }
-        topCompact={
-          <a href="#tokens" className="flex items-center justify-center w-12 h-12 mx-auto" title="AdjeUI">
-            <IconChip size="lg">
-              <Sparkles size={16} />
-            </IconChip>
-          </a>
+          <SideNavBrand href="#tokens" title="AdjeUI" icon={<IconChip size="lg"><Sparkles size={16} /></IconChip>}>
+            AdjeUI <Pill color={palette("violet", 600)}>v2</Pill>
+          </SideNavBrand>
         }
         items={SECTIONS.map((s) => ({ href: `#${s.id}`, label: s.label, icon: s.icon }))}
         activePath={`#${active}`}
@@ -1028,7 +1018,7 @@ function LayoutSection() {
             </Frame>
             <div className="text-[13px] text-muted leading-relaxed flex flex-col gap-2">
               <p>
-                <b className="text-[var(--foreground)]">top</b>: cualquier nodo, sin enlace obligatorio (logo, selector de sitio, campanita). Compat: <code className="font-mono">logo</code> + <code className="font-mono">logoHref</code>.
+                <b className="text-[var(--foreground)]">top</b>: cualquier nodo (logo, selector de sitio, campanita). Lo habitual es <code className="font-mono">SideNavBrand</code> (icono + nombre enlazados, misma fila que los items y fundido al contraer). Si el contenido no se adapta solo, <code className="font-mono">topCompact</code> da la versión reducida. Compat: <code className="font-mono">logo</code> + <code className="font-mono">logoHref</code>.
               </p>
               <p>
                 <b className="text-[var(--foreground)]">menú</b>: <code className="font-mono">items</code> con href/label/icon; el activo se marca por <code className="font-mono">activePath</code>. Hace scroll si no cabe.

@@ -50,7 +50,7 @@ export { Table } from "./data/Table";
 export { PageHeader } from "./layout/PageHeader";
 export { SectionTitle } from "./layout/SectionTitle";
 export { Collapsible } from "./layout/Collapsible";
-export { SideNav, SideNavButton, SideNavUser, SideNavAction } from "./layout/SideNav";
+export { SideNav, SideNavBrand, SideNavButton, SideNavUser, SideNavAction } from "./layout/SideNav";
 export { sideNavState, useSideNavState, useSideNavCompact, useIsMobile } from "./layout/sideNavState";
 export { useTheme, type Theme } from "./layout/theme";
 
