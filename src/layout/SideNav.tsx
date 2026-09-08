@@ -117,7 +117,7 @@ export function SideNav({
                   aria-current={active ? "page" : undefined}
                   title={compact ? item.label : undefined}
                   onClick={() => sideNavState.close()}
-                  className={`flex items-center gap-2.5 rounded-xl transition min-w-0 ${compact ? "w-10 h-10 mx-auto justify-center" : "px-2.5 py-2"} ${
+                  className={`flex items-center gap-2.5 rounded-xl transition min-w-0 ${compact ? "w-full h-12 justify-center" : "px-2.5 py-2"} ${
                     active ? "bg-[var(--hover)] font-semibold" : "hover:bg-[var(--hover)]"
                   }`}
                 >
@@ -143,7 +143,7 @@ export function SideNav({
             title={collapsed ? "Expandir menú" : "Contraer menú"}
             aria-pressed={collapsed}
             className={`hidden md:flex items-center gap-2.5 rounded-xl text-muted hover:bg-[var(--hover)] hover:text-[var(--foreground)] transition text-[12px] ${
-              compact ? "w-10 h-10 mx-auto justify-center" : "px-2.5 py-1.5"
+              compact ? "w-full h-11 justify-center" : "px-2.5 py-1.5"
             }`}
           >
             <span className="inline-flex items-center justify-center w-8 h-8 shrink-0">
@@ -193,7 +193,7 @@ export function SideNavButton({
       onClick={onClick}
       title={compact ? tip : undefined}
       aria-label={compact ? tip : undefined}
-      className={`flex items-center gap-3 rounded-xl hover:bg-[var(--hover)] text-sm text-left ${compact ? "w-10 h-10 mx-auto justify-center" : "w-full px-2.5 py-2"}`}
+      className={`flex items-center gap-3 rounded-xl hover:bg-[var(--hover)] text-sm text-left ${compact ? "w-full h-12 justify-center" : "w-full px-2.5 py-2"}`}
     >
       <span className="inline-flex items-center justify-center w-8 h-8 shrink-0">{icon}</span>
       {!compact && children}
@@ -237,7 +237,7 @@ export function SideNavAction({
       aria-expanded={toggle ? open : undefined}
       title={compact ? label : undefined}
       aria-label={compact ? label : undefined}
-      className={`flex items-center gap-3 rounded-xl text-sm text-left transition ${compact ? "w-10 h-10 justify-center mx-auto" : "w-full px-2.5 py-2"} ${
+      className={`flex items-center gap-3 rounded-xl text-sm text-left transition ${compact ? "w-full h-12 justify-center" : "w-full px-2.5 py-2"} ${
         open || active ? "bg-[var(--hover)]" : "hover:bg-[var(--hover)]"
       }`}
     >
@@ -260,7 +260,7 @@ export function SideNavAction({
       placement={placement}
       align={compact ? "start" : "stretch"}
       width={compact ? popoverWidth : undefined}
-      className={compact ? "flex justify-center" : "w-full"}
+      className="w-full"
       trigger={({ open, toggle }) => button(open, toggle)}
     >
       {children}
@@ -329,7 +329,7 @@ export function SideNavUser({
           aria-expanded={open}
           aria-haspopup="menu"
           title={compact ? name : undefined}
-          className={`flex items-center gap-2.5 rounded-xl text-left transition ${compact ? "w-10 h-10 mx-auto justify-center" : "w-full px-2.5 py-1.5"} ${
+          className={`flex items-center gap-2.5 rounded-xl text-left transition ${compact ? "w-full h-11 justify-center" : "w-full px-2.5 py-1.5"} ${
             open ? "bg-[var(--hover)]" : "hover:bg-[var(--hover)]"
           }`}
         >
