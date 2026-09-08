@@ -3,9 +3,10 @@
 //   primitives/  superficies y piezas básicas (Card, Pill, IconChip, Empty, Skeleton)
 //   controls/    botones y toggles (Button, IconButton, Segmented, Tabs, Switch, ChoiceToggle, PickCard)
 //   forms/       formularios (Field, Input, Textarea, Select, validación)
-//   overlays/    capas (Modal, Drawer, ConfirmDialog, HelpTip, Toast)
+//   overlays/    capas (Modal, Drawer, ConfirmDialog, HelpTip, Toast, Popover/Menu)
 //   data/        datos e indicadores (Stat, ProgressBar, Pagination)
-//   layout/      estructura de página (PageHeader, SectionTitle, Collapsible)
+//   layout/      estructura de página (PageHeader, SectionTitle, Collapsible, SideNav/SideNavUser, useTheme)
+//   tokens/      paleta fija de 15 colores × 10 tonos (palette, PALETTE)
 
 // primitives
 export { Card } from "./primitives/Card";
@@ -37,6 +38,7 @@ export { Drawer } from "./overlays/Drawer";
 export { ConfirmDialog } from "./overlays/ConfirmDialog";
 export { HelpTip } from "./overlays/HelpTip";
 export { ToastProvider, useToast } from "./overlays/Toast";
+export { Popover, Menu, type MenuItem } from "./overlays/Popover";
 
 // data
 export { Stat } from "./data/Stat";
@@ -48,5 +50,17 @@ export { Table } from "./data/Table";
 export { PageHeader } from "./layout/PageHeader";
 export { SectionTitle } from "./layout/SectionTitle";
 export { Collapsible } from "./layout/Collapsible";
-export { SideNav, SideNavButton } from "./layout/SideNav";
+export { SideNav, SideNavButton, SideNavUser, SideNavAction } from "./layout/SideNav";
+export { sideNavState, useSideNavState, useSideNavCompact, useIsMobile } from "./layout/sideNavState";
 export { useTheme, type Theme } from "./layout/theme";
+
+// tokens
+export {
+  palette,
+  paletteHex,
+  PALETTE,
+  PALETTE_NAMES,
+  PALETTE_SHADES,
+  type PaletteName,
+  type PaletteShade,
+} from "./tokens/palette";

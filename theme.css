@@ -1,4 +1,4 @@
-/* Design system compartido por MisFinanzas y Adje Store (librería AdjeUI).
+/* Design system compartido por las apps de Adje (librería AdjeUI).
    Cada app define su identidad en su globals.css (:root):
      --accent-pink, --accent-blue, --app-gradient, --blue-shadow,
      --scrollbar-thumb, --scrollbar-thumb-hover
@@ -25,6 +25,25 @@
   --control-h-sm: 32px;
   --control-h: 38px;
   --control-h-lg: 46px;
+
+  /* Paleta FIJA: 15 colores x 10 tonos (--c-<color>-<tono>). Generada desde
+     src/tokens/palette.ts; no editar a mano. Los tonos no cambian con el tema:
+     elige el tono adecuado (500-600 en claro, 300-400 en oscuro). */
+  --c-slate-50: #f8fafc; --c-slate-100: #f1f5f9; --c-slate-200: #e2e8f0; --c-slate-300: #cbd5e1; --c-slate-400: #94a3b8; --c-slate-500: #64748b; --c-slate-600: #475569; --c-slate-700: #334155; --c-slate-800: #1e293b; --c-slate-900: #0f172a;
+  --c-red-50: #fef2f2; --c-red-100: #fee2e2; --c-red-200: #fecaca; --c-red-300: #fca5a5; --c-red-400: #f87171; --c-red-500: #ef4444; --c-red-600: #dc2626; --c-red-700: #b91c1c; --c-red-800: #991b1b; --c-red-900: #7f1d1d;
+  --c-orange-50: #fff7ed; --c-orange-100: #ffedd5; --c-orange-200: #fed7aa; --c-orange-300: #fdba74; --c-orange-400: #fb923c; --c-orange-500: #f97316; --c-orange-600: #ea580c; --c-orange-700: #c2410c; --c-orange-800: #9a3412; --c-orange-900: #7c2d12;
+  --c-amber-50: #fffbeb; --c-amber-100: #fef3c7; --c-amber-200: #fde68a; --c-amber-300: #fcd34d; --c-amber-400: #fbbf24; --c-amber-500: #f59e0b; --c-amber-600: #d97706; --c-amber-700: #b45309; --c-amber-800: #92400e; --c-amber-900: #78350f;
+  --c-yellow-50: #fefce8; --c-yellow-100: #fef9c3; --c-yellow-200: #fef08a; --c-yellow-300: #fde047; --c-yellow-400: #facc15; --c-yellow-500: #eab308; --c-yellow-600: #ca8a04; --c-yellow-700: #a16207; --c-yellow-800: #854d0e; --c-yellow-900: #713f12;
+  --c-lime-50: #f7fee7; --c-lime-100: #ecfccb; --c-lime-200: #d9f99d; --c-lime-300: #bef264; --c-lime-400: #a3e635; --c-lime-500: #84cc16; --c-lime-600: #65a30d; --c-lime-700: #4d7c0f; --c-lime-800: #3f6212; --c-lime-900: #365314;
+  --c-green-50: #f0fdf4; --c-green-100: #dcfce7; --c-green-200: #bbf7d0; --c-green-300: #86efac; --c-green-400: #4ade80; --c-green-500: #22c55e; --c-green-600: #16a34a; --c-green-700: #15803d; --c-green-800: #166534; --c-green-900: #14532d;
+  --c-teal-50: #f0fdfa; --c-teal-100: #ccfbf1; --c-teal-200: #99f6e4; --c-teal-300: #5eead4; --c-teal-400: #2dd4bf; --c-teal-500: #14b8a6; --c-teal-600: #0d9488; --c-teal-700: #0f766e; --c-teal-800: #115e59; --c-teal-900: #134e4a;
+  --c-cyan-50: #ecfeff; --c-cyan-100: #cffafe; --c-cyan-200: #a5f3fc; --c-cyan-300: #67e8f9; --c-cyan-400: #22d3ee; --c-cyan-500: #06b6d4; --c-cyan-600: #0891b2; --c-cyan-700: #0e7490; --c-cyan-800: #155e75; --c-cyan-900: #164e63;
+  --c-blue-50: #eff6ff; --c-blue-100: #dbeafe; --c-blue-200: #bfdbfe; --c-blue-300: #93c5fd; --c-blue-400: #60a5fa; --c-blue-500: #3b82f6; --c-blue-600: #2563eb; --c-blue-700: #1d4ed8; --c-blue-800: #1e40af; --c-blue-900: #1e3a8a;
+  --c-indigo-50: #eef2ff; --c-indigo-100: #e0e7ff; --c-indigo-200: #c7d2fe; --c-indigo-300: #a5b4fc; --c-indigo-400: #818cf8; --c-indigo-500: #6366f1; --c-indigo-600: #4f46e5; --c-indigo-700: #4338ca; --c-indigo-800: #3730a3; --c-indigo-900: #312e81;
+  --c-violet-50: #f5f3ff; --c-violet-100: #ede9fe; --c-violet-200: #ddd6fe; --c-violet-300: #c4b5fd; --c-violet-400: #a78bfa; --c-violet-500: #8b5cf6; --c-violet-600: #7c3aed; --c-violet-700: #6d28d9; --c-violet-800: #5b21b6; --c-violet-900: #4c1d95;
+  --c-purple-50: #faf5ff; --c-purple-100: #f3e8ff; --c-purple-200: #e9d5ff; --c-purple-300: #d8b4fe; --c-purple-400: #c084fc; --c-purple-500: #a855f7; --c-purple-600: #9333ea; --c-purple-700: #7e22ce; --c-purple-800: #6b21a8; --c-purple-900: #581c87;
+  --c-pink-50: #fdf2f8; --c-pink-100: #fce7f3; --c-pink-200: #fbcfe8; --c-pink-300: #f9a8d4; --c-pink-400: #f472b6; --c-pink-500: #ec4899; --c-pink-600: #db2777; --c-pink-700: #be185d; --c-pink-800: #9d174d; --c-pink-900: #831843;
+  --c-rose-50: #fff1f2; --c-rose-100: #ffe4e6; --c-rose-200: #fecdd3; --c-rose-300: #fda4af; --c-rose-400: #fb7185; --c-rose-500: #f43f5e; --c-rose-600: #e11d48; --c-rose-700: #be123c; --c-rose-800: #9f1239; --c-rose-900: #881337;
 
   color-scheme: light dark;
 }
@@ -59,7 +78,7 @@ body {
 
 .principal {
   display: grid;
-  grid-template-columns: 232px 1fr;
+  grid-template-columns: auto 1fr; /* el ancho lo pone .sidenav (232px o 72px compacto) */
   grid-template-areas: "nav content";
   height: 100dvh;
   overflow: hidden;
@@ -245,17 +264,129 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   opacity: 1;
 }
 
-/* Debe coincidir con el breakpoint md de Tailwind (768px), que es donde la barra
-   lateral cambia a su versión horizontal. Por debajo: barra abajo (bottom bar). */
+/* El menú del SideNav no reserva hueco para la barra de scroll: si lo hiciera,
+   sus filas quedarían 7px a la izquierda del resto de zonas (top/bottom). */
+.sidenav-menu.custom-scrollbar {
+  scrollbar-gutter: auto;
+}
+
+/* SideNav en escritorio: rail completo o compacto (solo iconos). */
+@media (min-width: 768px) {
+  .sidenav {
+    width: 232px;
+    transition: width 0.2s ease-out;
+  }
+  .sidenav[data-collapsed] {
+    width: 72px;
+  }
+}
+
+/* Móvil (< md, 768px = breakpoint md de Tailwind): el SideNav se oculta a la
+   izquierda (off-canvas) y se abre con la hamburguesa del PageHeader. El
+   contenido ocupa todo el ancho. */
 @media (max-width: 767px) {
   body {
     overflow: auto;
   }
   .principal {
-    grid-template-areas:
-      "content"
-      "nav";
+    grid-template-areas: "content";
     grid-template-columns: 1fr;
-    grid-template-rows: 1fr auto;
+    grid-template-rows: 1fr;
   }
+  .sidenav {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: min(280px, 85vw);
+    height: 100dvh;
+    z-index: 60;
+    transform: translateX(-100%);
+    transition: transform 0.22s ease-out;
+    box-shadow: 0 0 40px -8px #0006;
+  }
+  .sidenav[data-open] {
+    transform: none;
+  }
+}
+.sidenav-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  background: #0006;
+  animation: drawer-fade 0.22s ease-out;
+}
+
+/* Texto enriquecido (adje-shared-ui/rich-text): mismo aspecto en el editor y
+   en el visor. Sin plugin typography: reglas mínimas y controladas. */
+.rich-text {
+  font-size: 15px;
+  line-height: 1.65;
+}
+.rich-text > * + * {
+  margin-top: 0.65em;
+}
+.rich-text p {
+  white-space: pre-wrap;
+}
+.rich-text h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-top: 1em;
+  letter-spacing: -0.01em;
+}
+.rich-text h3 {
+  font-size: 1.02rem;
+  font-weight: 600;
+  margin-top: 0.9em;
+}
+.rich-text ul,
+.rich-text ol {
+  padding-left: 1.4em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+}
+.rich-text ul {
+  list-style: disc;
+}
+.rich-text ol {
+  list-style: decimal;
+}
+.rich-text li > p {
+  margin: 0;
+}
+.rich-text a {
+  color: var(--accent-blue);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.rich-text blockquote {
+  border-left: 3px solid var(--border);
+  padding-left: 0.9em;
+  color: var(--muted);
+}
+.rich-text code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9em;
+  background: var(--hover);
+  border-radius: 4px;
+  padding: 0.05em 0.35em;
+}
+.rich-text hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+/* Editor: el área de escritura hereda la altura mínima del contenedor y el
+   placeholder se pinta sobre el primer párrafo vacío. */
+.rich-text-editor {
+  min-height: inherit;
+}
+.rich-text-editor p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--muted);
+  float: left;
+  height: 0;
+  pointer-events: none;
 }

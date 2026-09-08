@@ -17,6 +17,9 @@ export function useFieldInvalid(): boolean {
 // - `required` pinta un asterisco en la etiqueta.
 // - `error` muestra el mensaje en rojo bajo el control Y pone el borde del
 //   control en rojo (via contexto). Pasa el mensaje de useFormErrors.
+// - `as="div"` para controles que NO son un input nativo (editor de texto
+//   enriquecido, grupos de botones…): dentro de un <label>, el clic activaría
+//   el primer botón que contengan.
 export function Field({
   label,
   children,
@@ -24,6 +27,7 @@ export function Field({
   right,
   error,
   required,
+  as = "label",
 }: {
   label: string;
   children: ReactNode;
@@ -31,9 +35,11 @@ export function Field({
   right?: ReactNode;
   error?: string;
   required?: boolean;
+  as?: "label" | "div";
 }) {
+  const Tag = as;
   return (
-    <label className="flex flex-col gap-1 text-sm">
+    <Tag className="flex flex-col gap-1 text-sm">
       <span className="text-muted flex items-center gap-1.5">
         {label}
         {required && <span className="text-[var(--negative)] -ml-0.5">*</span>}
@@ -46,6 +52,6 @@ export function Field({
           <AlertCircle size={12} className="shrink-0" /> {error}
         </span>
       )}
-    </label>
+    </Tag>
   );
 }

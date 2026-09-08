@@ -15,12 +15,6 @@
   --scrollbar-thumb-hover: #5b66bd70;
 }
 
-/* La demo hace scroll de página normal (theme.css lo bloquea para las apps
-   con layout .principal). */
-body {
-  overflow: auto;
-}
-
 .text-muted {
   color: var(--muted);
 }

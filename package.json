@@ -2,12 +2,13 @@
   "name": "adje-shared-ui",
   "version": "2.0.0",
   "private": true,
-  "description": "AdjeUI: design system compartido por MisFinanzas y Adje Store. Componentes React organizados por categoría en src/, tema base en theme.css y demo en demo/.",
+  "description": "AdjeUI: design system compartido por las apps de Adje. Componentes React organizados por categoría en src/, tema base en theme.css y demo en demo/.",
   "exports": {
     ".": "./src/index.ts",
     "./ui": "./ui.tsx",
     "./toast": "./toast.tsx",
     "./PageHeader": "./PageHeader.tsx",
+    "./rich-text": "./rich-text.ts",
     "./theme.css": "./theme.css"
   },
   "scripts": {
@@ -18,14 +19,24 @@
   "peerDependencies": {
     "lucide-react": "^1.24.0",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "@tiptap/extension-placeholder": "^3.31.3",
+    "@tiptap/pm": "^3.31.3",
+    "@tiptap/react": "^3.31.3",
+    "@tiptap/starter-kit": "^3.31.3",
+    "dompurify": "^3.4.15"
   },
   "devDependencies": {
+    "@tiptap/extension-placeholder": "^3.31.3",
+    "@tiptap/pm": "^3.31.3",
+    "@tiptap/react": "^3.31.3",
+    "@tiptap/starter-kit": "^3.31.3",
     "@types/node": "^26.1.1",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
+    "dompurify": "^3.4.15",
     "lucide-react": "^1.24.0",
     "postcss": "^8",
     "react": "^18.3.1",
@@ -33,5 +44,22 @@
     "tailwindcss": "^3.4.13",
     "typescript": "^5",
     "vite": "^5.4.11"
+  },
+  "peerDependenciesMeta": {
+    "@tiptap/extension-placeholder": {
+      "optional": true
+    },
+    "@tiptap/pm": {
+      "optional": true
+    },
+    "@tiptap/react": {
+      "optional": true
+    },
+    "@tiptap/starter-kit": {
+      "optional": true
+    },
+    "dompurify": {
+      "optional": true
+    }
   }
 }

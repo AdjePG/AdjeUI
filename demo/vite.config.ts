@@ -5,5 +5,6 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   root: __dirname,
   plugins: [react()],
-  server: { port: 4400 },
+  // PORT permite arrancar en otro puerto (p. ej. dos previews a la vez).
+  server: { port: Number(process.env.PORT) || 4400 },
 });
