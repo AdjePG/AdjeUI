@@ -296,22 +296,21 @@ function TokensSection() {
           </div>
         </Block>
 
-        <Block name="Alturas de control: --control-h-sm 32 · --control-h 38 · --control-h-lg 46">
+        <Block name="Alturas de control: --control-h-sm 32 · --control-h 38 · --control-h-lg 46 (Button, Input y Select comparten talla)">
           <div className="flex items-end gap-3 flex-wrap">
             {(["sm", "md", "lg"] as const).map((s) => (
               <div key={s} className="flex flex-col items-center gap-1">
-                <Button size={s} variant="outline">
-                  {s}
-                </Button>
+                <div className="flex items-center gap-2">
+                  <div className="w-28">
+                    <Input size={s} placeholder={`Input ${s}`} />
+                  </div>
+                  <Button size={s} variant="outline">
+                    {s}
+                  </Button>
+                </div>
                 <span className="text-[11px] font-mono text-muted">{s === "md" ? "--control-h" : `--control-h-${s}`}</span>
               </div>
             ))}
-            <div className="flex flex-col items-center gap-1">
-              <div className="w-32">
-                <Input placeholder="Input" />
-              </div>
-              <span className="text-[11px] font-mono text-muted">--control-h</span>
-            </div>
           </div>
         </Block>
 
@@ -672,13 +671,19 @@ function FormsSection() {
             <code className="text-[11px] font-mono text-muted truncate flex-1">{rich || '""'}</code>
           </div>
         </Block>
-        <Block name="Alturas iguales: Input + fecha nativa + Select + Button">
-          <div className="flex items-center gap-2 w-full flex-wrap">
-            <div className="w-40"><Input placeholder="Texto" /></div>
-            <div className="w-40"><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></div>
-            <Select className="w-40" value="" onChange={() => {}} placeholder="Select…" options={[{ value: "x", label: "Opción" }]} />
-            <Button><Calendar size={14} /> Botón</Button>
+        <Block name="Tallas (size sm · md · lg): Input, fecha nativa, Select y Button miden lo mismo en cada talla">
+          <div className="flex flex-col gap-2 w-full">
+            {(["sm", "md", "lg"] as const).map((s) => (
+              <div key={s} className="flex items-center gap-2 w-full flex-wrap">
+                <span className="w-7 text-[11px] font-mono text-muted">{s}</span>
+                <div className="w-40"><Input size={s} placeholder="Texto" /></div>
+                <div className="w-40"><Input size={s} type="date" value={date} onChange={(e) => setDate(e.target.value)} /></div>
+                <Select size={s} className="w-40" value="" onChange={() => {}} placeholder="Select…" options={[{ value: "x", label: "Opción" }]} />
+                <Button size={s}><Calendar size={s === "lg" ? 16 : 14} /> Botón</Button>
+              </div>
+            ))}
           </div>
+          <p className="text-[12px] text-muted w-full">Regla: un Input y el Button de al lado llevan la MISMA talla. Nunca un botón más alto o más bajo que su input.</p>
         </Block>
         <Block name="Estados sueltos: Input invalid / disabled / inputCls en un elemento nativo">
           <div className="w-40"><Input invalid placeholder="invalid" /></div>

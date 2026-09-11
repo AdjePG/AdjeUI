@@ -39,7 +39,9 @@ de `adje-shared-ui` a secas.
 
 - **Tamaños concretos.** Todos los controles de línea (Button, Input —incluida
   la fecha nativa—, Select, Segmented) miden `--control-h` (38px; `sm` 32px,
-  `lg` 46px, definidos en `theme.css`). Nunca un botón más alto que un input.
+  `lg` 46px, definidos en `theme.css`). Button, Input y Select comparten la prop
+  `size` (sm/md/lg): un input y el botón de al lado llevan SIEMPRE la misma
+  talla. Nunca un botón más alto o más bajo que su input.
 - **Zona de acciones.** Modal y Drawer tienen prop `footer`: los botones de
   guardar/cancelar van ahí (barra propia, en el Drawer siempre visible), nunca
   sueltos en el contenido.

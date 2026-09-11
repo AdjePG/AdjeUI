@@ -3,10 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Check, ChevronDown } from "lucide-react";
 import { useFieldInvalid } from "./Field";
+import { INPUT_SIZES } from "./Input";
+import type { ControlSize } from "../controls/Button";
 
 // Select personalizado (mismo aspecto en todas las apps y sistemas). El
-// disparador mide --control-h, igual que Input y Button. Dentro de un
-// <Field error="…"> se pinta en rojo solo.
+// disparador mide --control-h-* según `size` (sm/md/lg), igual que Input y
+// Button. Dentro de un <Field error="…"> se pinta en rojo solo.
 export function Select({
   value,
   onChange,
@@ -14,6 +16,7 @@ export function Select({
   className = "",
   placeholder,
   invalid,
+  size = "md",
 }: {
   value: string;
   onChange: (v: string) => void;
@@ -21,6 +24,7 @@ export function Select({
   className?: string;
   placeholder?: string;
   invalid?: boolean;
+  size?: ControlSize;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -50,7 +54,7 @@ export function Select({
         type="button"
         aria-invalid={bad || undefined}
         onClick={() => setOpen((o) => !o)}
-        className={`flex w-full h-[var(--control-h)] items-center justify-between gap-2 rounded-xl border px-3 text-sm bg-[var(--background)] transition ${
+        className={`flex w-full items-center justify-between gap-2 border bg-[var(--background)] transition ${INPUT_SIZES[size]} ${
           bad
             ? "border-[var(--negative)]"
             : open

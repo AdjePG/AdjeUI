@@ -27,7 +27,7 @@ export { Toolbar, type ToolbarItem } from "./controls/Toolbar";
 
 // forms
 export { Field, useFieldInvalid } from "./forms/Field";
-export { Input, Textarea, inputCls } from "./forms/Input";
+export { Input, Textarea, inputCls, INPUT_SIZES } from "./forms/Input";
 export { Select } from "./forms/Select";
 export { ChipEditor } from "./forms/ChipEditor";
 export { useFormErrors, rules, type RuleResult } from "./forms/validation";
