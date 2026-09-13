@@ -503,6 +503,37 @@ function ControlsSection() {
             ]}
           />
         </Block>
+        <Block name="Segmented: tamaños sm / md / lg (la misma escala que Button, Input y Select)">
+          <Segmented
+            size="sm"
+            value={view}
+            onChange={setView}
+            options={[
+              { value: "grid", icon: <Grid3X3 size={14} />, title: "Cuadrícula" },
+              { value: "list", icon: <List size={14} />, title: "Lista" },
+            ]}
+          />
+          <Segmented
+            value={view}
+            onChange={setView}
+            options={[
+              { value: "grid", icon: <Grid3X3 size={15} />, title: "Cuadrícula" },
+              { value: "list", icon: <List size={15} />, title: "Lista" },
+            ]}
+          />
+          <Segmented
+            size="lg"
+            value={view}
+            onChange={setView}
+            options={[
+              { value: "grid", icon: <Grid3X3 size={16} />, title: "Cuadrícula" },
+              { value: "list", icon: <List size={16} />, title: "Lista" },
+            ]}
+          />
+          <Button size="sm">sm</Button>
+          <Button>md</Button>
+          <Button size="lg">lg</Button>
+        </Block>
         <Block name="Segmented y Tabs que no caben: flechas en los extremos, nunca una barra de desplazamiento">
           <Frame className="w-full max-w-sm p-3">
             <div className="flex flex-col gap-3">

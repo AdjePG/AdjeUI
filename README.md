@@ -40,10 +40,11 @@ de `adje-shared-ui` a secas.
 - **Tamaños concretos.** Todos los controles de línea (Button, Input —incluida
   la fecha nativa—, Select, Segmented) miden `--control-h` (38px; `sm` 32px,
   `lg` 46px, definidos en `theme.css`). Button, Input y Select comparten la prop
-  `size` (sm/md/lg): un input y el botón de al lado llevan SIEMPRE la misma
-  talla. Nunca un botón más alto o más bajo que su input.
+  `size` (sm/md/lg) con Segmented: un input y el botón de al lado llevan
+  SIEMPRE la misma talla. Nunca un botón más alto o más bajo que su input.
 - **Una sola escala de tamaños.** `Switch`, `Radio`, `Checkbox` y
-  `ChoiceOption` comparten `size` (sm/md/lg), igual que Button/Input/Select:
+  `ChoiceOption` comparten `size` (sm/md/lg), igual que
+  Button/Input/Select/Segmented:
   `sm` para filas densas y tablas, `md` por defecto, `lg` cuando el control
   manda en la pantalla.
 - **Nada de inputs nativos de elección.** `Radio` y `Checkbox` son marcas
