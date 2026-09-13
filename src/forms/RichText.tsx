@@ -36,14 +36,87 @@ import { useFieldInvalid } from "./Field";
 
 const ALLOWED_TAGS = ["p", "br", "strong", "em", "u", "s", "h2", "h3", "h4", "ul", "ol", "li", "a", "blockquote", "code", "pre", "hr"];
 
+// Protocolos que puede llevar un enlace. Fuera de aquí: javascript:, data:,
+// vbscript: y compañía.
+const URI_SEGURA = /^(?:https?:\/\/|mailto:|tel:|\/|#)/i;
+const PROTOCOLOS = ["http", "https", "mailto", "tel"];
+
+// Elementos que se van CON su contenido: no basta con quitar la etiqueta. Si
+// no aparece el cierre, se come hasta el final a propósito: fallar cerrando.
+const PELIGROSOS = /<(script|style|iframe|object|embed|template|noscript|svg|math)\b[\s\S]*?(?:<\/\1\s*>|$)/gi;
+
+// Marca interna para apartar las etiquetas buenas mientras se escapa el resto.
+// Usa caracteres de control que se eliminan de la entrada justo antes, así que
+// no pueden chocar nunca con el texto de quien escribe.
+const CONTROL = /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g;
+const FICHA = /\u0001(\d+)\u0002/g;
+
+function escaparTexto(t: string): string {
+  // El & solo se escapa si no forma ya una entidad, para no dejar "&amp;amp;".
+  return t.replace(/&(?!#?[a-zA-Z0-9]{1,8};)/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function escaparAtributo(t: string): string {
+  return escaparTexto(t).replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
+// Sanitizado SIN DOM (servidor). DOMPurify necesita un `window`: fuera del
+// navegador el paquete ni siquiera expone .sanitize, así que esto reventaba el
+// render en servidor. Y lo que hacen otras librerías —devolver el HTML tal
+// cual cuando no hay DOM— es justo el agujero que hay que evitar.
+//
+// La táctica va al revés de lo habitual: en vez de buscar lo malo, se apartan
+// las etiquetas PERMITIDAS y se escapa todo lo demás como texto. Así no
+// sobrevive ni un "<" suelto ni una etiqueta a medio cerrar que el navegador
+// pueda recomponer.
+function sanitizarSinDom(html: string): string {
+  let s = html.replace(CONTROL, "").replace(/<!--[\s\S]*?-->/g, "").replace(PELIGROSOS, "");
+
+  const fichas: string[] = [];
+  s = s.replace(/<\/?([a-zA-Z][a-zA-Z0-9]*)\b((?:"[^"]*"|'[^']*'|[^>"'])*)>/g, (todo, nombre: string, attrs: string) => {
+    const tag = nombre.toLowerCase();
+    if (!ALLOWED_TAGS.includes(tag)) return "";
+    let pieza: string;
+    if (todo.startsWith("</")) {
+      pieza = `</${tag}>`;
+    } else if (tag === "a") {
+      // De todos los atributos solo sobrevive href, y solo si el protocolo pasa.
+      const m = /\bhref\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i.exec(attrs);
+      const url = (m?.[1] ?? m?.[2] ?? m?.[3] ?? "").trim();
+      pieza = URI_SEGURA.test(url)
+        ? `<a href="${escaparAtributo(url)}" target="_blank" rel="noopener noreferrer">`
+        : "<a>";
+    } else {
+      pieza = `<${tag}>`;
+    }
+    fichas.push(pieza);
+    return `\u0001${fichas.length - 1}\u0002`;
+  });
+
+  s = escaparTexto(s);
+  return s.replace(FICHA, (_t, i: string) => fichas[Number(i)] ?? "");
+}
+
+// ¿Tenemos el DOMPurify de verdad? En el servidor el paquete exporta la
+// fábrica, no la instancia: `sanitize` no existe.
+function hayDomPurify(): boolean {
+  return typeof window !== "undefined" && typeof (DOMPurify as { sanitize?: unknown }).sanitize === "function";
+}
+
 // Lo que se pinta a terceros pasa SIEMPRE por aquí: quien escribe el HTML no
-// debe poder colar scripts a quien lo lee.
+// debe poder colar scripts a quien lo lee. Y lo que se PEGA en el editor pasa
+// por aquí antes de entrar, para que lo guardado ya nazca limpio.
 export function sanitizeRichText(html: string): string {
   if (!html) return "";
+  if (!hayDomPurify()) return sanitizarSinDom(html);
   return DOMPurify.sanitize(html, {
     ALLOWED_TAGS,
     ALLOWED_ATTR: ["href", "target", "rel"],
-    ALLOWED_URI_REGEXP: /^(?:https?:|mailto:|tel:)/i,
+    ALLOWED_URI_REGEXP: URI_SEGURA,
+    // Sin esto, <p onclick=…> perdería el atributo pero DOMPurify podría
+    // dejar pasar datos en atributos data-* de un pegado.
+    ALLOW_DATA_ATTR: false,
+    ALLOW_ARIA_ATTR: false,
   });
 }
 
@@ -138,7 +211,17 @@ function Toolbar({ editor }: { editor: Editor }) {
       editor.chain().focus().extendMarkRange("link").unsetLink().run();
       return;
     }
-    const limpia = /^(https?:\/\/|mailto:|tel:)/i.test(url.trim()) ? url.trim() : `https://${url.trim()}`;
+    const escrita = url.trim();
+    // Sin protocolo se asume https. Con un protocolo que no admitimos
+    // (javascript:, data:…) se rechaza y se dice por qué: antes se le pegaba
+    // "https://" delante y salía un enlace absurdo que no llevaba a ninguna
+    // parte, en vez de un aviso.
+    const tieneProtocolo = /^[a-z][a-z0-9+.-]*:/i.test(escrita);
+    const limpia = tieneProtocolo ? escrita : `https://${escrita}`;
+    if (!URI_SEGURA.test(limpia)) {
+      window.alert("Ese enlace no se puede usar. Solo se admiten direcciones http, https, mailto: y tel:.");
+      return;
+    }
     editor.chain().focus().extendMarkRange("link").setLink({ href: limpia, target: "_blank", rel: "noopener noreferrer" }).run();
   }
 
@@ -215,7 +298,15 @@ export function RichTextEditor({
     () => [
       StarterKit.configure({
         heading: { levels: [2, 3] },
-        link: { openOnClick: false, autolink: true, defaultProtocol: "https" },
+        link: {
+          openOnClick: false,
+          autolink: true,
+          defaultProtocol: "https",
+          // Barrera 1: un enlace con javascript:, data: o vbscript: no llega
+          // ni a existir como marca dentro del documento.
+          protocols: PROTOCOLOS,
+          isAllowedUri: (url, ctx) => ctx.defaultValidate(url) && URI_SEGURA.test(url),
+        },
         codeBlock: false,
       }),
       Placeholder.configure({ placeholder }),
@@ -231,9 +322,16 @@ export function RichTextEditor({
       content: value,
       editorProps: {
         attributes: { class: "rich-text rich-text-editor outline-none px-3 py-2.5" },
+        // Barrera 2: copiar de una web y pegar aquí es la vía más fácil de
+        // colar HTML raro. Se sanea ANTES de que ProseMirror lo interprete,
+        // así que lo que entra en el documento ya viene limpio.
+        transformPastedHTML: (html) => sanitizeRichText(html),
       },
       onUpdate({ editor }) {
-        const html = editor.isEmpty ? "" : editor.getHTML();
+        // Barrera 3: lo que sale hacia la app —y de ahí a la base de datos— va
+        // saneado. Así el contenido guardado ya nace limpio y no depende de
+        // que quien lo pinte se acuerde de sanear.
+        const html = editor.isEmpty ? "" : sanitizeRichText(editor.getHTML());
         lastEmitted.current = html;
         onChangeRef.current(html);
       },

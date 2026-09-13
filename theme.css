@@ -130,6 +130,19 @@ body {
   box-shadow: inset 0 0 5px 5px var(--scrollbar-thumb-hover);
 }
 
+/* Borde en degradado con esquinas redondeadas. No se puede con border-image
+   (se lleva mal con border-radius), así que van tres capas de fondo: el velo
+   de hover y el relleno recortados a padding-box, y el degradado a border-box
+   asomando justo por el grosor del borde, que se queda transparente.
+   Lo usan PickCard y ChoiceOption cuando están elegidos. */
+.borde-degradado {
+  border-color: transparent;
+  background-image: linear-gradient(var(--hover), var(--hover)), linear-gradient(var(--card), var(--card)),
+    var(--app-gradient);
+  background-origin: border-box;
+  background-clip: padding-box, padding-box, border-box;
+}
+
 /* Se desplaza pero no enseña barra: lo usa ScrollArrows, que pone dos flechas
    en los extremos en su lugar. */
 .sin-scrollbar {

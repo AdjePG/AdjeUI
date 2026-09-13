@@ -1,8 +1,7 @@
 "use client";
 
-import { ReactNode, useEffect, useRef, useState } from "react";
-import { Check } from "lucide-react";
-import { formatShortcut, useEsMac } from "./shortcuts";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 
 // Popover anclado a un disparador: se cierra con clic fuera o Escape. Sirve
 // para selectores (de sitio, de cuenta), campanitas y menús de usuario.
@@ -11,8 +10,12 @@ import { formatShortcut, useEsMac } from "./shortcuts";
 //     <Menu title="Cuenta" items={[…]} />
 //   </Popover>
 //
-// El panel se posiciona en absoluto respecto al disparador (ancho del
-// disparador por defecto), así que el contenedor no debe recortar (overflow).
+// El panel se pinta en <body> con un portal y posición fija calculada desde el
+// disparador (13 sep 2026; antes iba en absoluto dentro del árbol). Así NINGÚN
+// contenedor con overflow lo recorta —tablas con scroll horizontal, tarjetas,
+// paneles pegajosos—, que era el motivo de los menús cortados por la mitad.
+// Se recoloca al hacer scroll o cambiar el tamaño, y si no cabe por abajo se
+// abre hacia arriba (y al revés).
 export function Popover({
   trigger,
   children,
@@ -31,122 +34,91 @@ export function Popover({
   panelClassName?: string;
 }) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const anclaRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState<{ top: number; left: number; width?: number } | null>(null);
+
+  const colocar = useCallback(() => {
+    const ancla = anclaRef.current;
+    const panel = panelRef.current;
+    if (!ancla || !panel) return;
+    const r = ancla.getBoundingClientRect();
+    const alto = panel.offsetHeight;
+    const ancho = width ?? (align === "stretch" ? r.width : panel.offsetWidth);
+    const margen = 6;
+    const hueco = 8;
+
+    // Vertical: la preferida si cabe; si no, la otra; si tampoco, la que más espacio tenga.
+    const cabeAbajo = r.bottom + margen + alto <= window.innerHeight - hueco;
+    const cabeArriba = r.top - margen - alto >= hueco;
+    let abajo = placement === "bottom" ? cabeAbajo || !cabeArriba : !cabeArriba && cabeAbajo;
+    if (!cabeAbajo && !cabeArriba) abajo = window.innerHeight - r.bottom >= r.top;
+    let top = abajo ? r.bottom + margen : r.top - margen - alto;
+    top = Math.max(hueco, Math.min(top, window.innerHeight - hueco - alto));
+
+    // Horizontal: alineado al disparador y dentro de la ventana.
+    let left = align === "end" ? r.right - ancho : r.left;
+    left = Math.max(hueco, Math.min(left, window.innerWidth - hueco - ancho));
+
+    setPos({ top, left, width: width ?? (align === "stretch" ? r.width : undefined) });
+  }, [align, placement, width]);
+
+  useLayoutEffect(() => {
+    if (!open) {
+      setPos(null);
+      return;
+    }
+    colocar();
+  }, [open, colocar]);
 
   useEffect(() => {
     if (!open) return;
     function onDoc(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      const t = e.target as Node;
+      if (anclaRef.current?.contains(t) || panelRef.current?.contains(t)) return;
+      setOpen(false);
     }
     function onEsc(e: KeyboardEvent) {
       if (e.key === "Escape") setOpen(false);
     }
     document.addEventListener("mousedown", onDoc);
     document.addEventListener("keydown", onEsc);
+    // Scroll de cualquier contenedor (fase de captura) y cambios de tamaño.
+    document.addEventListener("scroll", colocar, true);
+    window.addEventListener("resize", colocar);
     return () => {
       document.removeEventListener("mousedown", onDoc);
       document.removeEventListener("keydown", onEsc);
+      document.removeEventListener("scroll", colocar, true);
+      window.removeEventListener("resize", colocar);
     };
-  }, [open]);
+  }, [open, colocar]);
 
   const close = () => setOpen(false);
   const toggle = () => setOpen((o) => !o);
 
-  const pos = placement === "top" ? "bottom-full mb-1.5" : "top-full mt-1.5";
-  const side =
-    width != null
-      ? align === "end"
-        ? "right-0"
-        : "left-0"
-      : align === "stretch"
-      ? "left-0 right-0"
-      : align === "end"
-      ? "right-0"
-      : "left-0";
-
   return (
-    <div ref={ref} className={`relative ${className}`}>
+    <div ref={anclaRef} className={`relative ${className}`}>
       {trigger({ open, toggle, close })}
-      {open && (
-        <div
-          role="dialog"
-          className={`absolute z-50 ${pos} ${side} card overflow-hidden blue-shadow toast-in ${panelClassName}`}
-          style={width != null ? { width } : undefined}
-        >
-          {typeof children === "function" ? children({ close }) : children}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ---------------- Menu ----------------
-
-export type MenuAction = {
-  key?: string;
-  label: ReactNode;
-  hint?: ReactNode; // texto secundario debajo de la etiqueta
-  icon?: ReactNode;
-  onClick?: () => void;
-  active?: boolean; // marcado con check (selección actual)
-  danger?: boolean; // en rojo (salir, eliminar)
-  disabled?: boolean;
-  // Combinación de teclas ("mod+d", "shift+delete"…). El menú la PINTA; para
-  // que funcione de verdad, engánchala con useShortcuts donde vivan las
-  // acciones — el menú cerrado no puede escuchar nada.
-  shortcut?: string;
-};
-
-// Línea divisoria: separa grupos de acciones dentro del mismo menú (lo de
-// siempre antes de un "Eliminar").
-export type MenuSeparator = { separator: true; key?: string };
-
-export type MenuItem = MenuAction | MenuSeparator;
-
-function esSeparador(it: MenuItem): it is MenuSeparator {
-  return (it as MenuSeparator).separator === true;
-}
-
-// Lista de acciones para dentro de un Popover (o suelta). `onPick` se llama
-// después del onClick del item: úsalo para cerrar el popover.
-export function Menu({ title, items, onPick }: { title?: ReactNode; items: MenuItem[]; onPick?: () => void }) {
-  const mac = useEsMac();
-  return (
-    <div className="p-1">
-      {title && (
-        <span className="block text-[9.5px] font-semibold uppercase tracking-widest text-muted px-2.5 pt-1.5 pb-1">{title}</span>
-      )}
-      {items.map((it, i) => {
-        if (esSeparador(it)) {
-          return <hr key={it.key ?? `sep-${i}`} className="my-1 border-0 border-t border-[var(--border)]" />;
-        }
-        return (
-          <button
-            key={it.key ?? i}
-            type="button"
-            disabled={it.disabled}
-            onClick={() => {
-              it.onClick?.();
-              onPick?.();
+      {open &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            ref={panelRef}
+            role="dialog"
+            className={`fixed z-[80] card overflow-hidden blue-shadow toast-in ${panelClassName}`}
+            style={{
+              top: pos?.top ?? 0,
+              left: pos?.left ?? 0,
+              width: pos?.width ?? width,
+              // Hasta medir, invisible: evita el parpadeo en la esquina.
+              visibility: pos ? "visible" : "hidden",
             }}
-            className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition disabled:opacity-40 disabled:cursor-not-allowed ${
-              it.active ? "bg-[var(--hover)]" : "hover:bg-[var(--hover)]"
-            } ${it.danger ? "text-[var(--negative)]" : ""}`}
           >
-            {it.icon && <span className={`inline-flex shrink-0 ${it.danger ? "" : "text-muted"}`}>{it.icon}</span>}
-            <span className="flex-1 min-w-0">
-              <span className="block truncate font-medium">{it.label}</span>
-              {it.hint && <span className="block text-[11px] text-muted truncate">{it.hint}</span>}
-            </span>
-            {it.shortcut && (
-              <kbd className="shrink-0 rounded border border-[var(--border)] px-1.5 py-0.5 font-sans text-[10.5px] leading-none text-muted">
-                {formatShortcut(it.shortcut, mac)}
-              </kbd>
-            )}
-            {it.active && <Check size={14} className="shrink-0 text-[var(--accent-blue)]" />}
-          </button>
-        );
-      })}
+            {typeof children === "function" ? children({ close }) : children}
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

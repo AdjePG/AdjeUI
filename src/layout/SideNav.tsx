@@ -26,7 +26,8 @@
 import { ElementType, ReactNode, useEffect } from "react";
 import { ChevronsLeft, ChevronsRight, ChevronsUpDown, X } from "lucide-react";
 import { sideNavState, useSideNavCompact, useSideNavState } from "./sideNavState";
-import { Popover, Menu, type MenuItem } from "../overlays/Popover";
+import { Popover } from "../overlays/Popover";
+import { Menu, type MenuItem } from "../overlays/Menu";
 
 // Cualquier componente que acepte href/className/children: "a", next/link…
 type LinkLike = ElementType;

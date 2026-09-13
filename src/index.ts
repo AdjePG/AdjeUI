@@ -3,7 +3,7 @@
 //   primitives/  superficies y piezas básicas (Card, Pill, IconChip, Empty, Skeleton)
 //   controls/    botones y toggles (Button, IconButton, Segmented, Tabs, Switch, Radio/Checkbox/ChoiceOption, ChoiceToggle, PickCard, ScrollArrows)
 //   forms/       formularios (Field, Input, Textarea, Select, validación)
-//   overlays/    capas (Modal, Drawer, ConfirmDialog, HelpTip, Toast, Popover/Menu)
+//   overlays/    capas (Modal, Drawer, ConfirmDialog, HelpTip, Toast, Popover, Menu, useShortcuts)
 //   data/        datos e indicadores (Stat, ProgressBar, Pagination)
 //   layout/      estructura de página (PageHeader, SectionTitle, Collapsible, SideNav/SideNavUser, useTheme)
 //   tokens/      paleta fija de 15 colores × 10 tonos (palette, PALETTE)
@@ -40,7 +40,8 @@ export { Drawer } from "./overlays/Drawer";
 export { ConfirmDialog } from "./overlays/ConfirmDialog";
 export { HelpTip } from "./overlays/HelpTip";
 export { ToastProvider, useToast } from "./overlays/Toast";
-export { Popover, Menu, type MenuItem, type MenuAction, type MenuSeparator } from "./overlays/Popover";
+export { Popover } from "./overlays/Popover";
+export { Menu, type MenuItem, type MenuAction, type MenuSeparator } from "./overlays/Menu";
 export {
   useShortcuts,
   formatShortcut,

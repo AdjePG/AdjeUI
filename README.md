@@ -14,7 +14,7 @@ Un componente por archivo, agrupado por categoría en `src/`:
 | `src/primitives` | Card, IconChip, Pill, Empty, Skeleton |
 | `src/controls` | Button, IconButton, Segmented, Tabs, Switch, Radio/Checkbox/ChoiceOption, ChoiceToggle, PickCard, Toolbar, ScrollArrows |
 | `src/forms` | Field, Input, Textarea, Select, ChipEditor, `useFormErrors` + `rules` (validación), `inputCls`; RichTextEditor/RichText (entrypoint aparte `adje-shared-ui/rich-text`) |
-| `src/overlays` | Modal, Drawer, ConfirmDialog, HelpTip, ToastProvider/useToast, Popover + Menu, useShortcuts |
+| `src/overlays` | Modal, Drawer, ConfirmDialog, HelpTip, ToastProvider/useToast, Popover, Menu, useShortcuts |
 | `src/data` | Stat, ProgressBar, Pagination, Table |
 | `src/layout` | PageHeader, SectionTitle, Collapsible, SideNav + SideNavBrand/SideNavAction/SideNavButton/SideNavUser, `useTheme` |
 | `src/tokens` | `palette(name, shade)`, `paletteHex`, `PALETTE` — paleta fija de 15 colores × 10 tonos |
@@ -56,6 +56,21 @@ de `adje-shared-ui` a secas.
   (`ScrollArrows`, reutilizable en cualquier fila horizontal). Las barras de
   desplazamiento se ven distintas en cada sistema y en Mac ni aparecen hasta
   que las tocas.
+- **El Popover se pinta en `<body>`.** Va con un portal y posición fija
+  calculada desde el disparador, así no lo recorta ningún contenedor con
+  overflow (tablas con scroll, tarjetas, paneles pegajosos) — era el motivo de
+  los menús cortados por la mitad. Si no cabe por abajo se abre hacia arriba.
+- **Lo elegido se marca con borde en degradado.** `PickCard` y `ChoiceOption`
+  usan la clase `.borde-degradado` de `theme.css` (tres capas de fondo, porque
+  `border-image` no se lleva con `border-radius`). El acento plano no se
+  distinguía del borde normal en tema oscuro.
+- **Texto enriquecido: tres barreras.** `RichTextEditor` no deja entrar HTML
+  peligroso (`transformPastedHTML` sanea lo pegado ANTES de interpretarlo), no
+  deja crear enlaces con protocolos raros (`isAllowedUri` + `protocols`) y
+  emite ya saneado, de modo que lo que se guarda nace limpio. `RichText` vuelve
+  a sanear al pintar. Y `sanitizeRichText` funciona SIN DOM (servidor), donde
+  DOMPurify no existe: en vez de devolver el HTML tal cual —el agujero
+  clásico— aparta las etiquetas permitidas y escapa todo lo demás.
 - **Menús con separadores y atajos.** Los items de `Menu` admiten
   `{ separator: true }` para agrupar (lo de siempre antes de un "Eliminar") y
   `shortcut: "mod+d"`, que se pinta como tecla. El menú solo lo PINTA: quien lo
