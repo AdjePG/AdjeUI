@@ -3,97 +3,117 @@
 import { ReactNode } from "react";
 import { Check } from "lucide-react";
 
-// Radio y checkbox del sistema. El input nativo con accent-color no se deja
-// dimensionar, ignora el tema y sale de un tamaño distinto en cada navegador.
-// Estos son CONTROLES VISUALES: el estado lo lleva quien los usa, y en una
-// lista de opciones lo que se pulsa es la fila entera, no el circulito.
+// ELEGIR, una sola familia (13 sep 2026). Antes había tres componentes para lo
+// mismo —PickCard, ChoiceToggle y ChoiceOption— cada uno con su aspecto: el
+// resultado es que en una misma app la opción elegida se marcaba de tres
+// maneras distintas. Ahora hay UNO, ChoiceOption, y los otros dos se retiran.
 //
-//   <Radio checked={…} />                     marca sola, en tu propia fila
-//   <Checkbox checked={…} />
-//   <ChoiceOption …>Texto</ChoiceOption>      fila completa, clicable entera
+// El lenguaje es el que mejor funcionaba (el de PickCard): borde en degradado
+// + tic. Y la FORMA de la marca dice cuántas puedes elegir:
+//   · redonda  → una sola (lo que antes era un radio)
+//   · cuadrada → varias a la vez (lo que antes era un checkbox)
 //
-// Los dos se rellenan con el degradado de la app al marcarse: la diferencia
-// es la forma (círculo o cuadrado) y lo que llevan dentro (punto o tic), que
-// es justo lo que distingue "elige una" de "elige las que quieras".
+// El radio ya no lleva punto central: encendido es un círculo relleno con un
+// tic, igual que el checkbox. Un punto y un tic significaban lo mismo con dos
+// dibujos distintos.
 //
-// Tamaños sm / md / lg, la misma escala que Switch.
+//   <ChoiceOption checked={a===1} onToggle={…}>Una sola</ChoiceOption>
+//   <ChoiceOption multiple checked={…} onToggle={…}>Varias</ChoiceOption>
+//   <ChoiceOption checked icon={<Car/>} marca={false}>Tarjeta (lo de PickCard)</ChoiceOption>
+//   <ChoiceOption checked tone="positive" align="center" icon={<Up/>}>Ingreso</ChoiceOption>
 
 const TAMANOS = {
-  sm: { caja: "h-4 w-4", radio: "rounded-[5px]", tic: 10, punto: "h-1.5 w-1.5" },
-  md: { caja: "h-[18px] w-[18px]", radio: "rounded-[6px]", tic: 12, punto: "h-[7px] w-[7px]" },
-  lg: { caja: "h-5 w-5", radio: "rounded-[7px]", tic: 13, punto: "h-2 w-2" },
+  sm: { marca: "h-4 w-4", cuadrada: "rounded-[5px]", tic: 10, fila: "px-2.5 py-2 text-[13px]", hueco: "gap-2" },
+  md: { marca: "h-[18px] w-[18px]", cuadrada: "rounded-[6px]", tic: 12, fila: "px-3 py-2.5 text-sm", hueco: "gap-3" },
+  lg: { marca: "h-5 w-5", cuadrada: "rounded-[7px]", tic: 13, fila: "px-3.5 py-3 text-[15px]", hueco: "gap-3" },
 } as const;
 
 export type ChoiceSize = keyof typeof TAMANOS;
+export type ChoiceTone = "accent" | "positive" | "negative";
 
-const BASE = "grid shrink-0 place-items-center border-2 transition";
-const APAGADO = "border-[var(--border)]";
-const ENCENDIDO = "border-transparent text-white";
-
-export function Radio({ checked, size = "md", className = "" }: { checked: boolean; size?: ChoiceSize; className?: string }) {
-  const t = TAMANOS[size];
-  return (
-    <span
-      aria-hidden
-      className={`${BASE} ${t.caja} rounded-full ${checked ? ENCENDIDO : APAGADO} ${className}`}
-      style={checked ? { background: "var(--app-gradient)" } : undefined}
-    >
-      {/* Punto blanco centrado y de tamaño fijo: con porcentajes bailaba según
-          el grosor del borde y se veía descentrado. */}
-      <span className={`rounded-full bg-white transition-transform ${t.punto} ${checked ? "scale-100" : "scale-0"}`} />
-    </span>
-  );
+function colorDe(tone: ChoiceTone): string | undefined {
+  return tone === "positive" ? "var(--positive)" : tone === "negative" ? "var(--negative)" : undefined;
 }
 
-export function Checkbox({ checked, size = "md", className = "" }: { checked: boolean; size?: ChoiceSize; className?: string }) {
+// La marca: redonda si eliges una, cuadrada si puedes elegir varias. Encendida
+// se rellena (con el degradado de la app, o con el color del tono) y enseña el
+// tic. Exportada suelta para cuando necesitas la marca sin la fila entera —
+// una tabla, una lista propia—, pero lo normal es usar ChoiceOption.
+export function ChoiceMark({
+  checked,
+  multiple = false,
+  size = "md",
+  tone = "accent",
+  className = "",
+}: {
+  checked: boolean;
+  multiple?: boolean;
+  size?: ChoiceSize;
+  tone?: ChoiceTone;
+  className?: string;
+}) {
   const t = TAMANOS[size];
+  const color = colorDe(tone);
   return (
     <span
       aria-hidden
-      className={`${BASE} ${t.caja} ${t.radio} ${checked ? ENCENDIDO : APAGADO} ${className}`}
-      style={checked ? { background: "var(--app-gradient)" } : undefined}
+      className={`grid shrink-0 place-items-center border-2 transition ${t.marca} ${
+        multiple ? t.cuadrada : "rounded-full"
+      } ${checked ? "border-transparent text-white" : "border-[var(--border)]"} ${className}`}
+      style={checked ? { background: color ?? "var(--app-gradient)" } : undefined}
     >
       <Check size={t.tic} strokeWidth={3.5} className={`transition-opacity ${checked ? "opacity-100" : "opacity-0"}`} />
     </span>
   );
 }
 
-// Fila completa de elección: toda la caja es el objetivo del clic, con el rol
-// accesible correcto (radio o checkbox según `multiple`). Elegida se marca con
-// borde en degradado, igual que PickCard — el acento plano no se distinguía
-// del borde normal en tema oscuro.
 export function ChoiceOption({
   checked,
   multiple = false,
   onToggle,
   disabled = false,
+  icon,
   prefix,
   children,
-  tone,
+  tone = "accent",
+  marca = true,
+  align = "start",
   size = "md",
   className = "",
 }: {
   checked: boolean;
-  /** true = casillas (varias a la vez); false = círculos (una sola). */
+  /** true = se pueden elegir varias (marca cuadrada); false = una sola (redonda). */
   multiple?: boolean;
   onToggle: () => void;
   disabled?: boolean;
-  /** Letra o número a la izquierda (A, B, C…). */
+  /** Icono a la izquierda, antes de la etiqueta. */
+  icon?: ReactNode;
+  /** Letra o número delante (A, B, C…), para quizzes. */
   prefix?: ReactNode;
   children: ReactNode;
-  /** Fuerza el color del borde, para señalar acierto o fallo al corregir. */
-  tone?: "ok" | "mal";
+  /** Color del borde y de la marca: el de la app, o semántico. */
+  tone?: ChoiceTone;
+  /** false = sin marca a la izquierda; el tic se va a la derecha (tarjeta). */
+  marca?: boolean;
+  /** center para rejillas de dos opciones. */
+  align?: "start" | "center";
   size?: ChoiceSize;
   className?: string;
 }) {
-  const marco =
-    tone === "ok"
-      ? "border-[var(--positive)] bg-[var(--positive)]/[0.07]"
-      : tone === "mal"
-        ? "border-[var(--negative)] bg-[var(--negative)]/[0.07]"
-        : checked
-          ? "borde-degradado"
-          : "border-[var(--border)] hover:bg-[var(--hover)]";
+  const t = TAMANOS[size];
+  const color = colorDe(tone);
+
+  // Elegida: borde en degradado (o del color del tono). Apagada: borde normal.
+  const marco = checked
+    ? color
+      ? "border-transparent"
+      : "borde-degradado"
+    : "border-[var(--border)] hover:bg-[var(--hover)]";
+
+  const estiloTono =
+    checked && color
+      ? { borderColor: color, background: `color-mix(in srgb, ${color} 12%, transparent)`, color }
+      : undefined;
 
   return (
     <button
@@ -102,13 +122,18 @@ export function ChoiceOption({
       aria-checked={checked}
       disabled={disabled}
       onClick={onToggle}
-      className={`flex w-full items-center gap-3 rounded-xl border-2 px-3 py-2.5 text-left text-sm transition ${marco} ${
-        disabled ? "cursor-default" : "cursor-pointer"
-      } ${checked ? "font-medium" : ""} ${className}`}
+      style={estiloTono}
+      className={`flex w-full items-center rounded-xl border-2 text-left transition ${t.fila} ${t.hueco} ${marco} ${
+        align === "center" ? "justify-center" : ""
+      } ${disabled ? "cursor-default opacity-50" : "cursor-pointer"} ${checked ? "font-semibold" : ""} ${className}`}
     >
-      {multiple ? <Checkbox checked={checked} size={size} /> : <Radio checked={checked} size={size} />}
+      {marca && <ChoiceMark checked={checked} multiple={multiple} size={size} tone={tone} />}
+      {icon && <span className="inline-flex shrink-0">{icon}</span>}
       {prefix != null && <span className="w-4 shrink-0 font-mono text-[11px] text-muted">{prefix}</span>}
-      <span className="min-w-0 flex-1">{children}</span>
+      <span className={`min-w-0 ${align === "center" ? "" : "flex-1"}`}>{children}</span>
+      {/* Sin marca a la izquierda, el tic se enseña aquí: así siempre hay UNA
+          señal de "elegido", nunca dos ni ninguna. */}
+      {!marca && checked && <Check size={15} className="ml-auto shrink-0" style={{ color: color ?? "var(--accent-blue)" }} />}
     </button>
   );
 }

@@ -1,7 +1,7 @@
 // AdjeUI — barrel principal. Un componente por archivo, organizado por
 // categoría:
 //   primitives/  superficies y piezas básicas (Card, Pill, IconChip, Empty, Skeleton)
-//   controls/    botones y toggles (Button, IconButton, Segmented, Tabs, Switch, Radio/Checkbox/ChoiceOption, ChoiceToggle, PickCard, ScrollArrows)
+//   controls/    botones y toggles (Button, IconButton, Segmented, Tabs, Switch, ChoiceOption, ScrollArrows)
 //   forms/       formularios (Field, Input, Textarea, Select, validación)
 //   overlays/    capas (Modal, Drawer, ConfirmDialog, HelpTip, Toast, Popover, Menu, useShortcuts)
 //   data/        datos e indicadores (Stat, ProgressBar, Pagination)
@@ -21,10 +21,8 @@ export { IconButton } from "./controls/IconButton";
 export { Segmented } from "./controls/Segmented";
 export { Tabs } from "./controls/Tabs";
 export { Switch, type SwitchSize } from "./controls/Switch";
-export { Radio, Checkbox, ChoiceOption, type ChoiceSize } from "./controls/Choice";
+export { ChoiceOption, ChoiceMark, type ChoiceSize, type ChoiceTone } from "./controls/Choice";
 export { ScrollArrows } from "./controls/ScrollArrows";
-export { ChoiceToggle } from "./controls/ChoiceToggle";
-export { PickCard } from "./controls/PickCard";
 export { Toolbar, type ToolbarItem } from "./controls/Toolbar";
 
 // forms

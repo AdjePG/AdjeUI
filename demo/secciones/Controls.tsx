@@ -41,7 +41,6 @@ import {
   Button,
   Card,
   ChipEditor,
-  ChoiceToggle,
   Collapsible,
   ConfirmDialog,
   Drawer,
@@ -57,7 +56,6 @@ import {
   PALETTE_SHADES,
   PageHeader,
   Pagination,
-  PickCard,
   Pill,
   ProgressBar,
   SectionTitle,
@@ -68,9 +66,8 @@ import {
   Skeleton,
   Stat,
   Switch,
-  Radio,
-  Checkbox,
   ChoiceOption,
+  ChoiceMark,
   ScrollArrows,
   useShortcuts,
   Table,
@@ -265,28 +262,13 @@ export function ControlsSection() {
           <Switch size="lg" checked={on} onChange={setOn} label="Grande" />
           <span className="text-[12px] text-muted">sm para filas densas · md por defecto · lg cuando manda en la pantalla</span>
         </Block>
-        <Block name="Radio y Checkbox (marcas sueltas; el estado lo llevas tú)">
-          <span className="inline-flex items-center gap-2 text-sm">
-            <Radio checked={on} size="sm" /> sm
-          </span>
-          <span className="inline-flex items-center gap-2 text-sm">
-            <Radio checked={on} /> md
-          </span>
-          <span className="inline-flex items-center gap-2 text-sm">
-            <Radio checked={on} size="lg" /> lg
-          </span>
-          <span className="mx-2 h-4 w-px bg-[var(--border)]" />
-          <span className="inline-flex items-center gap-2 text-sm">
-            <Checkbox checked={on} size="sm" /> sm
-          </span>
-          <span className="inline-flex items-center gap-2 text-sm">
-            <Checkbox checked={on} /> md
-          </span>
-          <span className="inline-flex items-center gap-2 text-sm">
-            <Checkbox checked={on} size="lg" /> lg
+        <Block name="ChoiceOption: el ÚNICO componente para elegir (sustituye a PickCard y ChoiceToggle)">
+          <span className="text-[12px] text-muted">
+            La forma de la marca dice cuántas puedes elegir: redonda = una sola, cuadrada = varias. Elegida se marca
+            con borde en degradado y tic — y el tic sale una sola vez, nunca dos.
           </span>
         </Block>
-        <Block name="ChoiceOption (fila entera clicable: una sola o varias)">
+        <Block name="Una sola (marca redonda) · varias (marca cuadrada)">
           <div className="flex w-full flex-col gap-4 sm:flex-row">
             <div className="flex flex-1 flex-col gap-1.5" role="radiogroup">
               {["Barcelona", "Girona", "Lleida"].map((c, i) => (
@@ -308,24 +290,80 @@ export function ControlsSection() {
               ))}
             </div>
           </div>
-          <span className="text-[12px] text-muted">tone=&quot;ok&quot; / &quot;mal&quot; para señalar acierto o fallo al corregir.</span>
         </Block>
-        <Block name="ChoiceToggle (2 opciones con tono; admite icon)">
-          <div className="w-72">
-            <ChoiceToggle
-              value={tone}
-              onChange={setTone}
-              options={[
-                { value: "in", label: "Ingreso", tone: "positive", icon: <TrendingUp size={16} /> },
-                { value: "out", label: "Gasto", tone: "negative", icon: <TrendingDown size={16} /> },
-              ]}
-            />
+        <Block name="marca={false}: tarjeta con icono y tic a la derecha (era PickCard)">
+          <div className="grid w-full gap-2 sm:grid-cols-3">
+            <ChoiceOption marca={false} checked={pick === "a"} onToggle={() => setPick("a")} icon={<Sparkles size={15} />}>
+              Kharismatics
+            </ChoiceOption>
+            <ChoiceOption marca={false} checked={pick === "b"} onToggle={() => setPick("b")} icon={<Package size={15} />}>
+              Vehículos
+            </ChoiceOption>
+            <ChoiceOption marca={false} checked={pick === "c"} onToggle={() => setPick("c")}>
+              Sin icono
+            </ChoiceOption>
           </div>
         </Block>
-        <Block name="PickCard (seleccionable, con y sin icono)">
-          <PickCard selected={pick === "a"} onClick={() => setPick("a")} icon={<Sparkles size={15} />} label="Kharismatics" />
-          <PickCard selected={pick === "b"} onClick={() => setPick("b")} icon={<Package size={15} />} label="Vehículos" />
-          <PickCard selected={pick === "c"} onClick={() => setPick("c")} label="Sin icono" />
+        <Block name="tone + align=center: dos opciones con color semántico (era ChoiceToggle)">
+          <div className="grid w-72 grid-cols-2 gap-2">
+            <ChoiceOption
+              marca={false}
+              align="center"
+              tone="positive"
+              checked={tone === "in"}
+              onToggle={() => setTone("in")}
+              icon={<TrendingUp size={16} />}
+            >
+              Ingreso
+            </ChoiceOption>
+            <ChoiceOption
+              marca={false}
+              align="center"
+              tone="negative"
+              checked={tone === "out"}
+              onToggle={() => setTone("out")}
+              icon={<TrendingDown size={16} />}
+            >
+              Gasto
+            </ChoiceOption>
+          </div>
+        </Block>
+        <Block name="Tamaños sm / md / lg y deshabilitada">
+          <div className="flex w-full flex-col gap-2 sm:w-80">
+            <ChoiceOption size="sm" checked={on} onToggle={() => setOn(!on)}>
+              Pequeña
+            </ChoiceOption>
+            <ChoiceOption checked={on} onToggle={() => setOn(!on)}>
+              Mediana
+            </ChoiceOption>
+            <ChoiceOption size="lg" checked={on} onToggle={() => setOn(!on)}>
+              Grande
+            </ChoiceOption>
+            <ChoiceOption checked={false} disabled onToggle={() => {}}>
+              Deshabilitada
+            </ChoiceOption>
+          </div>
+        </Block>
+        <Block name="ChoiceMark: la marca suelta, para listas y tablas propias">
+          <span className="inline-flex items-center gap-2 text-sm">
+            <ChoiceMark checked={on} size="sm" /> sm
+          </span>
+          <span className="inline-flex items-center gap-2 text-sm">
+            <ChoiceMark checked={on} /> md
+          </span>
+          <span className="inline-flex items-center gap-2 text-sm">
+            <ChoiceMark checked={on} size="lg" /> lg
+          </span>
+          <span className="mx-2 h-4 w-px bg-[var(--border)]" />
+          <span className="inline-flex items-center gap-2 text-sm">
+            <ChoiceMark multiple checked={on} size="sm" /> sm
+          </span>
+          <span className="inline-flex items-center gap-2 text-sm">
+            <ChoiceMark multiple checked={on} /> md
+          </span>
+          <span className="inline-flex items-center gap-2 text-sm">
+            <ChoiceMark multiple checked={on} size="lg" /> lg
+          </span>
         </Block>
       </Card>
     </Section>

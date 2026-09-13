@@ -12,7 +12,7 @@ Un componente por archivo, agrupado por categoría en `src/`:
 | Carpeta | Componentes |
 |---|---|
 | `src/primitives` | Card, IconChip, Pill, Empty, Skeleton |
-| `src/controls` | Button, IconButton, Segmented, Tabs, Switch, Radio/Checkbox/ChoiceOption, ChoiceToggle, PickCard, Toolbar, ScrollArrows |
+| `src/controls` | Button, IconButton, Segmented, Tabs, Switch, ChoiceOption/ChoiceMark, Toolbar, ScrollArrows |
 | `src/forms` | Field, Input, Textarea, Select, ChipEditor, `useFormErrors` + `rules` (validación), `inputCls`; RichTextEditor/RichText (entrypoint aparte `adje-shared-ui/rich-text`) |
 | `src/overlays` | Modal, Drawer, ConfirmDialog, HelpTip, ToastProvider/useToast, Popover, Menu, useShortcuts |
 | `src/data` | Stat, ProgressBar, Pagination, Table |
@@ -47,10 +47,25 @@ de `adje-shared-ui` a secas.
   Button/Input/Select/Segmented:
   `sm` para filas densas y tablas, `md` por defecto, `lg` cuando el control
   manda en la pantalla.
-- **Nada de inputs nativos de elección.** `Radio` y `Checkbox` son marcas
-  propias: el nativo con `accent-color` no se deja dimensionar ni respeta el
-  tema. En una lista de opciones se pulsa la fila entera (`ChoiceOption`), no
-  el circulito.
+- **Para elegir, UN componente: `ChoiceOption`.** Antes había tres para lo
+  mismo (PickCard, ChoiceToggle y ChoiceOption) y la opción elegida se marcaba
+  de tres maneras distintas en la misma app. Los otros dos se retiraron en la
+  3.0.0. Se pulsa la fila entera, no el circulito: el input nativo con
+  `accent-color` ni se deja dimensionar ni respeta el tema.
+  - La FORMA de la marca dice cuántas puedes elegir: **redonda** una sola,
+    **cuadrada** varias. El radio no lleva punto central — encendido es un
+    círculo relleno con un tic, igual que el checkbox: un punto y un tic
+    significaban lo mismo con dos dibujos distintos.
+  - Elegida = **borde en degradado + tic**, y el tic sale UNA vez: dentro de la
+    marca, o a la derecha si vas sin marca (`marca={false}`, la antigua
+    PickCard).
+  - `tone="positive" | "negative"` + `align="center"` cubre el toggle de dos
+    opciones con color semántico (la antigua ChoiceToggle).
+  - `ChoiceMark` es la marca suelta, para listas y tablas propias.
+- **El Switch es para encendido/apagado**, no para elegir. Va a la par de la
+  marca de `ChoiceOption` en las tres tallas: antes un `md` medía 24px contra
+  los 18px de la marca de al lado y parecía el elemento principal de la fila
+  sin serlo.
 - **Si no cabe, flechas — nunca una barra.** `Tabs` y `Segmented` sacan dos
   flechas en los extremos cuando su contenido desborda el contenedor
   (`ScrollArrows`, reutilizable en cualquier fila horizontal). Las barras de
