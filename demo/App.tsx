@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   BarChart3,
   Bell,
@@ -68,6 +68,11 @@ import {
   Skeleton,
   Stat,
   Switch,
+  Radio,
+  Checkbox,
+  ChoiceOption,
+  ScrollArrows,
+  useShortcuts,
   Table,
   Tabs,
   Textarea,
@@ -217,6 +222,42 @@ function Section({ id, title, subtitle, children }: { id: string; title: string;
       </div>
       {children}
     </section>
+  );
+}
+
+// Menú con líneas divisorias y combinaciones de teclas. El menú solo PINTA el
+// atajo; quien lo hace funcionar es useShortcuts, aquí arriba — por eso los
+// atajos van aunque el menú esté cerrado (pruébalo sin abrirlo).
+function BlockMenuAtajos() {
+  const { toast } = useToast();
+  const items = useMemo(
+    () => [
+      { label: "Editar", icon: <Pencil size={15} />, shortcut: "mod+e", onClick: () => toast("Editar", "info") },
+      { label: "Duplicar", icon: <Copy size={15} />, shortcut: "mod+d", onClick: () => toast("Duplicar", "info") },
+      { separator: true as const },
+      { label: "Filtrar", icon: <Filter size={15} />, onClick: () => toast("Filtrar", "info") },
+      { separator: true as const },
+      { label: "Eliminar", icon: <Trash2 size={15} />, danger: true, shortcut: "mod+shift+backspace", onClick: () => toast("Eliminar", "warning") },
+    ],
+    [toast],
+  );
+  useShortcuts(items);
+
+  return (
+    <Block name="Menu: separadores + atajos de teclado (useShortcuts los engancha, aunque el menú esté cerrado)">
+      <Popover
+        align="start"
+        width={260}
+        trigger={({ open, toggle }) => (
+          <Button variant="outline" onClick={toggle} className={open ? "!bg-[var(--hover)]" : ""}>
+            <Settings size={14} /> Con atajos <ChevronsUpDown size={13} />
+          </Button>
+        )}
+      >
+        {({ close }) => <Menu title="Acciones" onPick={close} items={items} />}
+      </Popover>
+      <span className="text-[12px] text-muted">Prueba Ctrl/⌘+E o Ctrl/⌘+D sin abrir el menú.</span>
+    </Block>
   );
 }
 
@@ -408,6 +449,8 @@ function ControlsSection() {
   const [view, setView] = useState("grid");
   const [tab, setTab] = useState("a");
   const [on, setOn] = useState(true);
+  const [unaSola, setUnaSola] = useState(0);
+  const [varias, setVarias] = useState<number[]>([0]);
   const [tone, setTone] = useState<"in" | "out">("in");
   const [pick, setPick] = useState("a");
   const [year, setYear] = useState("2026");
@@ -460,6 +503,36 @@ function ControlsSection() {
             ]}
           />
         </Block>
+        <Block name="Segmented y Tabs que no caben: flechas en los extremos, nunca una barra de desplazamiento">
+          <Frame className="w-full max-w-sm p-3">
+            <div className="flex flex-col gap-3">
+              <Segmented
+                value={seg}
+                onChange={setSeg}
+                options={[
+                  { value: "todos", label: "Todos" },
+                  { value: "ideas", label: "Ideas" },
+                  { value: "pub", label: "Publicados" },
+                  { value: "borradores", label: "Borradores" },
+                  { value: "archivados", label: "Archivados" },
+                  { value: "papelera", label: "Papelera" },
+                ]}
+              />
+              <Tabs
+                value={tab}
+                onChange={setTab}
+                options={[
+                  { value: "a", label: "Resumen" },
+                  { value: "b", label: "Movimientos" },
+                  { value: "c", label: "Presupuestos" },
+                  { value: "d", label: "Categorías" },
+                  { value: "e", label: "Informes" },
+                ]}
+              />
+            </div>
+          </Frame>
+          <span className="text-[12px] text-muted">Estrecha la ventana: las flechas aparecen y desaparecen solas según haga falta.</span>
+        </Block>
         <Block name="Tabs (subrayado degradado; para subpáginas)">
           <Tabs
             value={tab}
@@ -507,6 +580,57 @@ function ControlsSection() {
           <span className="text-sm">{on ? "Activado" : "Desactivado"}</span>
           <Switch checked={true} onChange={() => {}} disabled label="Deshabilitado" />
           <Switch checked={false} onChange={() => {}} disabled label="Deshabilitado" />
+        </Block>
+        <Block name="Switch: tamaños sm / md / lg">
+          <Switch size="sm" checked={on} onChange={setOn} label="Pequeño" />
+          <Switch size="md" checked={on} onChange={setOn} label="Mediano" />
+          <Switch size="lg" checked={on} onChange={setOn} label="Grande" />
+          <span className="text-[12px] text-muted">sm para filas densas · md por defecto · lg cuando manda en la pantalla</span>
+        </Block>
+        <Block name="Radio y Checkbox (marcas sueltas; el estado lo llevas tú)">
+          <span className="inline-flex items-center gap-2 text-sm">
+            <Radio checked={on} size="sm" /> sm
+          </span>
+          <span className="inline-flex items-center gap-2 text-sm">
+            <Radio checked={on} /> md
+          </span>
+          <span className="inline-flex items-center gap-2 text-sm">
+            <Radio checked={on} size="lg" /> lg
+          </span>
+          <span className="mx-2 h-4 w-px bg-[var(--border)]" />
+          <span className="inline-flex items-center gap-2 text-sm">
+            <Checkbox checked={on} size="sm" /> sm
+          </span>
+          <span className="inline-flex items-center gap-2 text-sm">
+            <Checkbox checked={on} /> md
+          </span>
+          <span className="inline-flex items-center gap-2 text-sm">
+            <Checkbox checked={on} size="lg" /> lg
+          </span>
+        </Block>
+        <Block name="ChoiceOption (fila entera clicable: una sola o varias)">
+          <div className="flex w-full flex-col gap-4 sm:flex-row">
+            <div className="flex flex-1 flex-col gap-1.5" role="radiogroup">
+              {["Barcelona", "Girona", "Lleida"].map((c, i) => (
+                <ChoiceOption key={c} checked={unaSola === i} prefix={String.fromCharCode(65 + i)} onToggle={() => setUnaSola(i)}>
+                  {c}
+                </ChoiceOption>
+              ))}
+            </div>
+            <div className="flex flex-1 flex-col gap-1.5">
+              {["Correo", "SMS", "Push"].map((c, i) => (
+                <ChoiceOption
+                  key={c}
+                  multiple
+                  checked={varias.includes(i)}
+                  onToggle={() => setVarias((v) => (v.includes(i) ? v.filter((x) => x !== i) : [...v, i]))}
+                >
+                  {c}
+                </ChoiceOption>
+              ))}
+            </div>
+          </div>
+          <span className="text-[12px] text-muted">tone=&quot;ok&quot; / &quot;mal&quot; para señalar acierto o fallo al corregir.</span>
         </Block>
         <Block name="ChoiceToggle (2 opciones con tono; admite icon)">
           <div className="w-72">
@@ -791,6 +915,7 @@ function OverlaysSection() {
             </div>
           </Popover>
         </Block>
+        <BlockMenuAtajos />
         <Block name="HelpTip (hover/focus, formato con p/ul/b, nunca se sale de pantalla)">
           <span className="text-sm text-muted inline-flex items-center gap-1">
             Ayuda contextual <HelpTip label="HelpTip"><p>Un tooltip con <b>formato</b>.</p><ul><li>Solo hover</li><li>Nunca se sale de pantalla</li></ul></HelpTip>

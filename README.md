@@ -12,9 +12,9 @@ Un componente por archivo, agrupado por categoría en `src/`:
 | Carpeta | Componentes |
 |---|---|
 | `src/primitives` | Card, IconChip, Pill, Empty, Skeleton |
-| `src/controls` | Button, IconButton, Segmented, Tabs, Switch, ChoiceToggle, PickCard, Toolbar |
+| `src/controls` | Button, IconButton, Segmented, Tabs, Switch, Radio/Checkbox/ChoiceOption, ChoiceToggle, PickCard, Toolbar, ScrollArrows |
 | `src/forms` | Field, Input, Textarea, Select, ChipEditor, `useFormErrors` + `rules` (validación), `inputCls`; RichTextEditor/RichText (entrypoint aparte `adje-shared-ui/rich-text`) |
-| `src/overlays` | Modal, Drawer, ConfirmDialog, HelpTip, ToastProvider/useToast, Popover + Menu |
+| `src/overlays` | Modal, Drawer, ConfirmDialog, HelpTip, ToastProvider/useToast, Popover + Menu, useShortcuts |
 | `src/data` | Stat, ProgressBar, Pagination, Table |
 | `src/layout` | PageHeader, SectionTitle, Collapsible, SideNav + SideNavBrand/SideNavAction/SideNavButton/SideNavUser, `useTheme` |
 | `src/tokens` | `palette(name, shade)`, `paletteHex`, `PALETTE` — paleta fija de 15 colores × 10 tonos |
@@ -42,6 +42,24 @@ de `adje-shared-ui` a secas.
   `lg` 46px, definidos en `theme.css`). Button, Input y Select comparten la prop
   `size` (sm/md/lg): un input y el botón de al lado llevan SIEMPRE la misma
   talla. Nunca un botón más alto o más bajo que su input.
+- **Una sola escala de tamaños.** `Switch`, `Radio`, `Checkbox` y
+  `ChoiceOption` comparten `size` (sm/md/lg), igual que Button/Input/Select:
+  `sm` para filas densas y tablas, `md` por defecto, `lg` cuando el control
+  manda en la pantalla.
+- **Nada de inputs nativos de elección.** `Radio` y `Checkbox` son marcas
+  propias: el nativo con `accent-color` no se deja dimensionar ni respeta el
+  tema. En una lista de opciones se pulsa la fila entera (`ChoiceOption`), no
+  el circulito.
+- **Si no cabe, flechas — nunca una barra.** `Tabs` y `Segmented` sacan dos
+  flechas en los extremos cuando su contenido desborda el contenedor
+  (`ScrollArrows`, reutilizable en cualquier fila horizontal). Las barras de
+  desplazamiento se ven distintas en cada sistema y en Mac ni aparecen hasta
+  que las tocas.
+- **Menús con separadores y atajos.** Los items de `Menu` admiten
+  `{ separator: true }` para agrupar (lo de siempre antes de un "Eliminar") y
+  `shortcut: "mod+d"`, que se pinta como tecla. El menú solo lo PINTA: quien lo
+  hace funcionar es `useShortcuts(items)`, que se llama donde viven las
+  acciones — así el atajo va con el menú cerrado, que es de lo que se trata.
 - **Zona de acciones.** Modal y Drawer tienen prop `footer`: los botones de
   guardar/cancelar van ahí (barra propia, en el Drawer siempre visible), nunca
   sueltos en el contenido.
