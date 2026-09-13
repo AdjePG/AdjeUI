@@ -43,9 +43,13 @@ export function Switch({
       disabled={disabled}
       onClick={() => onChange(!checked)}
       className={`relative inline-flex shrink-0 items-center rounded-full border-2 transition disabled:cursor-not-allowed disabled:opacity-40 ${t.pista}`}
+      // backgroundOrigin border-box: el borde de 2px es transparente y el
+      // degradado se pinta por debajo, pero por defecto se DIMENSIONA al
+      // padding-box y esos 2px repiten el color del extremo — se veía un
+      // recuadro cortado dentro de la pista. Mismo motivo que en ChoiceMark.
       style={
         checked
-          ? { background: "var(--app-gradient)", borderColor: "transparent" }
+          ? { backgroundImage: "var(--app-gradient)", backgroundOrigin: "border-box", borderColor: "transparent" }
           : { background: "transparent", borderColor: "var(--border)" }
       }
     >

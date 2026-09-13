@@ -60,7 +60,16 @@ export function ChoiceMark({
       className={`grid shrink-0 place-items-center border-2 transition ${t.marca} ${
         multiple ? t.cuadrada : "rounded-full"
       } ${checked ? "border-transparent text-white" : "border-[var(--border)]"} ${className}`}
-      style={checked ? { background: color ?? "var(--app-gradient)" } : undefined}
+      // backgroundOrigin border-box es OBLIGATORIO aquí: el borde de 2px es
+      // transparente y el degradado se pinta por debajo (clip border-box), pero
+      // por defecto el degradado se DIMENSIONA al padding-box. Resultado: esos
+      // 2px de más repetían el color del extremo y dibujaban un recuadro dentro
+      // del relleno — el corte que se veía entre el borde y el color interno.
+      style={
+        checked
+          ? { backgroundImage: color ? `linear-gradient(${color}, ${color})` : "var(--app-gradient)", backgroundOrigin: "border-box" }
+          : undefined
+      }
     >
       <Check size={t.tic} strokeWidth={3.5} className={`transition-opacity ${checked ? "opacity-100" : "opacity-0"}`} />
     </span>
