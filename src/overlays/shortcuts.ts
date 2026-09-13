@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // Combinaciones de teclas (13 sep 2026). Viven aquí porque nacieron para los
 // items de Menu, pero NO son cosa del Popover: el popover solo existe mientras
@@ -120,28 +120,32 @@ export type AccionConAtajo = {
   shortcut?: string;
   onClick?: () => void;
   disabled?: boolean;
+  // Para poder pasarle tal cual la lista de items de un Menu, separadores
+  // incluidos: se ignoran (no tienen atajo que enganchar).
+  separator?: boolean;
 };
 
 // Engancha los atajos de una lista de acciones mientras el componente esté
 // montado. Los items sin `shortcut` se ignoran, así que puedes pasarle
-// directamente los MenuItem de un menú.
+// directamente los MenuItem de un menú, separadores incluidos.
+//
+// La lista suele construirse en cada render (menuLeccion(activa), por
+// ejemplo), así que el oyente NO se vuelve a enganchar por eso: solo cuando
+// cambian los atajos. Las acciones se leen de una ref, siempre las últimas.
 export function useShortcuts(acciones: readonly AccionConAtajo[], opciones?: { enabled?: boolean }) {
   const activo = opciones?.enabled ?? true;
-  // Se recalcula solo cuando cambian los atajos, no en cada render.
   const firma = acciones.map((a) => a.shortcut ?? "").join("|");
-  const conAtajo = useMemo(
-    () => acciones.filter((a) => !!a.shortcut),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [firma, acciones],
-  );
+  const ref = useRef(acciones);
+  ref.current = acciones;
 
   useEffect(() => {
-    if (!activo || !conAtajo.length) return;
+    if (!activo || !firma.replace(/\|/g, "")) return;
     const mac = esMac();
-    const combos = conAtajo.map((a) => ({ combo: parseShortcut(a.shortcut!), accion: a }));
 
     function onKey(e: KeyboardEvent) {
-      for (const { combo, accion } of combos) {
+      for (const accion of ref.current) {
+        if (!accion.shortcut) continue;
+        const combo = parseShortcut(accion.shortcut);
         const sinModificador = !combo.mod && !combo.ctrl && !combo.alt;
         if (sinModificador && escribiendo(e.target)) continue;
         if (!coincide(e, combo, mac)) continue;
@@ -154,5 +158,5 @@ export function useShortcuts(acciones: readonly AccionConAtajo[], opciones?: { e
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [activo, conAtajo]);
+  }, [activo, firma]);
 }
