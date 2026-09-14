@@ -403,6 +403,28 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   border-radius: 4px;
   padding: 0.05em 0.35em;
 }
+/* Bloque de código: caja propia con scroll horizontal si la línea es larga
+   (14 sep 2026). El <code> de dentro NO lleva el fondo ni el relleno del
+   código en línea: ya los pone el <pre>. */
+.rich-text pre {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.875em;
+  line-height: 1.55;
+  background: var(--hover);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.8em 0.95em;
+  margin: 0;
+  overflow-x: auto;
+  white-space: pre;
+  tab-size: 2;
+}
+.rich-text pre code {
+  background: none;
+  border-radius: 0;
+  padding: 0;
+  font-size: inherit;
+}
 .rich-text hr {
   border: 0;
   border-top: 1px solid var(--border);

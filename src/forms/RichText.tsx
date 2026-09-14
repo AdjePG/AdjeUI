@@ -2,8 +2,8 @@
 
 // Texto enriquecido: editor WYSIWYG (Tiptap) + visor sanitizado (DOMPurify).
 // Guarda y recibe HTML. Acotado a propósito: negrita, cursiva, subrayado,
-// título/subtítulo, listas, cita y enlace. Nada de colores, fuentes ni
-// tamaños: el diseño lo pone la app.
+// título/subtítulo, listas, cita, enlace y código (en línea y en bloque).
+// Nada de colores, fuentes ni tamaños: el diseño lo pone la app.
 //
 // Vive en el entrypoint aparte "adje-shared-ui/rich-text" (NO en el barrel)
 // porque arrastra Tiptap y DOMPurify: solo las apps que lo usan los instalan
@@ -29,7 +29,7 @@ import { EditorContent, useEditor, useEditorState, type Editor } from "@tiptap/r
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import DOMPurify from "dompurify";
-import { Bold, Heading2, Heading3, Italic, Link2, List, ListOrdered, Quote, Redo2, Underline, Undo2 } from "lucide-react";
+import { Bold, Code, Heading2, Heading3, Italic, Link2, List, ListOrdered, Quote, Redo2, SquareCode, Underline, Undo2 } from "lucide-react";
 import { useFieldInvalid } from "./Field";
 
 // ---------------- sanitizado y utilidades ----------------
@@ -197,6 +197,8 @@ function Toolbar({ editor }: { editor: Editor }) {
       bullet: e.isActive("bulletList"),
       ordered: e.isActive("orderedList"),
       quote: e.isActive("blockquote"),
+      code: e.isActive("code"),
+      codeBlock: e.isActive("codeBlock"),
       link: e.isActive("link"),
       canUndo: e.can().undo(),
       canRedo: e.can().redo(),
@@ -253,6 +255,12 @@ function Toolbar({ editor }: { editor: Editor }) {
       <ToolButton label="Cita" active={s.quote} onClick={() => editor.chain().focus().toggleBlockquote().run()}>
         <Quote size={14} />
       </ToolButton>
+      <ToolButton label="Código en línea" active={s.code} onClick={() => editor.chain().focus().toggleCode().run()}>
+        <Code size={14} />
+      </ToolButton>
+      <ToolButton label="Bloque de código" active={s.codeBlock} onClick={() => editor.chain().focus().toggleCodeBlock().run()}>
+        <SquareCode size={14} />
+      </ToolButton>
       <ToolButton label="Enlace" active={s.link} onClick={link}>
         <Link2 size={14} />
       </ToolButton>
@@ -307,7 +315,10 @@ export function RichTextEditor({
           protocols: PROTOCOLOS,
           isAllowedUri: (url, ctx) => ctx.defaultValidate(url) && URI_SEGURA.test(url),
         },
-        codeBlock: false,
+        // Bloque de código (14 sep 2026): hace falta para enseñar a programar,
+        // que es la mitad de lo que se escribe en estas apps. Se mantiene sin
+        // resaltado de sintaxis a propósito — eso pide una librería aparte.
+        codeBlock: { HTMLAttributes: { class: null } },
       }),
       Placeholder.configure({ placeholder }),
     ],

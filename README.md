@@ -79,6 +79,9 @@ de `adje-shared-ui` a secas.
   usan la clase `.borde-degradado` de `theme.css` (tres capas de fondo, porque
   `border-image` no se lleva con `border-radius`). El acento plano no se
   distinguía del borde normal en tema oscuro.
+- **Texto enriquecido con código.** Negrita, cursiva, subrayado, títulos,
+  listas, cita, enlace y código —en línea y en bloque—. El bloque va sin
+  resaltado de sintaxis a propósito: eso pide una librería aparte.
 - **Texto enriquecido: tres barreras.** `RichTextEditor` no deja entrar HTML
   peligroso (`transformPastedHTML` sanea lo pegado ANTES de interpretarlo), no
   deja crear enlaces con protocolos raros (`isAllowedUri` + `protocols`) y
