@@ -1,6 +1,6 @@
 // AdjeUI — barrel principal. Un componente por archivo, organizado por
 // categoría:
-//   primitives/  superficies y piezas básicas (Card, Pill, IconChip, Empty, Skeleton)
+//   primitives/  superficies y piezas básicas (Card, Pill, IconChip, Empty, Skeleton, CodeBlock)
 //   controls/    botones y toggles (Button, IconButton, Segmented, Tabs, Switch, ChoiceOption, ScrollArrows)
 //   forms/       formularios (Field, Input, Textarea, Select, validación)
 //   overlays/    capas (Modal, Drawer, ConfirmDialog, HelpTip, Toast, Popover, Menu, useShortcuts)
@@ -14,6 +14,7 @@ export { IconChip } from "./primitives/IconChip";
 export { Pill } from "./primitives/Pill";
 export { Empty } from "./primitives/Empty";
 export { Skeleton } from "./primitives/Skeleton";
+export { CodeBlock } from "./primitives/CodeBlock";
 
 // controls
 export { Button, type ButtonVariant, type ControlSize } from "./controls/Button";

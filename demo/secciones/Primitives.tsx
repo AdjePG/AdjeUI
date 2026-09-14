@@ -40,6 +40,7 @@ import {
   SideNavUser,
   Button,
   Card,
+  CodeBlock,
   ChipEditor,
   Collapsible,
   ConfirmDialog,
@@ -116,6 +117,15 @@ export function PrimitivesSection() {
           <Frame className="flex-1">
             <Empty title="Todavía no hay nada" />
           </Frame>
+        </Block>
+        <Block name="CodeBlock (elemento propio: lenguaje + copiar; scroll horizontal, nunca parte la línea)">
+          <div className="w-full max-w-lg">
+            <CodeBlock
+              language="js"
+              code={`const nombre = "Adrià";
+nombre = "Marc";   // TypeError: Assignment to constant variable`}
+            />
+          </div>
         </Block>
       </Card>
     </Section>
