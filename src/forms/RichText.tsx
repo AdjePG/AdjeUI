@@ -25,7 +25,7 @@
 //  - Dentro de un <label> (Field), hacer clic en el texto activaba el primer
 //    botón de la barra (negrita). El raíz cancela esa activación y Field
 //    admite as="div".
-import { ReactNode, useEffect, useMemo, useRef } from "react";
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { EditorContent, useEditor, useEditorState, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -183,7 +183,7 @@ function Divider() {
   return <span className="w-px h-4 bg-[var(--border)] mx-1" />;
 }
 
-function Toolbar({ editor }: { editor: Editor }) {
+function Toolbar({ editor, flotante = false }: { editor: Editor; flotante?: boolean }) {
   // Tiptap v3 no re-renderiza el componente en cada transacción: hay que
   // seleccionar explícitamente lo que la barra necesita para que los botones
   // reflejen el estado real (cursor sobre negrita, deshacer disponible…).
@@ -228,7 +228,7 @@ function Toolbar({ editor }: { editor: Editor }) {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-0.5 border-b border-[var(--border)] px-1.5 py-1">
+    <div className={flotante ? "flex flex-wrap items-center gap-0.5 px-1 py-0.5" : "flex flex-wrap items-center gap-0.5 border-b border-[var(--border)] px-1.5 py-1"}>
       <ToolButton label="Negrita (Ctrl+B)" active={s.bold} onClick={() => editor.chain().focus().toggleBold().run()}>
         <Bold size={14} />
       </ToolButton>
@@ -279,6 +279,7 @@ export function RichTextEditor({
   minHeight = 140,
   invalid,
   className = "",
+  variante = "caja",
 }: {
   value: string; // HTML ("" = vacío)
   onChange: (html: string) => void; // HTML; "" cuando el editor está vacío
@@ -286,9 +287,18 @@ export function RichTextEditor({
   minHeight?: number; // px del área de escritura
   invalid?: boolean; // borde rojo (dentro de <Field error> se pone solo)
   className?: string;
+  /**
+   * "caja": marco y barra de herramientas siempre visibles (formularios).
+   * "plano": sin marco ni relleno, y la barra SOLO aparece —flotando encima—
+   * mientras se escribe. Para editores tipo documento, donde una caja por
+   * párrafo convierte la página en un formulario (15 sep 2026).
+   */
+  variante?: "caja" | "plano";
 }) {
   const fieldInvalid = useFieldInvalid();
   const bad = invalid ?? fieldInvalid;
+  const plano = variante === "plano";
+  const [foco, setFoco] = useState(false);
 
   // Último HTML que emitió el editor: si el valor externo coincide, no hay
   // nada que sincronizar (evita resetear el documento en cada tecla).
@@ -329,7 +339,7 @@ export function RichTextEditor({
       extensions,
       content: value,
       editorProps: {
-        attributes: { class: "rich-text rich-text-editor outline-none px-3 py-2.5" },
+        attributes: { class: `rich-text rich-text-editor outline-none ${plano ? "py-1" : "px-3 py-2.5"}` },
         // Barrera 2: copiar de una web y pegar aquí es la vía más fácil de
         // colar HTML raro. Se sanea ANTES de que ProseMirror lo interprete,
         // así que lo que entra en el documento ya viene limpio.
@@ -343,7 +353,11 @@ export function RichTextEditor({
         lastEmitted.current = html;
         onChangeRef.current(html);
       },
+      onFocus() {
+        setFoco(true);
+      },
       onBlur({ editor }) {
+        setFoco(false);
         // Si llegó un valor externo mientras se escribía, aplicarlo ahora.
         const html = pending.current;
         pending.current = null;
@@ -353,7 +367,7 @@ export function RichTextEditor({
         }
       },
     },
-    [extensions]
+    [extensions, plano]
   );
 
   // Cambio externo (cargar otro registro, recargar datos): sincronizar sin
@@ -374,7 +388,26 @@ export function RichTextEditor({
   const border = bad ? "border-[var(--negative)]" : "border-[var(--border)] focus-within:border-[var(--accent-blue)]";
 
   if (!editor) {
-    return <div className={`rounded-xl border border-[var(--border)] bg-[var(--hover)] ${className}`} style={{ minHeight: minHeight + 38 }} />;
+    return plano ? (
+      <div className={className} style={{ minHeight }} />
+    ) : (
+      <div className={`rounded-xl border border-[var(--border)] bg-[var(--hover)] ${className}`} style={{ minHeight: minHeight + 38 }} />
+    );
+  }
+
+  // Plano: la barra flota sobre el bloque en vez de empujarlo. Si empujara,
+  // el texto bailaría hacia abajo cada vez que pones el cursor en un párrafo.
+  if (plano) {
+    return (
+      <div className={`relative ${className}`} onClick={(e) => e.preventDefault()} aria-invalid={bad || undefined}>
+        {foco && (
+          <div className="absolute -top-1.5 left-0 z-30 -translate-y-full rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-lg">
+            <Toolbar editor={editor} flotante />
+          </div>
+        )}
+        <EditorContent editor={editor} style={{ minHeight }} />
+      </div>
+    );
   }
 
   return (

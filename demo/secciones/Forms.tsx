@@ -217,6 +217,15 @@ export function FormsSection() {
               </Frame>
             </div>
           </div>
+          {/* variante="plano": sin marco y con la barra flotando solo al
+              escribir. Es la de los editores tipo documento, donde una caja por
+              parrafo convierte la pagina en un formulario. */}
+          <div className="flex flex-col gap-1 w-full text-sm">
+            <span className="text-muted">variante=&quot;plano&quot; (editor tipo documento: sin marco, barra al escribir)</span>
+            <Frame className="p-3">
+              <RichTextEditor variante="plano" value={rich} onChange={setRich} placeholder="Escribe la teoria..." />
+            </Frame>
+          </div>
           <div className="flex items-center gap-2 w-full">
             <Button size="sm" variant="outline" onClick={() => setRich("<p>Valor cargado desde fuera (setContent sin pisar lo que escribes).</p>")}>
               Cambiar valor desde fuera
