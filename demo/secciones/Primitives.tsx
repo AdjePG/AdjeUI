@@ -118,12 +118,19 @@ export function PrimitivesSection() {
             <Empty title="Todavía no hay nada" />
           </Frame>
         </Block>
-        <Block name="CodeBlock (elemento propio: lenguaje + copiar; scroll horizontal, nunca parte la línea)">
+        <Block name="CodeBlock: el lector enciende color y números; la barra horizontal SE VE">
           <div className="w-full max-w-lg">
             <CodeBlock
               language="js"
-              code={`const nombre = "Adrià";
-nombre = "Marc";   // TypeError: Assignment to constant variable`}
+              code={[
+                "// Una variable es un nombre pegado a un valor",
+                'const nombre = "Adrià";',
+                'nombre = "Marc";   // TypeError: Assignment to constant variable',
+                "",
+                "function saludar(quien, veces = 3) {",
+                "  for (let i = 0; i < veces; i++) console.log(`Hola, ${quien}! Esta linea es aposta muy larga para comprobar que la barra de desplazamiento horizontal existe y se puede arrastrar`);",
+                "}",
+              ].join("\n")}
             />
           </div>
         </Block>

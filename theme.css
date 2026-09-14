@@ -45,6 +45,15 @@
   --c-pink-50: #fdf2f8; --c-pink-100: #fce7f3; --c-pink-200: #fbcfe8; --c-pink-300: #f9a8d4; --c-pink-400: #f472b6; --c-pink-500: #ec4899; --c-pink-600: #db2777; --c-pink-700: #be185d; --c-pink-800: #9d174d; --c-pink-900: #831843;
   --c-rose-50: #fff1f2; --c-rose-100: #ffe4e6; --c-rose-200: #fecdd3; --c-rose-300: #fda4af; --c-rose-400: #fb7185; --c-rose-500: #f43f5e; --c-rose-600: #e11d48; --c-rose-700: #be123c; --c-rose-800: #9f1239; --c-rose-900: #881337;
 
+  /* Colores del resaltado de código (CodeBlock). Tonos de la paleta fija, no
+     inventados: legibles sobre --hover en claro y en oscuro. */
+  --code-str: light-dark(#0f766e, #5eead4);
+  --code-com: light-dark(#6b6b6b, #8b8b8b);
+  --code-num: light-dark(#c2410c, #fdba74);
+  --code-kw: light-dark(#7c3aed, #c4b5fd);
+  --code-fn: light-dark(#2563eb, #93c5fd);
+  --code-pun: light-dark(#6b6b6b, #9a9a9a);
+
   color-scheme: light dark;
 }
 
@@ -148,6 +157,28 @@ body {
     var(--app-gradient);
   background-origin: border-box;
   background-clip: padding-box, border-box;
+}
+
+/* Barra de desplazamiento del bloque de código: fina pero VISIBLE. Ocultarla
+   dejaba las líneas largas fuera de alcance salvo con rueda horizontal. */
+.codigo-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+.codigo-scroll::-webkit-scrollbar {
+  height: 10px;
+}
+.codigo-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.codigo-scroll::-webkit-scrollbar-thumb {
+  border: solid 3px transparent;
+  border-radius: 6px;
+  background-clip: padding-box;
+  box-shadow: inset 0 0 4px 4px var(--scrollbar-thumb);
+}
+.codigo-scroll::-webkit-scrollbar-thumb:hover {
+  box-shadow: inset 0 0 4px 4px var(--scrollbar-thumb-hover);
 }
 
 /* Se desplaza pero no enseña barra: lo usa ScrollArrows, que pone dos flechas
