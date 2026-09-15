@@ -52,6 +52,38 @@ const PELIGROSOS = /<(script|style|iframe|object|embed|template|noscript|svg|mat
 const CONTROL = /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g;
 const FICHA = /\u0001(\d+)\u0002/g;
 
+// Herramientas del editor. Quitar una no es esconder el botón: la capacidad
+// sale del documento (15 sep 2026). Si en una app los encabezados los pone
+// otra cosa —en Aulora, el bloque Sección—, dejarlos aquí solo sirve para que
+// convivan dos maneras de hacer lo mismo, y para que un h2 escrito a mano se
+// cuele en un índice que no lo espera.
+export type HerramientaTexto =
+  | "negrita"
+  | "cursiva"
+  | "subrayado"
+  | "h2"
+  | "h3"
+  | "lista"
+  | "numerada"
+  | "cita"
+  | "codigo"
+  | "enlace"
+  | "historial";
+
+export const HERRAMIENTAS_TEXTO: HerramientaTexto[] = [
+  "negrita",
+  "cursiva",
+  "subrayado",
+  "h2",
+  "h3",
+  "lista",
+  "numerada",
+  "cita",
+  "codigo",
+  "enlace",
+  "historial",
+];
+
 function escaparTexto(t: string): string {
   // El & solo se escapa si no forma ya una entidad, para no dejar "&amp;amp;".
   return t.replace(/&(?!#?[a-zA-Z0-9]{1,8};)/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -183,7 +215,7 @@ function Divider() {
   return <span className="w-px h-4 bg-[var(--border)] mx-1" />;
 }
 
-function Toolbar({ editor, flotante = false }: { editor: Editor; flotante?: boolean }) {
+function Toolbar({ editor, flotante = false, hay }: { editor: Editor; flotante?: boolean; hay: (h: HerramientaTexto) => boolean }) {
   // Tiptap v3 no re-renderiza el componente en cada transacción: hay que
   // seleccionar explícitamente lo que la barra necesita para que los botones
   // reflejen el estado real (cursor sobre negrita, deshacer disponible…).
@@ -229,45 +261,69 @@ function Toolbar({ editor, flotante = false }: { editor: Editor; flotante?: bool
 
   return (
     <div className={flotante ? "flex flex-wrap items-center gap-0.5 px-1 py-0.5" : "flex flex-wrap items-center gap-0.5 border-b border-[var(--border)] px-1.5 py-1"}>
-      <ToolButton label="Negrita (Ctrl+B)" active={s.bold} onClick={() => editor.chain().focus().toggleBold().run()}>
-        <Bold size={14} />
-      </ToolButton>
-      <ToolButton label="Cursiva (Ctrl+I)" active={s.italic} onClick={() => editor.chain().focus().toggleItalic().run()}>
-        <Italic size={14} />
-      </ToolButton>
-      <ToolButton label="Subrayado (Ctrl+U)" active={s.underline} onClick={() => editor.chain().focus().toggleUnderline().run()}>
-        <Underline size={14} />
-      </ToolButton>
+      {hay("negrita") && (
+        <ToolButton label="Negrita (Ctrl+B)" active={s.bold} onClick={() => editor.chain().focus().toggleBold().run()}>
+          <Bold size={14} />
+        </ToolButton>
+      )}
+      {hay("cursiva") && (
+        <ToolButton label="Cursiva (Ctrl+I)" active={s.italic} onClick={() => editor.chain().focus().toggleItalic().run()}>
+          <Italic size={14} />
+        </ToolButton>
+      )}
+      {hay("subrayado") && (
+        <ToolButton label="Subrayado (Ctrl+U)" active={s.underline} onClick={() => editor.chain().focus().toggleUnderline().run()}>
+          <Underline size={14} />
+        </ToolButton>
+      )}
+      {(hay("h2") || hay("h3")) && <Divider />}
+      {hay("h2") && (
+        <ToolButton label="Título" active={s.h2} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}>
+          <Heading2 size={14} />
+        </ToolButton>
+      )}
+      {hay("h3") && (
+        <ToolButton label="Subtítulo" active={s.h3} onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}>
+          <Heading3 size={14} />
+        </ToolButton>
+      )}
       <Divider />
-      <ToolButton label="Título" active={s.h2} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}>
-        <Heading2 size={14} />
-      </ToolButton>
-      <ToolButton label="Subtítulo" active={s.h3} onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}>
-        <Heading3 size={14} />
-      </ToolButton>
-      <Divider />
-      <ToolButton label="Lista" active={s.bullet} onClick={() => editor.chain().focus().toggleBulletList().run()}>
-        <List size={14} />
-      </ToolButton>
-      <ToolButton label="Lista numerada" active={s.ordered} onClick={() => editor.chain().focus().toggleOrderedList().run()}>
-        <ListOrdered size={14} />
-      </ToolButton>
-      <ToolButton label="Cita" active={s.quote} onClick={() => editor.chain().focus().toggleBlockquote().run()}>
-        <Quote size={14} />
-      </ToolButton>
-      <ToolButton label="Código en línea" active={s.code} onClick={() => editor.chain().focus().toggleCode().run()}>
-        <Code size={14} />
-      </ToolButton>
-      <ToolButton label="Enlace" active={s.link} onClick={link}>
-        <Link2 size={14} />
-      </ToolButton>
-      <span className="flex-1" />
-      <ToolButton label="Deshacer (Ctrl+Z)" disabled={!s.canUndo} onClick={() => editor.chain().focus().undo().run()}>
-        <Undo2 size={14} />
-      </ToolButton>
-      <ToolButton label="Rehacer (Ctrl+Y)" disabled={!s.canRedo} onClick={() => editor.chain().focus().redo().run()}>
-        <Redo2 size={14} />
-      </ToolButton>
+      {hay("lista") && (
+        <ToolButton label="Lista" active={s.bullet} onClick={() => editor.chain().focus().toggleBulletList().run()}>
+          <List size={14} />
+        </ToolButton>
+      )}
+      {hay("numerada") && (
+        <ToolButton label="Lista numerada" active={s.ordered} onClick={() => editor.chain().focus().toggleOrderedList().run()}>
+          <ListOrdered size={14} />
+        </ToolButton>
+      )}
+      {hay("cita") && (
+        <ToolButton label="Cita" active={s.quote} onClick={() => editor.chain().focus().toggleBlockquote().run()}>
+          <Quote size={14} />
+        </ToolButton>
+      )}
+      {hay("codigo") && (
+        <ToolButton label="Código en línea" active={s.code} onClick={() => editor.chain().focus().toggleCode().run()}>
+          <Code size={14} />
+        </ToolButton>
+      )}
+      {hay("enlace") && (
+        <ToolButton label="Enlace" active={s.link} onClick={link}>
+          <Link2 size={14} />
+        </ToolButton>
+      )}
+      {hay("historial") && (
+        <>
+          <span className="flex-1" />
+          <ToolButton label="Deshacer (Ctrl+Z)" disabled={!s.canUndo} onClick={() => editor.chain().focus().undo().run()}>
+            <Undo2 size={14} />
+          </ToolButton>
+          <ToolButton label="Rehacer (Ctrl+Y)" disabled={!s.canRedo} onClick={() => editor.chain().focus().redo().run()}>
+            <Redo2 size={14} />
+          </ToolButton>
+        </>
+      )}
     </div>
   );
 }
@@ -280,6 +336,7 @@ export function RichTextEditor({
   invalid,
   className = "",
   variante = "caja",
+  herramientas = HERRAMIENTAS_TEXTO,
 }: {
   value: string; // HTML ("" = vacío)
   onChange: (html: string) => void; // HTML; "" cuando el editor está vacío
@@ -294,11 +351,24 @@ export function RichTextEditor({
    * párrafo convierte la página en un formulario (15 sep 2026).
    */
   variante?: "caja" | "plano";
+  /**
+   * Qué se puede usar. Lo que no esté aquí no sale en la barra Y TAMPOCO EXISTE
+   * en el documento: ni por atajo, ni pegando HTML que lo traiga. Por defecto,
+   * todo.
+   */
+  herramientas?: HerramientaTexto[];
 }) {
   const fieldInvalid = useFieldInvalid();
   const bad = invalid ?? fieldInvalid;
   const plano = variante === "plano";
   const [foco, setFoco] = useState(false);
+  // La lista se compara por contenido: así un array literal en el JSX del
+  // padre no recrea el editor en cada render.
+  const clave = herramientas.join(",");
+  const hay = useMemo(() => {
+    const set = new Set(clave.split(","));
+    return (h: HerramientaTexto) => set.has(h);
+  }, [clave]);
 
   // Último HTML que emitió el editor: si el valor externo coincide, no hay
   // nada que sincronizar (evita resetear el documento en cada tecla).
@@ -308,28 +378,47 @@ export function RichTextEditor({
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
 
-  // Extensiones estables (no recrear el array en cada render).
+  // Extensiones estables (no recrear el array en cada render). Una herramienta
+  // apagada se apaga en el ESQUEMA, no en la barra: si solo escondiéramos el
+  // botón, el atajo de teclado y el pegado seguirían metiendo esa etiqueta.
   const extensions = useMemo(
-    () => [
-      StarterKit.configure({
-        heading: { levels: [2, 3] },
-        link: {
-          openOnClick: false,
-          autolink: true,
-          defaultProtocol: "https",
-          // Barrera 1: un enlace con javascript:, data: o vbscript: no llega
-          // ni a existir como marca dentro del documento.
-          protocols: PROTOCOLOS,
-          isAllowedUri: (url, ctx) => ctx.defaultValidate(url) && URI_SEGURA.test(url),
-        },
-        // El bloque de código NO va aquí: en las apps es un tipo de bloque
-        // propio, con su lenguaje y su caja (decisión del 14 sep 2026). Dentro
-        // del texto solo queda el código EN LÍNEA, que sí es formato de texto.
-        codeBlock: false,
-      }),
-      Placeholder.configure({ placeholder }),
-    ],
-    [placeholder]
+    () => {
+      const tengo = (h: string) => clave.split(",").includes(h);
+      const niveles = ([2, 3] as const).filter((n) => tengo(n === 2 ? "h2" : "h3"));
+      const listas = tengo("lista") || tengo("numerada");
+      return [
+        StarterKit.configure({
+          bold: tengo("negrita") ? undefined : false,
+          italic: tengo("cursiva") ? undefined : false,
+          underline: tengo("subrayado") ? undefined : false,
+          heading: niveles.length ? { levels: [...niveles] } : false,
+          bulletList: tengo("lista") ? undefined : false,
+          orderedList: tengo("numerada") ? undefined : false,
+          listItem: listas ? undefined : false,
+          blockquote: tengo("cita") ? undefined : false,
+          code: tengo("codigo") ? undefined : false,
+          undoRedo: tengo("historial") ? undefined : false,
+          link: tengo("enlace")
+            ? {
+                openOnClick: false,
+                autolink: true,
+                defaultProtocol: "https",
+                // Barrera 1: un enlace con javascript:, data: o vbscript: no
+                // llega ni a existir como marca dentro del documento.
+                protocols: PROTOCOLOS,
+                isAllowedUri: (url: string, ctx: { defaultValidate: (u: string) => boolean }) =>
+                  ctx.defaultValidate(url) && URI_SEGURA.test(url),
+              }
+            : false,
+          // El bloque de código NO va aquí: en las apps es un tipo de bloque
+          // propio, con su lenguaje y su caja (decisión del 14 sep 2026). Dentro
+          // del texto solo queda el código EN LÍNEA, que sí es formato de texto.
+          codeBlock: false,
+        }),
+        Placeholder.configure({ placeholder }),
+      ];
+    },
+    [placeholder, clave]
   );
 
   const editor = useEditor(
@@ -410,7 +499,7 @@ export function RichTextEditor({
       <div className={`relative ${className}`} onClick={(e) => e.preventDefault()} aria-invalid={bad || undefined}>
         {foco && (
           <div className="absolute -top-1.5 left-0 z-30 -translate-y-full rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-lg">
-            <Toolbar editor={editor} flotante />
+            <Toolbar editor={editor} flotante hay={hay} />
           </div>
         )}
         <EditorContent editor={editor} style={{ minHeight }} />
@@ -426,7 +515,7 @@ export function RichTextEditor({
       onClick={(e) => e.preventDefault()}
       aria-invalid={bad || undefined}
     >
-      <Toolbar editor={editor} />
+      <Toolbar editor={editor} hay={hay} />
       <EditorContent editor={editor} style={{ minHeight }} />
     </div>
   );

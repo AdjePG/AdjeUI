@@ -81,7 +81,7 @@ import {
   useTheme,
   useToast,
 } from "../../src";
-import { RichText, RichTextEditor, richTextToPlain } from "../../rich-text";
+import { HERRAMIENTAS_TEXTO, RichText, RichTextEditor, richTextToPlain } from "../../rich-text";
 import { Block, Frame, Section } from "../comunes";
 
 // ---------------- forms ----------------
@@ -221,9 +221,18 @@ export function FormsSection() {
               escribir. Es la de los editores tipo documento, donde una caja por
               parrafo convierte la pagina en un formulario. */}
           <div className="flex flex-col gap-1 w-full text-sm">
-            <span className="text-muted">variante=&quot;plano&quot; (editor tipo documento: sin marco, barra al escribir)</span>
+            <span className="text-muted">
+              variante=&quot;plano&quot; (editor tipo documento: sin marco, barra al escribir) y sin encabezados:
+              herramientas sin h2/h3, que aqui los pone el bloque Seccion
+            </span>
             <Frame className="p-3">
-              <RichTextEditor variante="plano" value={rich} onChange={setRich} placeholder="Escribe la teoria..." />
+              <RichTextEditor
+                variante="plano"
+                herramientas={HERRAMIENTAS_TEXTO.filter((h) => h !== "h2" && h !== "h3")}
+                value={rich}
+                onChange={setRich}
+                placeholder="Escribe la teoria..."
+              />
             </Frame>
           </div>
           <div className="flex items-center gap-2 w-full">
