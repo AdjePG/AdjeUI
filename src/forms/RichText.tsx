@@ -344,6 +344,14 @@ export function RichTextEditor({
         // colar HTML raro. Se sanea ANTES de que ProseMirror lo interprete,
         // así que lo que entra en el documento ya viene limpio.
         transformPastedHTML: (html) => sanitizeRichText(html),
+        // Pegar texto de un fichero .md, o de cualquier editor que parta las
+        // líneas a los 80 caracteres, pegaba las palabras del corte: un texto
+        // con "un" al final de una línea e "intérprete" al principio de la
+        // siguiente acababa como "unintérprete" (visto en Aulora el 15 sep
+        // 2026). Un salto suelto es un espacio; dos o más siguen separando
+        // párrafos.
+        transformPastedText: (texto) =>
+          texto.replace(/\r\n?/g, "\n").replace(/([^\n])\n(?!\n)/g, "$1 "),
       },
       onUpdate({ editor }) {
         // Barrera 3: lo que sale hacia la app —y de ahí a la base de datos— va
