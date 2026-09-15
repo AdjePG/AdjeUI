@@ -19,7 +19,8 @@ export function Modal({
 }: {
   open: boolean;
   onClose: () => void;
-  title: string;
+  /** Texto, o lo que haga falta: una cara y un nombre, un chip de estado… */
+  title: ReactNode;
   children: ReactNode;
   footer?: ReactNode;
   wide?: boolean;
@@ -44,7 +45,7 @@ export function Modal({
         onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-5 pb-4">
-          <h3 className="text-lg font-semibold">{title}</h3>
+          <h3 className="text-lg font-semibold min-w-0">{title}</h3>
           <button
             onClick={onClose}
             className="w-8 h-8 rounded-lg hover:bg-[var(--hover)] inline-flex items-center justify-center"
