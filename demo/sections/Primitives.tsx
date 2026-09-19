@@ -83,52 +83,52 @@ import {
   useToast,
 } from "../../src";
 import { RichText, RichTextEditor, richTextToPlain } from "../../rich-text";
-import { Block, Frame, Section } from "../comunes";
+import { Block, Frame, Section } from "../common";
 
 // ---------------- primitives ----------------
 
 export function PrimitivesSection() {
   return (
-    <Section id="primitives" title="Primitives" subtitle="src/primitives — superficies y piezas básicas">
+    <Section id="primitives" title="Primitives" subtitle="src/primitives — surfaces and basic pieces">
       <Card className="flex flex-col gap-4">
         <Block name="Card (glow) / IconChip (md, lg)">
-          <Card className="!p-3 text-[13px]">Una Card dentro de otra</Card>
-          <Card glow className="!p-3 text-[13px]">Card con glow</Card>
+          <Card className="!p-3 text-[13px]">A Card inside another</Card>
+          <Card glow className="!p-3 text-[13px]">Card with glow</Card>
           <IconChip><Sparkles size={15} /></IconChip>
           <IconChip size="lg"><Package size={17} /></IconChip>
         </Block>
-        <Block name="Pill (neutra / con color)">
-          <Pill>Neutra</Pill>
-          <Pill color={palette("green", 600)}>Publicado</Pill>
-          <Pill color={palette("violet", 600)}>Diseñando</Pill>
-          <Pill color={palette("red", 600)}>Pausado</Pill>
-          <Pill color="var(--accent-blue)"><Sparkles size={11} /> Con icono</Pill>
+        <Block name="Pill (neutral / colored)">
+          <Pill>Neutral</Pill>
+          <Pill color={palette("green", 600)}>Published</Pill>
+          <Pill color={palette("violet", 600)}>Designing</Pill>
+          <Pill color={palette("red", 600)}>Paused</Pill>
+          <Pill color="var(--accent-blue)"><Sparkles size={11} /> With icon</Pill>
         </Block>
-        <Block name="Skeleton (la forma la da className)">
+        <Block name="Skeleton (className gives the shape)">
           <Skeleton className="h-4 w-32" />
           <Skeleton className="w-9 h-9 rounded-full" />
           <Skeleton className="h-9 w-44" />
           <Skeleton className="h-16 w-full" />
         </Block>
-        <Block name="Empty (con y sin icono)">
+        <Block name="Empty (with and without icon)">
           <Frame className="flex-1">
-            <Empty icon={<Search />} title="Sin resultados">Prueba con otros filtros.</Empty>
+            <Empty icon={<Search />} title="No results">Try other filters.</Empty>
           </Frame>
           <Frame className="flex-1">
-            <Empty title="Todavía no hay nada" />
+            <Empty title="Nothing here yet" />
           </Frame>
         </Block>
-        <Block name="CodeBlock: el lector enciende color y números; la barra horizontal SE VE">
+        <Block name="CodeBlock: the reader turns on color and line numbers; the horizontal bar IS VISIBLE">
           <div className="w-full max-w-lg">
             <CodeBlock
               language="js"
               code={[
-                "// Una variable es un nombre pegado a un valor",
-                'const nombre = "Adrià";',
-                'nombre = "Marc";   // TypeError: Assignment to constant variable',
+                "// A variable is a name attached to a value",
+                'const name = "Adrià";',
+                'name = "Marc";   // TypeError: Assignment to constant variable',
                 "",
-                "function saludar(quien, veces = 3) {",
-                "  for (let i = 0; i < veces; i++) console.log(`Hola, ${quien}! Esta linea es aposta muy larga para comprobar que la barra de desplazamiento horizontal existe y se puede arrastrar`);",
+                "function greet(who, times = 3) {",
+                "  for (let i = 0; i < times; i++) console.log(`Hello, ${who}! This line is deliberately very long to check that the horizontal scrollbar exists and can be dragged`);",
                 "}",
               ].join("\n")}
             />

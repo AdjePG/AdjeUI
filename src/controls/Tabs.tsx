@@ -3,11 +3,11 @@
 import { ReactNode } from "react";
 import { ScrollArrows } from "./ScrollArrows";
 
-// Barra de pestañas de texto con subrayado degradado en la activa (estilo
-// navegador/YouTube). Para subpáginas; para filtros/toggles usa Segmented.
+// Text tab bar with a gradient underline on the active one (browser/YouTube
+// style). For sub-pages; for filters/toggles use Segmented.
 //
-// Cuando hay más pestañas de las que caben, aparecen flechas en los extremos
-// en vez de una barra de desplazamiento (13 sep 2026).
+// When there are more tabs than fit, arrows appear at both ends instead of a
+// scrollbar (13 Sep 2026).
 export function Tabs({
   value,
   onChange,

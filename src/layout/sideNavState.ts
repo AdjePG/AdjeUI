@@ -1,16 +1,16 @@
 "use client";
 
-// Estado compartido del SideNav SIN provider (useSyncExternalStore):
-//   - open:      panel abierto en móvil (lo abre la hamburguesa del PageHeader)
-//   - collapsed: modo compacto en escritorio (solo iconos), se recuerda en
+// Shared SideNav state WITHOUT a provider (useSyncExternalStore):
+//   - open:      panel open on mobile (opened by the PageHeader hamburger)
+//   - collapsed: compact mode on desktop (icons only), remembered in
 //                localStorage
-//   - mounted:   nº de SideNav montados (si hay alguno, PageHeader pinta ☰)
+//   - mounted:   number of mounted SideNavs (if any, PageHeader draws ☰)
 import { useEffect, useState, useSyncExternalStore } from "react";
 
 type State = { mounted: number; open: boolean; collapsed: boolean };
 
 const STORAGE_KEY = "adjeui.sidenav.collapsed";
-const MOBILE_QUERY = "(max-width: 767px)"; // = breakpoint md de Tailwind
+const MOBILE_QUERY = "(max-width: 767px)"; // = Tailwind's md breakpoint
 
 let state: State = { mounted: 0, open: false, collapsed: false };
 const listeners = new Set<() => void>();
@@ -29,18 +29,18 @@ export const sideNavState = {
     try {
       localStorage.setItem(STORAGE_KEY, v ? "1" : "0");
     } catch {
-      /* sin storage */
+      /* no storage */
     }
   },
   toggleCollapsed: () => sideNavState.setCollapsed(!state.collapsed),
   mount: () => {
-    // Leer la preferencia guardada la primera vez (solo cliente).
+    // Read the saved preference the first time (client only).
     let collapsed = state.collapsed;
     if (state.mounted === 0) {
       try {
         collapsed = localStorage.getItem(STORAGE_KEY) === "1";
       } catch {
-        /* sin storage */
+        /* no storage */
       }
     }
     set({ mounted: state.mounted + 1, collapsed });
@@ -61,7 +61,7 @@ export function useSideNavState(): State {
   );
 }
 
-// ¿Estamos en móvil (< md)? Solo cliente; en servidor devuelve false.
+// Are we on mobile (< md)? Client only; on the server it returns false.
 export function useIsMobile(): boolean {
   const [mobile, setMobile] = useState(false);
   useEffect(() => {
@@ -74,8 +74,8 @@ export function useIsMobile(): boolean {
   return mobile;
 }
 
-// ¿El SideNav se está mostrando compacto (solo iconos)? Solo en escritorio:
-// en móvil el panel deslizante siempre va completo.
+// Is the SideNav being shown compact (icons only)? Desktop only: on mobile
+// the sliding panel is always full.
 export function useSideNavCompact(): boolean {
   const { collapsed } = useSideNavState();
   const mobile = useIsMobile();

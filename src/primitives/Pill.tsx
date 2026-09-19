@@ -2,9 +2,9 @@
 
 import { ReactNode } from "react";
 
-// Badge/etiqueta redondeada. Sin color usa la superficie neutra; con color,
-// tinta el fondo al 13% y el texto al 100%. Acepta hex o var(): lo normal es
-// pasar un token de la paleta fija, p. ej. color={palette("green", 600)}.
+// Rounded badge/label. Without a color it uses the neutral surface; with one,
+// it tints the background at 13% and the text at 100%. Accepts hex or var():
+// the usual thing is to pass a fixed-palette token, e.g. color={palette("green", 600)}.
 export function Pill({ children, color }: { children: ReactNode; color?: string }) {
   return (
     <span

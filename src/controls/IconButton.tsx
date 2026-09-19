@@ -2,9 +2,9 @@
 
 import { ReactNode } from "react";
 
-// Botón cuadrado de solo icono (editar, borrar, copiar, cerrar…), con el
-// mismo aspecto en todas las apps. `label` es obligatorio por accesibilidad
-// y sirve de tooltip.
+// Square icon-only button (edit, delete, copy, close...), with the same look
+// in every app. `label` is required for accessibility and doubles as the
+// tooltip.
 export function IconButton({
   onClick,
   label,

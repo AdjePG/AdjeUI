@@ -2,8 +2,8 @@
 
 import { ReactNode } from "react";
 
-// Superficie base: fondo --card, borde y radio de 16px (clase .card de theme.css).
-// glow añade la sombra de identidad de la app (--blue-shadow).
+// Base surface: --card background, border and 16px radius (.card class from theme.css).
+// glow adds the app's identity shadow (--blue-shadow).
 export function Card({
   children,
   className = "",

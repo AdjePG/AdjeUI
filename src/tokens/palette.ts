@@ -1,14 +1,14 @@
-// Paleta FIJA de AdjeUI: 15 colores x 10 tonos (50 = mas claro, 900 = mas oscuro).
-// Es la unica fuente de color "de dato" permitida en las apps (etiquetas, pills,
-// categorias, graficos): nada de hex sueltos. Los mismos valores existen como
-// variables CSS en theme.css (--c-<color>-<tono>), generadas desde esta tabla.
+// AdjeUI FIXED palette: 15 colors x 10 shades (50 = lightest, 900 = darkest).
+// It is the only source of "data" color allowed in the apps (labels, pills,
+// categories, charts): no loose hex values. The same values exist as CSS
+// variables in theme.css (--c-<color>-<shade>), generated from this table.
 //
 //   import { palette, PALETTE } from "adje-shared-ui";
-//   <Pill color={palette("green", 600)}>Publicado</Pill>   // var(--c-green-600)
-//   PALETTE.green[600]                                      // "#16a34a" (hex, p. ej. para SVG/charts)
+//   <Pill color={palette("green", 600)}>Published</Pill>   // var(--c-green-600)
+//   PALETTE.green[600]                                      // "#16a34a" (hex, e.g. for SVG/charts)
 //
-// Consejo de tonos: 500-600 para texto/iconos sobre fondo claro, 100-200 para
-// fondos suaves, 300-400 para texto sobre fondo oscuro.
+// Shade advice: 500-600 for text/icons on a light background, 100-200 for
+// soft backgrounds, 300-400 for text on a dark background.
 
 export const PALETTE_NAMES = ["slate","red","orange","amber","yellow","lime","green","teal","cyan","blue","indigo","violet","purple","pink","rose"] as const;
 export const PALETTE_SHADES = [50,100,200,300,400,500,600,700,800,900] as const;
@@ -34,14 +34,14 @@ export const PALETTE: Record<PaletteName, Record<PaletteShade, string>> = {
   rose: { 50: "#fff1f2", 100: "#ffe4e6", 200: "#fecdd3", 300: "#fda4af", 400: "#fb7185", 500: "#f43f5e", 600: "#e11d48", 700: "#be123c", 800: "#9f1239", 900: "#881337" },
 };
 
-// Devuelve la referencia CSS del token: palette("blue", 500) -> "var(--c-blue-500)".
-// Usa esto en estilos y props color; el hex (PALETTE) solo cuando el destino no
-// entiende variables CSS (canvas, exportaciones, emails).
+// Returns the token's CSS reference: palette("blue", 500) -> "var(--c-blue-500)".
+// Use this in styles and color props; the hex (PALETTE) only when the target
+// does not understand CSS variables (canvas, exports, emails).
 export function palette(name: PaletteName, shade: PaletteShade = 500): string {
   return `var(--c-${name}-${shade})`;
 }
 
-// Hex directo del token.
+// The token's raw hex.
 export function paletteHex(name: PaletteName, shade: PaletteShade = 500): string {
   return PALETTE[name][shade];
 }

@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 import { Card } from "../primitives/Card";
 import { HelpTip } from "../overlays/HelpTip";
 
-// Tarjeta de indicador (KPI): etiqueta + valor grande + pista opcional.
+// Indicator card (KPI): label + large value + optional hint.
 export function Stat({
   label,
   value,

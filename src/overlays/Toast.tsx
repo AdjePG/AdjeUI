@@ -46,7 +46,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               key={t.id}
               onClick={() => setItems((s) => s.filter((x) => x.id !== t.id))}
               className="group card blue-shadow py-2.5 pl-2.5 pr-3 w-full flex items-center gap-2.5 text-left text-[13px] toast-in"
-              title="Pulsar para cerrar"
+              title="Click to dismiss"
             >
               <span
                 className="inline-flex items-center justify-center w-7 h-7 rounded-lg shrink-0"
@@ -69,6 +69,6 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
 export function useToast() {
   const ctx = useContext(ToastCtx);
-  if (!ctx) throw new Error("useToast debe usarse dentro de <ToastProvider>");
+  if (!ctx) throw new Error("useToast must be used within <ToastProvider>");
   return ctx;
 }

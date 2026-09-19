@@ -2,8 +2,8 @@
 
 import { useCallback, useState } from "react";
 
-// ---------------- Validación de formularios ----------------
-// Uso típico en un diálogo:
+// ---------------- Form validation ----------------
+// Typical usage in a dialog:
 //
 //   const { errors, validate, clearError, reset } = useFormErrors();
 //
@@ -11,43 +11,43 @@ import { useCallback, useState } from "react";
 //     if (!validate({
 //       name: rules.required()(name),
 //       emoji: rules.maxLen(4)(emoji),
-//     })) return; // los mensajes ya están en `errors`
-//     …guardar…
+//     })) return; // the messages are already in `errors`
+//     …save…
 //   }
 //
-//   <Field label="Nombre" required error={errors.name}>
+//   <Field label="Name" required error={errors.name}>
 //     <Input value={name} onChange={(e) => { setName(e.target.value); clearError("name"); }} />
 //   </Field>
 //
-// Cada regla devuelve un mensaje (string) si falla o null si pasa.
+// Each rule returns a message (string) if it fails or null if it passes.
 
 export type RuleResult = string | null;
 
 export const rules = {
   required:
-    (msg = "Este campo es obligatorio") =>
+    (msg = "This field is required") =>
     (v: unknown): RuleResult =>
       v == null || String(v).trim() === "" ? msg : null,
 
   maxLen:
     (n: number, msg?: string) =>
     (v: string | undefined | null): RuleResult =>
-      v && v.length > n ? msg ?? `Máximo ${n} caracteres (llevas ${v.length})` : null,
+      v && v.length > n ? msg ?? `Max ${n} characters (you have ${v.length})` : null,
 
   minLen:
     (n: number, msg?: string) =>
     (v: string | undefined | null): RuleResult =>
-      v != null && v.trim() !== "" && v.trim().length < n ? msg ?? `Mínimo ${n} caracteres` : null,
+      v != null && v.trim() !== "" && v.trim().length < n ? msg ?? `Min ${n} characters` : null,
 
   positive:
-    (msg = "Debe ser un número mayor que 0") =>
+    (msg = "Must be a number greater than 0") =>
     (v: number | undefined | null): RuleResult =>
       v != null && !(v > 0) ? msg : null,
 
   url:
-    (msg = "No parece una URL válida") =>
+    (msg = "This doesn't look like a valid URL") =>
     (v: string | undefined | null): RuleResult => {
-      if (!v || !v.trim()) return null; // vacío = válido (usa required aparte)
+      if (!v || !v.trim()) return null; // empty = valid (use required separately)
       try {
         new URL(v);
         return null;
@@ -57,8 +57,8 @@ export const rules = {
     },
 };
 
-// Guarda los errores por campo y los muestra/limpia. `validate` recibe el
-// resultado de aplicar las reglas y devuelve true si todo pasa.
+// Stores the errors per field and shows/clears them. `validate` receives the
+// result of applying the rules and returns true if everything passes.
 export function useFormErrors() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 

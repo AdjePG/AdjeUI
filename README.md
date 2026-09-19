@@ -1,147 +1,146 @@
-# AdjeUI (adje-shared-ui) — design system compartido
+# AdjeUI (adje-shared-ui) — shared design system
 
-Paquete instalable (vía dependencia git, sin necesidad de publicarlo en npm) con
-los componentes y estilos compartidos por las apps de Adje: **MisFinanzas**,
-**Adje Store**, **Aula Propia** y las que vengan. Solo web (React/Next); la
-antigua versión Flutter se retiró.
+Installable package (via a git dependency, no need to publish it to npm) with
+the components and styles shared by the Adje apps: **MisFinanzas**,
+**Adje Store**, **Aulora** and whatever comes next. Web only (React/Next);
+the old Flutter version was retired.
 
-## Organización
+## Organization
 
-Un componente por archivo, agrupado por categoría en `src/`:
+One component per file, grouped by category in `src/`:
 
-| Carpeta | Componentes |
+| Folder | Components |
 |---|---|
 | `src/primitives` | Card, IconChip, Pill, Empty, Skeleton |
 | `src/controls` | Button, IconButton, Segmented, Tabs, Switch, ChoiceOption/ChoiceMark, Toolbar, ScrollArrows |
-| `src/forms` | Field, Input, Textarea, Select, ChipEditor, `useFormErrors` + `rules` (validación), `inputCls`; RichTextEditor/RichText (entrypoint aparte `adje-shared-ui/rich-text`) |
+| `src/forms` | Field, Input, Textarea, Select, ChipEditor, `useFormErrors` + `rules` (validation), `inputCls`; RichTextEditor/RichText (separate entrypoint `adje-shared-ui/rich-text`) |
 | `src/overlays` | Modal, Drawer, ConfirmDialog, HelpTip, ToastProvider/useToast, Popover, Menu, useShortcuts |
 | `src/data` | Stat, ProgressBar, Pagination, Table |
 | `src/layout` | PageHeader, SectionTitle, Collapsible, SideNav + SideNavBrand/SideNavAction/SideNavButton/SideNavUser, `useTheme` |
-| `src/tokens` | `palette(name, shade)`, `paletteHex`, `PALETTE` — paleta fija de 15 colores × 10 tonos |
+| `src/tokens` | `palette(name, shade)`, `paletteHex`, `PALETTE` — fixed palette of 15 colors × 10 shades |
 
-Los gráficos (recharts) siguen viviendo en MisFinanzas (`src/components/charts.tsx`):
-dependen de recharts y de sus formateadores de euros, y solo los usa esa app. Si
-algún día Adje Store necesita gráficos, se moverán aquí como módulo opcional.
+Charts (recharts) still live in MisFinanzas (`src/components/charts.tsx`):
+they depend on recharts and on its euro formatters, and only that app uses them.
+If Adje Store ever needs charts, they will move here as an optional module.
 
-`src/index.ts` lo exporta todo **salvo el texto enriquecido**: `RichTextEditor`
-(WYSIWYG con Tiptap: negrita, cursiva, subrayado, título, listas, cita, enlace),
-`RichText` (visor sanitizado con DOMPurify), `sanitizeRichText`,
-`richTextToPlain` e `isRichTextEmpty` se importan de `adje-shared-ui/rich-text`.
-Están aparte porque arrastran Tiptap y DOMPurify: solo la app que los use los
-instala (`npm i @tiptap/react @tiptap/starter-kit @tiptap/extension-placeholder
-@tiptap/pm dompurify`). El editor guarda HTML; úsalo dentro de
-`<Field as="div">` (un editor no va dentro de `<label>`). Los puntos de entrada históricos
-(`adje-shared-ui/ui`, `/toast`, `/PageHeader`) siguen funcionando como
-re-exports, así que las apps existentes no se rompen; para código nuevo importa
-de `adje-shared-ui` a secas.
+`src/index.ts` exports everything **except rich text**: `RichTextEditor`
+(WYSIWYG with Tiptap: bold, italic, underline, heading, lists, quote, link),
+`RichText` (sanitized viewer with DOMPurify), `sanitizeRichText`,
+`richTextToPlain` and `isRichTextEmpty` are imported from `adje-shared-ui/rich-text`.
+They are kept apart because they drag in Tiptap and DOMPurify: only the app that
+uses them installs them (`npm i @tiptap/react @tiptap/starter-kit @tiptap/extension-placeholder
+@tiptap/pm dompurify`). The editor stores HTML; use it inside
+`<Field as="div">` (an editor does not go inside a `<label>`). The historical entry points
+(`adje-shared-ui/ui`, `/toast`, `/PageHeader`) keep working as
+re-exports, so existing apps do not break; for new code import from plain
+`adje-shared-ui`.
 
-## Reglas de la casa
+## House rules
 
-- **Tamaños concretos.** Todos los controles de línea (Button, Input —incluida
-  la fecha nativa—, Select, Segmented) miden `--control-h` (38px; `sm` 32px,
-  `lg` 46px, definidos en `theme.css`). Button, Input y Select comparten la prop
-  `size` (sm/md/lg) con Segmented: un input y el botón de al lado llevan
-  SIEMPRE la misma talla. Nunca un botón más alto o más bajo que su input.
-- **Una sola escala de tamaños.** `Switch`, `Radio`, `Checkbox` y
-  `ChoiceOption` comparten `size` (sm/md/lg), igual que
+- **Concrete sizes.** All inline controls (Button, Input —including the native
+  date input—, Select, Segmented) measure `--control-h` (38px; `sm` 32px,
+  `lg` 46px, defined in `theme.css`). Button, Input and Select share the
+  `size` prop (sm/md/lg) with Segmented: an input and the button next to it
+  ALWAYS wear the same size. Never a button taller or shorter than its input.
+- **A single size scale.** `Switch`, `Radio`, `Checkbox` and
+  `ChoiceOption` share `size` (sm/md/lg), just like
   Button/Input/Select/Segmented:
-  `sm` para filas densas y tablas, `md` por defecto, `lg` cuando el control
-  manda en la pantalla.
-- **Para elegir, UN componente: `ChoiceOption`.** Antes había tres para lo
-  mismo (PickCard, ChoiceToggle y ChoiceOption) y la opción elegida se marcaba
-  de tres maneras distintas en la misma app. Los otros dos se retiraron en la
-  3.0.0. Se pulsa la fila entera, no el circulito: el input nativo con
-  `accent-color` ni se deja dimensionar ni respeta el tema.
-  - La FORMA de la marca dice cuántas puedes elegir: **redonda** una sola,
-    **cuadrada** varias. El radio no lleva punto central — encendido es un
-    círculo relleno con un tic, igual que el checkbox: un punto y un tic
-    significaban lo mismo con dos dibujos distintos.
-  - Elegida = **borde en degradado + tic**, y el tic sale UNA vez: dentro de la
-    marca, o a la derecha si vas sin marca (`marca={false}`, la antigua
+  `sm` for dense rows and tables, `md` by default, `lg` when the control
+  rules the screen.
+- **To choose, ONE component: `ChoiceOption`.** There used to be three for the
+  same thing (PickCard, ChoiceToggle and ChoiceOption) and the chosen option was
+  marked three different ways in the same app. The other two were retired in
+  3.0.0. The whole row is clickable, not the little circle: the native input with
+  `accent-color` neither lets itself be sized nor respects the theme.
+  - The SHAPE of the mark tells how many you can choose: **round** for one,
+    **square** for several. The radio has no center dot — on, it is a filled
+    circle with a tick, same as the checkbox: a dot and a tick meant the same
+    thing with two different drawings.
+  - Chosen = **gradient border + tick**, and the tick appears ONCE: inside the
+    mark, or on the right if you go without a mark (`mark={false}`, the old
     PickCard).
-  - `tone="positive" | "negative"` + `align="center"` cubre el toggle de dos
-    opciones con color semántico (la antigua ChoiceToggle).
-  - `ChoiceMark` es la marca suelta, para listas y tablas propias.
-- **El Switch es para encendido/apagado**, no para elegir. Va a la par de la
-  marca de `ChoiceOption` en las tres tallas: antes un `md` medía 24px contra
-  los 18px de la marca de al lado y parecía el elemento principal de la fila
-  sin serlo.
-- **Si no cabe, flechas — nunca una barra.** `Tabs` y `Segmented` sacan dos
-  flechas en los extremos cuando su contenido desborda el contenedor
-  (`ScrollArrows`, reutilizable en cualquier fila horizontal). Las barras de
-  desplazamiento se ven distintas en cada sistema y en Mac ni aparecen hasta
-  que las tocas.
-- **El Popover se pinta en `<body>`.** Va con un portal y posición fija
-  calculada desde el disparador, así no lo recorta ningún contenedor con
-  overflow (tablas con scroll, tarjetas, paneles pegajosos) — era el motivo de
-  los menús cortados por la mitad. Si no cabe por abajo se abre hacia arriba.
-- **Lo elegido se marca con borde en degradado.** `PickCard` y `ChoiceOption`
-  usan la clase `.borde-degradado` de `theme.css` (tres capas de fondo, porque
-  `border-image` no se lleva con `border-radius`). El acento plano no se
-  distinguía del borde normal en tema oscuro.
-- **El código en bloque es un ELEMENTO, no formato de texto.** `CodeBlock`
-  (con lenguaje y botón de copiar) es una pieza propia; dentro del texto
-  enriquecido solo queda el código EN LÍNEA. Sin resaltado de sintaxis a
-  propósito: eso pide una librería aparte.
-- **Texto enriquecido: tres barreras.** `RichTextEditor` no deja entrar HTML
-  peligroso (`transformPastedHTML` sanea lo pegado ANTES de interpretarlo), no
-  deja crear enlaces con protocolos raros (`isAllowedUri` + `protocols`) y
-  emite ya saneado, de modo que lo que se guarda nace limpio. `RichText` vuelve
-  a sanear al pintar. Y `sanitizeRichText` funciona SIN DOM (servidor), donde
-  DOMPurify no existe: en vez de devolver el HTML tal cual —el agujero
-  clásico— aparta las etiquetas permitidas y escapa todo lo demás.
-- **Menús con separadores y atajos.** Los items de `Menu` admiten
-  `{ separator: true }` para agrupar (lo de siempre antes de un "Eliminar") y
-  `shortcut: "mod+d"`, que se pinta como tecla. El menú solo lo PINTA: quien lo
-  hace funcionar es `useShortcuts(items)`, que se llama donde viven las
-  acciones — así el atajo va con el menú cerrado, que es de lo que se trata.
-- **Zona de acciones.** Modal y Drawer tienen prop `footer`: los botones de
-  guardar/cancelar van ahí (barra propia, en el Drawer siempre visible), nunca
-  sueltos en el contenido.
-- **Validación.** `useFormErrors` + `rules` para validar en el cliente, y
-  `<Field error={errors.x} required>`: pinta el mensaje en rojo y el borde del
-  control automáticamente (via contexto), para que siempre se sepa qué campo
-  falla.
-- **Colores solo por token.** Nada de hex en componentes: `var(--...)` siempre.
-  Los tokens base viven en `theme.css`; los de identidad de marca
+  - `tone="positive" | "negative"` + `align="center"` covers the two-option
+    toggle with semantic color (the old ChoiceToggle).
+  - `ChoiceMark` is the standalone mark, for your own lists and tables.
+- **The Switch is for on/off**, not for choosing. It matches the
+  `ChoiceOption` mark in all three sizes: before, an `md` measured 24px against
+  the 18px of the mark next to it and looked like the main element of the row
+  without being so.
+- **If it does not fit, arrows — never a bar.** `Tabs` and `Segmented` show two
+  arrows at the ends when their content overflows the container
+  (`ScrollArrows`, reusable in any horizontal row). Scrollbars look
+  different on every system and on Mac do not even appear until you touch them.
+- **The Popover renders in `<body>`.** It uses a portal and a fixed position
+  computed from the trigger, so no container with overflow clips it (scrolling
+  tables, cards, sticky panels) — that was the cause of menus cut in half. If it
+  does not fit below, it opens upward.
+- **The chosen item is marked with a gradient border.** `PickCard` and `ChoiceOption`
+  use the `.gradient-border` class from `theme.css` (three background layers, because
+  `border-image` does not get along with `border-radius`). The flat accent was
+  indistinguishable from the normal border in dark theme.
+- **Block code is an ELEMENT, not text formatting.** `CodeBlock`
+  (with language and copy button) is its own piece; inside rich text only
+  INLINE code remains. No syntax highlighting on purpose: that calls for a
+  separate library.
+- **Rich text: three barriers.** `RichTextEditor` does not let dangerous HTML in
+  (`transformPastedHTML` sanitizes pasted content BEFORE interpreting it), does not
+  let links with odd protocols be created (`isAllowedUri` + `protocols`) and
+  emits already sanitized output, so what gets stored is born clean. `RichText`
+  sanitizes again when rendering. And `sanitizeRichText` works WITHOUT a DOM (server),
+  where DOMPurify does not exist: instead of returning the HTML as is —the classic
+  hole— it keeps the allowed tags aside and escapes everything else.
+- **Menus with separators and shortcuts.** `Menu` items accept
+  `{ separator: true }` to group (the usual one before a "Delete") and
+  `shortcut: "mod+d"`, which is drawn as a key. The menu only DRAWS it: what makes
+  it work is `useShortcuts(items)`, called where the actions live — so the
+  shortcut works with the menu closed, which is the whole point.
+- **Action zone.** Modal and Drawer have a `footer` prop: the save/cancel
+  buttons go there (its own bar, always visible in the Drawer), never loose in
+  the content.
+- **Validation.** `useFormErrors` + `rules` to validate on the client, and
+  `<Field error={errors.x} required>`: it paints the message in red and the
+  control border automatically (via context), so it is always clear which field
+  fails.
+- **Colors only by token.** No hex in components: always `var(--...)`.
+  Base tokens live in `theme.css`; brand identity tokens
   (`--accent-pink`, `--accent-blue`, `--app-gradient`, `--blue-shadow`,
-  `--scrollbar-thumb`, `--scrollbar-thumb-hover`) los define cada app en su
+  `--scrollbar-thumb`, `--scrollbar-thumb-hover`) are defined by each app in its
   `globals.css`.
-- **Paleta fija para colores "de dato".** Etiquetas, categorías, pills y
-  gráficos usan la paleta de 15 colores × 10 tonos (`--c-<color>-<tono>`,
+- **Fixed palette for "data" colors.** Tags, categories, pills and
+  charts use the palette of 15 colors × 10 shades (`--c-<color>-<shade>`,
   50→900): slate, red, orange, amber, yellow, lime, green, teal, cyan, blue,
-  indigo, violet, purple, pink, rose. En código: `palette("green", 600)` devuelve
-  `var(--c-green-600)`; `PALETTE.green[600]` da el hex para destinos sin CSS
-  (canvas, SVG exportado). Los tonos no cambian con el tema: 500–600 en claro,
-  300–400 en oscuro. Se ven todos en la sección Tokens del demo.
-- **Navegación en tres zonas.** `SideNav` tiene `top` (normalmente `SideNavBrand`:
-  icono + nombre de la app; o lo que sea: selector de sitio, avisos), el menú (`items`) y `bottom` (lo que
-  sea; normalmente `SideNavUser`: avatar + nombre que abre un `Menu` con tema,
-  ajustes, salir) y `SideNavAction` (icono + etiqueta + badge, con acción o
-  popover: notificaciones, avisos…). En escritorio es el rail de 232px del layout
-  `.principal`, contraíble a solo iconos (72px) con el botón «Contraer» (se
-  recuerda en localStorage; `topCompact`/`bottomCompact` para las zonas,
-  `useSideNavCompact()` para contenido propio);
-  por debajo de 768px queda oculto a la izquierda y se abre con la hamburguesa
-  que `PageHeader` pinta solo cuando hay un SideNav montado (sin provider:
-  `sideNavState`). Se cierra al navegar, con Escape o tocando el fondo.
-- **Sin lógica de dominio.** Aquí solo UI reutilizable.
+  indigo, violet, purple, pink, rose. In code: `palette("green", 600)` returns
+  `var(--c-green-600)`; `PALETTE.green[600]` gives the hex for targets without CSS
+  (canvas, exported SVG). Shades do not change with the theme: 500–600 in light,
+  300–400 in dark. All of them are visible in the Tokens section of the demo.
+- **Three-zone navigation.** `SideNav` has `top` (usually `SideNavBrand`:
+  icon + app name; or anything else: site switcher, notices), the menu (`items`) and `bottom` (anything;
+  usually `SideNavUser`: avatar + name that opens a `Menu` with theme,
+  settings, sign out) and `SideNavAction` (icon + label + badge, with an action or a
+  popover: notifications, notices…). On desktop it is the 232px rail of the
+  `.app-shell` layout, collapsible to icons only (72px) with the "Collapse" button (remembered
+  in localStorage; `topCompact`/`bottomCompact` for the zones,
+  `useSideNavCompact()` for your own content);
+  below 768px it stays hidden on the left and opens with the hamburger
+  that `PageHeader` draws only when a SideNav is mounted (no provider:
+  `sideNavState`). It closes on navigation, with Escape or by tapping the backdrop.
+- **No domain logic.** Only reusable UI here.
 
-## Demo / escaparate
+## Demo / showcase
 
 ```bash
 npm install
 npm run demo   # http://localhost:4400
 ```
 
-`demo/` es una página con todos los componentes vivos, por categoría: úsala para
-ver qué hay antes de crear algo nuevo, y añade ahí cualquier componente nuevo.
+`demo/` is a page with every component live, by category: use it to see what
+exists before creating something new, and add any new component there.
 
-## Cómo se consume desde cada app
+## How each app consumes it
 
-Es un paquete real de npm (sin publicar en el registro; se instala directo desde
-GitHub), no una carpeta hermana con alias de rutas. En el `package.json` de la
-app consumidora:
+It is a real npm package (not published to the registry; installed straight from
+GitHub), not a sibling folder with path aliases. In the consuming app's
+`package.json`:
 
 ```json
 "dependencies": {
@@ -149,16 +148,44 @@ app consumidora:
 }
 ```
 
-Y en su configuración:
+And in its configuration:
 
-- `next.config.mjs`: `transpilePackages: ["adje-shared-ui"]` (el paquete se
-  distribuye como TSX sin compilar).
-- `tailwind.config.ts` → `content`: añadir
-  `"./node_modules/adje-shared-ui/**/*.{ts,tsx}"` para que Tailwind no purgue
-  las clases del paquete.
-- `app/layout.tsx` (o global): `import "adje-shared-ui/theme.css";`
+- `next.config.mjs`: `transpilePackages: ["adje-shared-ui"]` (the package is
+  distributed as uncompiled TSX).
+- `tailwind.config.ts` → `content`: add
+  `"./node_modules/adje-shared-ui/**/*.{ts,tsx}"` so Tailwind does not purge
+  the package's classes.
+- `app/layout.tsx` (or global): `import "adje-shared-ui/theme.css";`
 
-**Publicar cambios:** commit + push a `main` en GitHub y, en cada app,
-`npm update adje-shared-ui` (o borrar `node_modules/adje-shared-ui` y
-`npm install`). Probar SIEMPRE en todas las apps que lo consumen: cualquier cambio aquí las
-afecta a todas.
+**Publishing changes:** commit + push to `main` on GitHub and, in each app,
+`npm update adje-shared-ui` (or delete `node_modules/adje-shared-ui` and
+`npm install`). ALWAYS test in every app that consumes it: any change here
+affects all of them.
+
+## Breaking changes in 4.0.0
+
+The whole codebase (comments, identifiers, default UI strings) moved from
+Spanish to English. Public renames:
+
+- Rich text: `HERRAMIENTAS_TEXTO` → `TEXT_TOOLS`; type `HerramientaTexto` →
+  `TextTool`. Tool values: `"negrita"` → `"bold"`, `"cursiva"` → `"italic"`,
+  `"subrayado"` → `"underline"`, `"lista"` → `"list"`, `"numerada"` →
+  `"ordered"`, `"cita"` → `"quote"`, `"codigo"` → `"code"`, `"enlace"` →
+  `"link"`, `"historial"` → `"history"` (`"h2"`/`"h3"` unchanged).
+- `RichTextEditor` props: `herramientas` → `tools`; `variante` → `variant`,
+  with values `"caja"` → `"box"` and `"plano"` → `"plain"`.
+- Shortcuts: `esMac` → `isMac`, `useEsMac` → `useIsMac`, type `AccionConAtajo`
+  → `ShortcutAction`.
+- Code highlighting: `tokenizar` → `tokenize`, `porLineas` → `splitLines`, type
+  `TipoToken` → `TokenType` (module `src/primitives/resaltado.ts` is now
+  `src/primitives/highlight.ts`).
+- Default UI strings (ConfirmDialog labels, placeholders, aria-labels) are now
+  in English. Apps that relied on the Spanish defaults should pass their own
+  labels.
+- `ChoiceOption`: prop `marca` → `mark`. `ScrollArrows`: prop `paso` → `step`.
+  `CodeBlock`: props `copiable` → `copyable`, `colorPorDefecto` →
+  `defaultColor`, `numerosPorDefecto` → `defaultLineNumbers`.
+- CSS classes in `theme.css`: `.principal` → `.app-shell`, `.borde-degradado` →
+  `.gradient-border`, `.sin-scrollbar` → `.no-scrollbar`, `.codigo-scroll` →
+  `.code-scroll`.
+- Every other component and prop name was already English and is unchanged.

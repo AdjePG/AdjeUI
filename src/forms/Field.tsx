@@ -4,22 +4,22 @@ import { ReactNode, createContext, useContext } from "react";
 import { AlertCircle } from "lucide-react";
 import { HelpTip } from "../overlays/HelpTip";
 
-// Contexto que propaga el estado de error del Field a los controles que
-// contiene: Input, Textarea y Select se pintan en rojo solos cuando el Field
-// tiene `error`, sin pasar props a mano.
+// Context that propagates the Field's error state to the controls it
+// contains: Input, Textarea and Select turn red on their own when the Field
+// has `error`, without passing props by hand.
 const FieldCtx = createContext<{ invalid: boolean }>({ invalid: false });
 
 export function useFieldInvalid(): boolean {
   return useContext(FieldCtx).invalid;
 }
 
-// Campo de formulario: etiqueta + control + (ayuda | error).
-// - `required` pinta un asterisco en la etiqueta.
-// - `error` muestra el mensaje en rojo bajo el control Y pone el borde del
-//   control en rojo (via contexto). Pasa el mensaje de useFormErrors.
-// - `as="div"` para controles que NO son un input nativo (editor de texto
-//   enriquecido, grupos de botones…): dentro de un <label>, el clic activaría
-//   el primer botón que contengan.
+// Form field: label + control + (help | error).
+// - `required` paints an asterisk in the label.
+// - `error` shows the message in red under the control AND turns the
+//   control's border red (via context). Pass the message from useFormErrors.
+// - `as="div"` for controls that are NOT a native input (rich-text editor,
+//   button groups…): inside a <label>, the click would activate the first
+//   button they contain.
 export function Field({
   label,
   children,

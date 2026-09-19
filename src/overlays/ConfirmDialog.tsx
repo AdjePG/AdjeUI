@@ -4,16 +4,16 @@ import { ReactNode } from "react";
 import { Modal } from "./Modal";
 import { Button } from "../controls/Button";
 
-// Confirmación de acciones (borrar, sobrescribir…) construida sobre Modal +
-// Button, para no repetir el mismo diálogo a mano en cada app.
+// Action confirmation (delete, overwrite…) built on Modal + Button, so the
+// same dialog isn't rebuilt by hand in every app.
 export function ConfirmDialog({
   open,
   onClose,
   onConfirm,
-  title = "¿Estás seguro?",
+  title = "Are you sure?",
   message,
-  confirmLabel = "Confirmar",
-  cancelLabel = "Cancelar",
+  confirmLabel = "Confirm",
+  cancelLabel = "Cancel",
   danger = false,
 }: {
   open: boolean;

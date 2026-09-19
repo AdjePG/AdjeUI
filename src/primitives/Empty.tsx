@@ -2,7 +2,7 @@
 
 import { ReactNode } from "react";
 
-// Estado vacío centrado (sin resultados, sin datos todavía).
+// Centered empty state (no results, no data yet).
 export function Empty({ icon, title, children }: { icon?: ReactNode; title: string; children?: ReactNode }) {
   return (
     <div className="text-center py-10 text-muted">

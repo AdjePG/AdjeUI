@@ -3,12 +3,12 @@
 import { ReactNode, useEffect } from "react";
 import { X } from "lucide-react";
 
-// Diálogo centrado. `footer` es la ZONA DE ACCIONES: pásale los botones
-// (crear/guardar/cancelar) y se pintan en una barra propia separada del
-// contenido, igual en todos los diálogos. No los metas en children.
+// Centered dialog. `footer` is the ACTION ZONE: pass it the buttons
+// (create/save/cancel) and they're drawn in their own bar separated from the
+// content, the same in every dialog. Don't put them in children.
 //
-//   <Modal … footer={<><Button variant="ghost" onClick={onClose}>Cancelar</Button>
-//                     <Button onClick={save}>Guardar</Button></>}>
+//   <Modal … footer={<><Button variant="ghost" onClick={onClose}>Cancel</Button>
+//                     <Button onClick={save}>Save</Button></>}>
 export function Modal({
   open,
   onClose,
@@ -19,7 +19,7 @@ export function Modal({
 }: {
   open: boolean;
   onClose: () => void;
-  /** Texto, o lo que haga falta: una cara y un nombre, un chip de estado… */
+  /** Text, or whatever is needed: a face and a name, a status chip… */
   title: ReactNode;
   children: ReactNode;
   footer?: ReactNode;
@@ -49,7 +49,7 @@ export function Modal({
           <button
             onClick={onClose}
             className="w-8 h-8 rounded-lg hover:bg-[var(--hover)] inline-flex items-center justify-center"
-            aria-label="Cerrar"
+            aria-label="Close"
           >
             <X size={18} />
           </button>

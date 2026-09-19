@@ -82,7 +82,7 @@ import {
   useToast,
 } from "../../src";
 import { RichText, RichTextEditor, richTextToPlain } from "../../rich-text";
-import { Block, Frame, Section } from "../comunes";
+import { Block, Frame, Section } from "../common";
 
 const THEME_TOKENS = [
   "background",
@@ -107,7 +107,7 @@ export function TokensSection() {
   async function copy(text: string) {
     try {
       await navigator.clipboard.writeText(text);
-      toast(`Copiado: ${text}`, "success");
+      toast(`Copied: ${text}`, "success");
     } catch {
       toast(text, "info");
     }
@@ -117,10 +117,10 @@ export function TokensSection() {
     <Section
       id="tokens"
       title="Tokens"
-      subtitle="theme.css — tokens de tema (cambian con claro/oscuro), alturas de control y la paleta fija de 15 colores × 10 tonos"
+      subtitle="theme.css — theme tokens (change with light/dark), control heights and the fixed palette of 15 colors × 10 shades"
     >
       <Card className="flex flex-col gap-5">
-        <Block name="Tokens de tema (haz clic para copiar la variable)">
+        <Block name="Theme tokens (click to copy the variable)">
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 w-full">
             {THEME_TOKENS.map((t) => (
               <button
@@ -144,7 +144,7 @@ export function TokensSection() {
           </div>
         </Block>
 
-        <Block name="Alturas de control: --control-h-sm 32 · --control-h 38 · --control-h-lg 46 (Button, Input y Select comparten talla)">
+        <Block name="Control heights: --control-h-sm 32 · --control-h 38 · --control-h-lg 46 (Button, Input and Select share the size)">
           <div className="flex items-end gap-3 flex-wrap">
             {(["sm", "md", "lg"] as const).map((s) => (
               <div key={s} className="flex flex-col items-center gap-1">
@@ -162,7 +162,7 @@ export function TokensSection() {
           </div>
         </Block>
 
-        <Block name="Paleta fija: 15 colores × 10 tonos (clic = copiar var(); el título muestra el hex)">
+        <Block name="Fixed palette: 15 colors × 10 shades (click = copy var(); the tooltip shows the hex)">
           <div className="w-full overflow-x-auto custom-scrollbar">
             <div className="min-w-[640px] flex flex-col gap-1">
               <div className="grid gap-1" style={{ gridTemplateColumns: "72px repeat(10, minmax(0, 1fr))" }}>
@@ -191,19 +191,19 @@ export function TokensSection() {
             </div>
           </div>
           <p className="text-[12px] text-muted w-full">
-            En código: <code className="font-mono">palette("green", 600)</code> → <code className="font-mono">var(--c-green-600)</code>;{" "}
-            <code className="font-mono">PALETTE.green[600]</code> → hex para SVG/canvas. Los tonos no cambian con el tema: usa 500–600 sobre
-            fondo claro y 300–400 sobre fondo oscuro.
+            In code: <code className="font-mono">palette("green", 600)</code> → <code className="font-mono">var(--c-green-600)</code>;{" "}
+            <code className="font-mono">PALETTE.green[600]</code> → hex for SVG/canvas. Shades do not change with the theme: use 500–600 on a
+            light background and 300–400 on a dark one.
           </p>
         </Block>
 
-        <Block name="Uso: Pills con la paleta">
-          <Pill color={palette("green", 600)}>Publicado</Pill>
-          <Pill color={palette("violet", 600)}>Diseñando</Pill>
-          <Pill color={palette("rose", 600)}>Pausado</Pill>
-          <Pill color={palette("amber", 600)}>Pendiente</Pill>
-          <Pill color={palette("cyan", 600)}>Nuevo</Pill>
-          <Pill color={palette("slate", 500)}>Archivado</Pill>
+        <Block name="Usage: Pills with the palette">
+          <Pill color={palette("green", 600)}>Published</Pill>
+          <Pill color={palette("violet", 600)}>Designing</Pill>
+          <Pill color={palette("rose", 600)}>Paused</Pill>
+          <Pill color={palette("amber", 600)}>Pending</Pill>
+          <Pill color={palette("cyan", 600)}>New</Pill>
+          <Pill color={palette("slate", 500)}>Archived</Pill>
         </Block>
       </Card>
     </Section>

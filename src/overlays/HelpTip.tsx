@@ -3,17 +3,17 @@
 import { ReactNode, useRef, useState } from "react";
 import { HelpCircle } from "lucide-react";
 
-// Tooltip de ayuda (¿qué es esto?). Solo hover/focus. El contenido puede ser
-// texto o JSX con formato (<p>, <ul><li>, <b>…): se estiliza solo (.help-body).
+// Help tooltip ("what is this?"). Hover/focus only. The content can be text or
+// formatted JSX (<p>, <ul><li>, <b>…): it gets styled on its own (.help-body).
 export function HelpTip({ children, label }: { children: ReactNode; label?: string }) {
   const [open, setOpen] = useState(false);
   const [coords, setCoords] = useState<{ left: number; top: number; width: number } | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ref = useRef<HTMLSpanElement>(null);
 
-  // Posición calculada al abrir y ANCLADA al viewport (position: fixed), así el
-  // globo nunca se sale por el borde derecho: se centra bajo el icono pero se
-  // recorta a [8px, ancho-8px]. Fixed además escapa del recorte de las tarjetas.
+  // Position computed on open and ANCHORED to the viewport (position: fixed), so
+  // the bubble never overflows the right edge: it's centered under the icon but
+  // clamped to [8px, width-8px]. Fixed also escapes the cards' clipping.
   function show() {
     if (timer.current) clearTimeout(timer.current);
     const el = ref.current;
@@ -43,7 +43,7 @@ export function HelpTip({ children, label }: { children: ReactNode; label?: stri
       <span
         tabIndex={0}
         role="button"
-        aria-label={label ?? "Más información"}
+        aria-label={label ?? "More info"}
         className={`inline-flex items-center justify-center rounded-full transition-colors outline-none ${
           open ? "text-[var(--accent-blue)]" : "text-muted hover:text-[var(--accent-blue)]"
         }`}
@@ -65,7 +65,7 @@ export function HelpTip({ children, label }: { children: ReactNode; label?: stri
             }}
           >
             <span className="flex items-center gap-1.5 px-3.5 pt-2.5 pb-1 text-[11px] font-semibold uppercase tracking-wide text-[var(--accent-blue)]">
-              <HelpCircle size={12} strokeWidth={2.5} /> {label ?? "¿Qué es esto?"}
+              <HelpCircle size={12} strokeWidth={2.5} /> {label ?? "What is this?"}
             </span>
             <span className="help-body block px-3.5 pb-3 pt-0.5 text-[13px] leading-relaxed text-[var(--foreground)]">
               {children}

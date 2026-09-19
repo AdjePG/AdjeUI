@@ -3,19 +3,19 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
-// Popover anclado a un disparador: se cierra con clic fuera o Escape. Sirve
-// para selectores (de sitio, de cuenta), campanitas y menús de usuario.
+// Popover anchored to a trigger: closes on outside click or Escape. Used for
+// pickers (site, account), notification bells and user menus.
 //
 //   <Popover placement="top" trigger={({ open, toggle }) => <button onClick={toggle}>…</button>}>
-//     <Menu title="Cuenta" items={[…]} />
+//     <Menu title="Account" items={[…]} />
 //   </Popover>
 //
-// El panel se pinta en <body> con un portal y posición fija calculada desde el
-// disparador (13 sep 2026; antes iba en absoluto dentro del árbol). Así NINGÚN
-// contenedor con overflow lo recorta —tablas con scroll horizontal, tarjetas,
-// paneles pegajosos—, que era el motivo de los menús cortados por la mitad.
-// Se recoloca al hacer scroll o cambiar el tamaño, y si no cabe por abajo se
-// abre hacia arriba (y al revés).
+// The panel is rendered into <body> through a portal with a fixed position
+// computed from the trigger (13 Sep 2026; it used to be absolute inside the
+// tree). That way NO container with overflow clips it —tables with horizontal
+// scroll, cards, sticky panels—, which was the cause of menus cut in half.
+// It repositions on scroll or resize, and if it doesn't fit below it opens
+// upwards (and vice versa).
 export function Popover({
   trigger,
   children,
@@ -28,37 +28,37 @@ export function Popover({
   trigger: (p: { open: boolean; toggle: () => void; close: () => void }) => ReactNode;
   children: ReactNode | ((p: { close: () => void }) => ReactNode);
   placement?: "top" | "bottom";
-  align?: "start" | "end" | "stretch"; // stretch = mismo ancho que el disparador
-  width?: number; // ancho fijo del panel (px); ignora align="stretch"
+  align?: "start" | "end" | "stretch"; // stretch = same width as the trigger
+  width?: number; // fixed panel width (px); overrides align="stretch"
   className?: string;
   panelClassName?: string;
 }) {
   const [open, setOpen] = useState(false);
-  const anclaRef = useRef<HTMLDivElement>(null);
+  const anchorRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState<{ top: number; left: number; width?: number } | null>(null);
 
-  const colocar = useCallback(() => {
-    const ancla = anclaRef.current;
+  const place = useCallback(() => {
+    const anchor = anchorRef.current;
     const panel = panelRef.current;
-    if (!ancla || !panel) return;
-    const r = ancla.getBoundingClientRect();
-    const alto = panel.offsetHeight;
-    const ancho = width ?? (align === "stretch" ? r.width : panel.offsetWidth);
-    const margen = 6;
-    const hueco = 8;
+    if (!anchor || !panel) return;
+    const r = anchor.getBoundingClientRect();
+    const height = panel.offsetHeight;
+    const panelWidth = width ?? (align === "stretch" ? r.width : panel.offsetWidth);
+    const margin = 6;
+    const gap = 8;
 
-    // Vertical: la preferida si cabe; si no, la otra; si tampoco, la que más espacio tenga.
-    const cabeAbajo = r.bottom + margen + alto <= window.innerHeight - hueco;
-    const cabeArriba = r.top - margen - alto >= hueco;
-    let abajo = placement === "bottom" ? cabeAbajo || !cabeArriba : !cabeArriba && cabeAbajo;
-    if (!cabeAbajo && !cabeArriba) abajo = window.innerHeight - r.bottom >= r.top;
-    let top = abajo ? r.bottom + margen : r.top - margen - alto;
-    top = Math.max(hueco, Math.min(top, window.innerHeight - hueco - alto));
+    // Vertical: the preferred side if it fits; else the other; else whichever has more room.
+    const fitsBelow = r.bottom + margin + height <= window.innerHeight - gap;
+    const fitsAbove = r.top - margin - height >= gap;
+    let below = placement === "bottom" ? fitsBelow || !fitsAbove : !fitsAbove && fitsBelow;
+    if (!fitsBelow && !fitsAbove) below = window.innerHeight - r.bottom >= r.top;
+    let top = below ? r.bottom + margin : r.top - margin - height;
+    top = Math.max(gap, Math.min(top, window.innerHeight - gap - height));
 
-    // Horizontal: alineado al disparador y dentro de la ventana.
-    let left = align === "end" ? r.right - ancho : r.left;
-    left = Math.max(hueco, Math.min(left, window.innerWidth - hueco - ancho));
+    // Horizontal: aligned to the trigger and kept inside the window.
+    let left = align === "end" ? r.right - panelWidth : r.left;
+    left = Math.max(gap, Math.min(left, window.innerWidth - gap - panelWidth));
 
     setPos({ top, left, width: width ?? (align === "stretch" ? r.width : undefined) });
   }, [align, placement, width]);
@@ -68,14 +68,14 @@ export function Popover({
       setPos(null);
       return;
     }
-    colocar();
-  }, [open, colocar]);
+    place();
+  }, [open, place]);
 
   useEffect(() => {
     if (!open) return;
     function onDoc(e: MouseEvent) {
       const t = e.target as Node;
-      if (anclaRef.current?.contains(t) || panelRef.current?.contains(t)) return;
+      if (anchorRef.current?.contains(t) || panelRef.current?.contains(t)) return;
       setOpen(false);
     }
     function onEsc(e: KeyboardEvent) {
@@ -83,22 +83,22 @@ export function Popover({
     }
     document.addEventListener("mousedown", onDoc);
     document.addEventListener("keydown", onEsc);
-    // Scroll de cualquier contenedor (fase de captura) y cambios de tamaño.
-    document.addEventListener("scroll", colocar, true);
-    window.addEventListener("resize", colocar);
+    // Scroll of any container (capture phase) and resizes.
+    document.addEventListener("scroll", place, true);
+    window.addEventListener("resize", place);
     return () => {
       document.removeEventListener("mousedown", onDoc);
       document.removeEventListener("keydown", onEsc);
-      document.removeEventListener("scroll", colocar, true);
-      window.removeEventListener("resize", colocar);
+      document.removeEventListener("scroll", place, true);
+      window.removeEventListener("resize", place);
     };
-  }, [open, colocar]);
+  }, [open, place]);
 
   const close = () => setOpen(false);
   const toggle = () => setOpen((o) => !o);
 
   return (
-    <div ref={anclaRef} className={`relative ${className}`}>
+    <div ref={anchorRef} className={`relative ${className}`}>
       {trigger({ open, toggle, close })}
       {open &&
         typeof document !== "undefined" &&
@@ -111,7 +111,7 @@ export function Popover({
               top: pos?.top ?? 0,
               left: pos?.left ?? 0,
               width: pos?.width ?? width,
-              // Hasta medir, invisible: evita el parpadeo en la esquina.
+              // Invisible until measured: avoids the flicker in the corner.
               visibility: pos ? "visible" : "hidden",
             }}
           >

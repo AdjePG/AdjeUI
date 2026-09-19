@@ -2,8 +2,8 @@
 
 import { ReactNode } from "react";
 
-// Botón estándar. La ALTURA es fija por talla (tokens --control-h-* de
-// theme.css) para que nunca haya un botón más alto que otro ni que un input.
+// Standard button. The HEIGHT is fixed per size (--control-h-* tokens from
+// theme.css) so no button is ever taller than another one or than an input.
 export type ButtonVariant = "primary" | "ghost" | "outline" | "danger";
 export type ControlSize = "sm" | "md" | "lg";
 
@@ -40,8 +40,8 @@ export function Button({
   className?: string;
   disabled?: boolean;
   title?: string;
-  full?: boolean; // ocupa todo el ancho (w-full)
-  loading?: boolean; // spinner + deshabilitado
+  full?: boolean; // takes the full width (w-full)
+  loading?: boolean; // spinner + disabled
 }) {
   const base =
     "inline-flex items-center justify-center gap-2 font-semibold whitespace-nowrap transition disabled:opacity-40 disabled:cursor-not-allowed shrink-0";

@@ -83,86 +83,86 @@ import {
   useToast,
 } from "../../src";
 import { RichText, RichTextEditor, richTextToPlain } from "../../rich-text";
-import { Block, Frame, Section } from "../comunes";
+import { Block, Frame, Section } from "../common";
 
 // ---------------- controls ----------------
 
 export function ControlsSection() {
   const { toast } = useToast();
-  const [seg, setSeg] = useState("todos");
+  const [seg, setSeg] = useState("all");
   const [view, setView] = useState("grid");
   const [tab, setTab] = useState("a");
   const [on, setOn] = useState(true);
-  const [unaSola, setUnaSola] = useState(0);
-  const [varias, setVarias] = useState<number[]>([0]);
+  const [single, setSingle] = useState(0);
+  const [multi, setMulti] = useState<number[]>([0]);
   const [tone, setTone] = useState<"in" | "out">("in");
   const [pick, setPick] = useState("a");
   const [year, setYear] = useState("2026");
   const [filterOn, setFilterOn] = useState(true);
 
   return (
-    <Section id="controls" title="Controls" subtitle="src/controls — botones y toggles. Todos miden --control-h: nunca un botón más alto que un input">
+    <Section id="controls" title="Controls" subtitle="src/controls — buttons and toggles. All measure --control-h: never a button taller than an input">
       <Card className="flex flex-col gap-4">
         <Block name="Button: variant (primary, outline, ghost, danger) × size (sm, md, lg) + loading / disabled">
-          <Button>Primario</Button>
+          <Button>Primary</Button>
           <Button variant="outline">Outline</Button>
           <Button variant="ghost">Ghost</Button>
           <Button variant="danger"><Trash2 size={14} /> Danger</Button>
-          <Button loading>Guardando…</Button>
+          <Button loading>Saving…</Button>
           <Button disabled>Disabled</Button>
           <Button size="sm"><Plus size={13} /> Small</Button>
           <Button size="lg"><Rocket size={16} /> Large</Button>
         </Block>
-        <Block name="Button full (ocupa el ancho) / type=submit">
+        <Block name="Button full (takes the full width) / type=submit">
           <div className="w-full max-w-xs">
-            <Button full variant="outline" onClick={() => toast("Botón a lo ancho.", "info")}>
-              <Download size={14} /> Descargar todo
+            <Button full variant="outline" onClick={() => toast("Full-width button.", "info")}>
+              <Download size={14} /> Download all
             </Button>
           </div>
         </Block>
         <Block name="IconButton: tone (neutral, accent, danger) × size (sm, md) + disabled">
-          <IconButton label="Editar" onClick={() => {}}><Pencil size={14} /></IconButton>
-          <IconButton label="Copiar" tone="accent" onClick={() => {}}><Copy size={14} /></IconButton>
-          <IconButton label="Eliminar" tone="danger" onClick={() => {}}><Trash2 size={14} /></IconButton>
-          <IconButton label="Pequeño" size="sm" onClick={() => {}}><Pencil size={13} /></IconButton>
-          <IconButton label="Deshabilitado" disabled onClick={() => {}}><Trash2 size={14} /></IconButton>
+          <IconButton label="Edit" onClick={() => {}}><Pencil size={14} /></IconButton>
+          <IconButton label="Copy" tone="accent" onClick={() => {}}><Copy size={14} /></IconButton>
+          <IconButton label="Delete" tone="danger" onClick={() => {}}><Trash2 size={14} /></IconButton>
+          <IconButton label="Small" size="sm" onClick={() => {}}><Pencil size={13} /></IconButton>
+          <IconButton label="Disabled" disabled onClick={() => {}}><Trash2 size={14} /></IconButton>
         </Block>
-        <Block name="Segmented: con texto / solo iconos (title como tooltip)">
+        <Block name="Segmented: with text / icons only (title as tooltip)">
           <Segmented
             value={seg}
             onChange={setSeg}
             options={[
-              { value: "todos", label: "Todos" },
+              { value: "all", label: "All" },
               { value: "ideas", label: "Ideas" },
-              { value: "pub", label: "Publicados" },
+              { value: "pub", label: "Published" },
             ]}
           />
           <Segmented
             value={view}
             onChange={setView}
             options={[
-              { value: "grid", icon: <Grid3X3 size={15} />, title: "Cuadrícula" },
-              { value: "list", icon: <List size={15} />, title: "Lista" },
-              { value: "chart", icon: <BarChart3 size={15} />, title: "Gráfico" },
+              { value: "grid", icon: <Grid3X3 size={15} />, title: "Grid" },
+              { value: "list", icon: <List size={15} />, title: "List" },
+              { value: "chart", icon: <BarChart3 size={15} />, title: "Chart" },
             ]}
           />
         </Block>
-        <Block name="Segmented: tamaños sm / md / lg (la misma escala que Button, Input y Select)">
+        <Block name="Segmented: sizes sm / md / lg (the same scale as Button, Input and Select)">
           <Segmented
             size="sm"
             value={view}
             onChange={setView}
             options={[
-              { value: "grid", icon: <Grid3X3 size={14} />, title: "Cuadrícula" },
-              { value: "list", icon: <List size={14} />, title: "Lista" },
+              { value: "grid", icon: <Grid3X3 size={14} />, title: "Grid" },
+              { value: "list", icon: <List size={14} />, title: "List" },
             ]}
           />
           <Segmented
             value={view}
             onChange={setView}
             options={[
-              { value: "grid", icon: <Grid3X3 size={15} />, title: "Cuadrícula" },
-              { value: "list", icon: <List size={15} />, title: "Lista" },
+              { value: "grid", icon: <Grid3X3 size={15} />, title: "Grid" },
+              { value: "list", icon: <List size={15} />, title: "List" },
             ]}
           />
           <Segmented
@@ -170,56 +170,56 @@ export function ControlsSection() {
             value={view}
             onChange={setView}
             options={[
-              { value: "grid", icon: <Grid3X3 size={16} />, title: "Cuadrícula" },
-              { value: "list", icon: <List size={16} />, title: "Lista" },
+              { value: "grid", icon: <Grid3X3 size={16} />, title: "Grid" },
+              { value: "list", icon: <List size={16} />, title: "List" },
             ]}
           />
           <Button size="sm">sm</Button>
           <Button>md</Button>
           <Button size="lg">lg</Button>
         </Block>
-        <Block name="Segmented y Tabs que no caben: flechas en los extremos, nunca una barra de desplazamiento">
+        <Block name="Segmented and Tabs that do not fit: arrows at the ends, never a scrollbar">
           <Frame className="w-full max-w-sm p-3">
             <div className="flex flex-col gap-3">
               <Segmented
                 value={seg}
                 onChange={setSeg}
                 options={[
-                  { value: "todos", label: "Todos" },
+                  { value: "all", label: "All" },
                   { value: "ideas", label: "Ideas" },
-                  { value: "pub", label: "Publicados" },
-                  { value: "borradores", label: "Borradores" },
-                  { value: "archivados", label: "Archivados" },
-                  { value: "papelera", label: "Papelera" },
+                  { value: "pub", label: "Published" },
+                  { value: "drafts", label: "Drafts" },
+                  { value: "archived", label: "Archived" },
+                  { value: "trash", label: "Trash" },
                 ]}
               />
               <Tabs
                 value={tab}
                 onChange={setTab}
                 options={[
-                  { value: "a", label: "Resumen" },
-                  { value: "b", label: "Movimientos" },
-                  { value: "c", label: "Presupuestos" },
-                  { value: "d", label: "Categorías" },
-                  { value: "e", label: "Informes" },
+                  { value: "a", label: "Summary" },
+                  { value: "b", label: "Transactions" },
+                  { value: "c", label: "Budgets" },
+                  { value: "d", label: "Categories" },
+                  { value: "e", label: "Reports" },
                 ]}
               />
             </div>
           </Frame>
-          <span className="text-[12px] text-muted">Estrecha la ventana: las flechas aparecen y desaparecen solas según haga falta.</span>
+          <span className="text-[12px] text-muted">Narrow the window: the arrows appear and disappear on their own as needed.</span>
         </Block>
-        <Block name="Tabs (subrayado degradado; para subpáginas)">
+        <Block name="Tabs (gradient underline; for subpages)">
           <Tabs
             value={tab}
             onChange={setTab}
             options={[
               { value: "a", label: "Series", icon: <Layers size={14} /> },
-              { value: "b", label: "Tipos", icon: <Package size={14} /> },
-              { value: "c", label: "Sin icono" },
+              { value: "b", label: "Types", icon: <Package size={14} /> },
+              { value: "c", label: "No icon" },
             ]}
           />
         </Block>
-        <Block name="Toolbar: leading (fijo), items que colapsan a ···, active (interruptor) y pinned (siempre visible)">
+        <Block name="Toolbar: leading (fixed), items that collapse into ···, active (toggle) and pinned (always visible)">
           <Frame className="max-w-md p-2">
             <Toolbar
               leading={
@@ -234,56 +234,56 @@ export function ControlsSection() {
                 />
               }
               items={[
-                { key: "exp", label: "Exportar", icon: <Download size={14} />, onClick: () => toast("Exportar", "info") },
-                { key: "imp", label: "Importar", icon: <Upload size={14} />, onClick: () => toast("Importar", "info") },
+                { key: "exp", label: "Export", icon: <Download size={14} />, onClick: () => toast("Export", "info") },
+                { key: "imp", label: "Import", icon: <Upload size={14} />, onClick: () => toast("Import", "info") },
                 {
                   key: "filter",
-                  label: "Solo activos",
+                  label: "Active only",
                   icon: <Filter size={14} />,
                   active: filterOn,
                   onClick: () => setFilterOn((v) => !v),
                 },
-                { key: "dis", label: "Deshabilitado", icon: <Pencil size={14} />, disabled: true },
-                { key: "new", label: "Añadir", icon: <Plus size={14} />, variant: "primary", pinned: true, onClick: () => toast("Añadir", "success") },
+                { key: "dis", label: "Disabled", icon: <Pencil size={14} />, disabled: true },
+                { key: "new", label: "Add", icon: <Plus size={14} />, variant: "primary", pinned: true, onClick: () => toast("Add", "success") },
               ]}
             />
           </Frame>
-          <span className="text-[12px] text-muted">Estrecha la ventana: los botones pasan al menú ··· y el anclado se queda solo con icono.</span>
+          <span className="text-[12px] text-muted">Narrow the window: the buttons move into the ··· menu and the pinned one keeps only its icon.</span>
         </Block>
-        <Block name="Switch (con label, disabled)">
-          <Switch checked={on} onChange={setOn} label="Activar" />
-          <span className="text-sm">{on ? "Activado" : "Desactivado"}</span>
-          <Switch checked={true} onChange={() => {}} disabled label="Deshabilitado" />
-          <Switch checked={false} onChange={() => {}} disabled label="Deshabilitado" />
+        <Block name="Switch (with label, disabled)">
+          <Switch checked={on} onChange={setOn} label="Enable" />
+          <span className="text-sm">{on ? "Enabled" : "Disabled"}</span>
+          <Switch checked={true} onChange={() => {}} disabled label="Disabled" />
+          <Switch checked={false} onChange={() => {}} disabled label="Disabled" />
         </Block>
-        <Block name="Switch: tamaños sm / md / lg">
-          <Switch size="sm" checked={on} onChange={setOn} label="Pequeño" />
-          <Switch size="md" checked={on} onChange={setOn} label="Mediano" />
-          <Switch size="lg" checked={on} onChange={setOn} label="Grande" />
-          <span className="text-[12px] text-muted">sm para filas densas · md por defecto · lg cuando manda en la pantalla</span>
+        <Block name="Switch: sizes sm / md / lg">
+          <Switch size="sm" checked={on} onChange={setOn} label="Small" />
+          <Switch size="md" checked={on} onChange={setOn} label="Medium" />
+          <Switch size="lg" checked={on} onChange={setOn} label="Large" />
+          <span className="text-[12px] text-muted">sm for dense rows · md by default · lg when it rules the screen</span>
         </Block>
-        <Block name="ChoiceOption: el ÚNICO componente para elegir (sustituye a PickCard y ChoiceToggle)">
+        <Block name="ChoiceOption: the ONLY component for choosing (replaces PickCard and ChoiceToggle)">
           <span className="text-[12px] text-muted">
-            La forma de la marca dice cuántas puedes elegir: redonda = una sola, cuadrada = varias. Elegida se marca
-            con borde en degradado y tic — y el tic sale una sola vez, nunca dos.
+            The shape of the mark tells how many you can choose: round = one, square = several. Chosen is marked
+            with a gradient border and a tick — and the tick appears once, never twice.
           </span>
         </Block>
-        <Block name="Una sola (marca redonda) · varias (marca cuadrada)">
+        <Block name="Single (round mark) · multiple (square mark)">
           <div className="flex w-full flex-col gap-4 sm:flex-row">
             <div className="flex flex-1 flex-col gap-1.5" role="radiogroup">
               {["Barcelona", "Girona", "Lleida"].map((c, i) => (
-                <ChoiceOption key={c} checked={unaSola === i} prefix={String.fromCharCode(65 + i)} onToggle={() => setUnaSola(i)}>
+                <ChoiceOption key={c} checked={single === i} prefix={String.fromCharCode(65 + i)} onToggle={() => setSingle(i)}>
                   {c}
                 </ChoiceOption>
               ))}
             </div>
             <div className="flex flex-1 flex-col gap-1.5">
-              {["Correo", "SMS", "Push"].map((c, i) => (
+              {["Email", "SMS", "Push"].map((c, i) => (
                 <ChoiceOption
                   key={c}
                   multiple
-                  checked={varias.includes(i)}
-                  onToggle={() => setVarias((v) => (v.includes(i) ? v.filter((x) => x !== i) : [...v, i]))}
+                  checked={multi.includes(i)}
+                  onToggle={() => setMulti((v) => (v.includes(i) ? v.filter((x) => x !== i) : [...v, i]))}
                 >
                   {c}
                 </ChoiceOption>
@@ -291,60 +291,60 @@ export function ControlsSection() {
             </div>
           </div>
         </Block>
-        <Block name="marca={false}: tarjeta con icono y tic a la derecha (era PickCard)">
+        <Block name="mark={false}: card with icon and tick on the right (was PickCard)">
           <div className="grid w-full gap-2 sm:grid-cols-3">
-            <ChoiceOption marca={false} checked={pick === "a"} onToggle={() => setPick("a")} icon={<Sparkles size={15} />}>
+            <ChoiceOption mark={false} checked={pick === "a"} onToggle={() => setPick("a")} icon={<Sparkles size={15} />}>
               Kharismatics
             </ChoiceOption>
-            <ChoiceOption marca={false} checked={pick === "b"} onToggle={() => setPick("b")} icon={<Package size={15} />}>
-              Vehículos
+            <ChoiceOption mark={false} checked={pick === "b"} onToggle={() => setPick("b")} icon={<Package size={15} />}>
+              Vehicles
             </ChoiceOption>
-            <ChoiceOption marca={false} checked={pick === "c"} onToggle={() => setPick("c")}>
-              Sin icono
+            <ChoiceOption mark={false} checked={pick === "c"} onToggle={() => setPick("c")}>
+              No icon
             </ChoiceOption>
           </div>
         </Block>
-        <Block name="tone + align=center: dos opciones con color semántico (era ChoiceToggle)">
+        <Block name="tone + align=center: two options with semantic color (was ChoiceToggle)">
           <div className="grid w-72 grid-cols-2 gap-2">
             <ChoiceOption
-              marca={false}
+              mark={false}
               align="center"
               tone="positive"
               checked={tone === "in"}
               onToggle={() => setTone("in")}
               icon={<TrendingUp size={16} />}
             >
-              Ingreso
+              Income
             </ChoiceOption>
             <ChoiceOption
-              marca={false}
+              mark={false}
               align="center"
               tone="negative"
               checked={tone === "out"}
               onToggle={() => setTone("out")}
               icon={<TrendingDown size={16} />}
             >
-              Gasto
+              Expense
             </ChoiceOption>
           </div>
         </Block>
-        <Block name="Tamaños sm / md / lg y deshabilitada">
+        <Block name="Sizes sm / md / lg and disabled">
           <div className="flex w-full flex-col gap-2 sm:w-80">
             <ChoiceOption size="sm" checked={on} onToggle={() => setOn(!on)}>
-              Pequeña
+              Small
             </ChoiceOption>
             <ChoiceOption checked={on} onToggle={() => setOn(!on)}>
-              Mediana
+              Medium
             </ChoiceOption>
             <ChoiceOption size="lg" checked={on} onToggle={() => setOn(!on)}>
-              Grande
+              Large
             </ChoiceOption>
             <ChoiceOption checked={false} disabled onToggle={() => {}}>
-              Deshabilitada
+              Disabled
             </ChoiceOption>
           </div>
         </Block>
-        <Block name="ChoiceMark: la marca suelta, para listas y tablas propias">
+        <Block name="ChoiceMark: the standalone mark, for your own lists and tables">
           <span className="inline-flex items-center gap-2 text-sm">
             <ChoiceMark checked={on} size="sm" /> sm
           </span>

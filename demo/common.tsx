@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-// Piezas que comparten todas las secciones de la demo.
+// Pieces shared by every section of the demo.
 
 export function Section({ id, title, subtitle, children }: { id: string; title: string; subtitle: string; children: ReactNode }) {
   return (
@@ -23,12 +23,12 @@ export function Block({ name, children }: { name: string; children: ReactNode })
   );
 }
 
-// Marco punteado para ejemplos que necesitan un contenedor.
+// Dashed frame for examples that need a container.
 export function Frame({ children, className = "" }: { children: ReactNode; className?: string }) {
   return <div className={`w-full border border-dashed border-[var(--border)] rounded-xl ${className}`}>{children}</div>;
 }
 
 export const SITES = [
-  { id: "academia", nombre: "Academia Adrià", detalle: "tu academia" },
-  { id: "aprendizaje", nombre: "Mi aprendizaje", detalle: "tus cursos como alumno" },
+  { id: "academy", name: "Adrià's Academy", detail: "your academy" },
+  { id: "learning", name: "My learning", detail: "your courses as a student" },
 ];

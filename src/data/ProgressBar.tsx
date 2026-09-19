@@ -1,7 +1,7 @@
 "use client";
 
-// Barra de progreso fina (presupuestos, objetivos, subida de archivos).
-// Por defecto usa el degradado de la app; tone la vuelve semántica.
+// Thin progress bar (budgets, goals, file uploads).
+// Uses the app gradient by default; tone makes it semantic.
 export function ProgressBar({
   value,
   max = 100,

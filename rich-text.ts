@@ -1,5 +1,5 @@
-// Entrypoint aparte: "adje-shared-ui/rich-text". Fuera del barrel principal
-// porque depende de Tiptap y DOMPurify (peerDependencies opcionales): solo las
-// apps que usan texto enriquecido las instalan.
-export { RichTextEditor, RichText, sanitizeRichText, richTextToPlain, isRichTextEmpty, HERRAMIENTAS_TEXTO } from "./src/forms/RichText";
-export type { HerramientaTexto } from "./src/forms/RichText";
+// Separate entrypoint: "adje-shared-ui/rich-text". Kept out of the main barrel
+// because it depends on Tiptap and DOMPurify (optional peerDependencies): only
+// the apps that use rich text install them.
+export { RichTextEditor, RichText, sanitizeRichText, richTextToPlain, isRichTextEmpty, TEXT_TOOLS } from "./src/forms/RichText";
+export type { TextTool } from "./src/forms/RichText";

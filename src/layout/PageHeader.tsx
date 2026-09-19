@@ -6,11 +6,11 @@ import { IconChip } from "../primitives/IconChip";
 import { Tabs } from "../controls/Tabs";
 import { sideNavState, useSideNavState } from "./sideNavState";
 
-// Cabecera de página ÚNICA, compartida por todas las páginas de ambas apps.
-//   fila 1:  [☰ solo móvil, si hay SideNav] [chip + título] ..... [acciones]
-//   fila 2:  [ subpestañas ]  <- SOLO si las hay, PEGADAS al borde
-//            inferior del header: el subrayado de la pestaña activa se apoya
-//            justo sobre la línea del borde (estilo navegador/YouTube).
+// The SINGLE page header, shared by every page of both apps.
+//   row 1:  [☰ mobile only, if there's a SideNav] [chip + title] ..... [actions]
+//   row 2:  [ sub-tabs ]  <- ONLY if there are any, FLUSH with the bottom
+//           edge of the header: the active tab's underline sits right on the
+//           border line (browser/YouTube style).
 export function PageHeader({
   icon,
   title,
@@ -30,14 +30,14 @@ export function PageHeader({
   return (
     <header className="sticky top-0 z-40 px-4 sm:px-6 border-b border-[var(--border)] bg-[var(--background)]/90 backdrop-blur-md">
       <div className="max-w-6xl mx-auto w-full">
-        {/* Fila título + acciones. Sin padding inferior cuando hay tabs para que
-            estas queden pegadas al borde. */}
+        {/* Title + actions row. No bottom padding when there are tabs so they
+            sit flush with the edge. */}
         <div className={`flex items-center gap-3 pt-3 ${tabs ? "pb-0" : "pb-3"}`}>
           {mounted > 0 && (
             <button
               type="button"
               onClick={() => sideNavState.open()}
-              aria-label="Abrir menú"
+              aria-label="Open menu"
               className="md:hidden inline-flex items-center justify-center w-9 h-9 -ml-1 rounded-lg hover:bg-[var(--hover)] shrink-0"
             >
               <Menu size={20} />

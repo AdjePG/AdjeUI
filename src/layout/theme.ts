@@ -1,8 +1,8 @@
 "use client";
 
-// Tema claro/oscuro/sistema compartido: guarda la elección en localStorage
-// (clave propia de cada app) y aplica data-theme al <html>. Antes cada app
-// duplicaba esta lógica en su Sidebar.
+// Shared light/dark/system theme: stores the choice in localStorage (each app
+// has its own key) and applies data-theme to <html>. Each app used to
+// duplicate this logic in its Sidebar.
 import { useEffect, useState } from "react";
 import { LucideIcon, Monitor, Moon, Sun } from "lucide-react";
 
@@ -37,7 +37,7 @@ export function useTheme(storageKey: string): {
   }
 
   const ThemeIcon = theme === "light" ? Sun : theme === "dark" ? Moon : Monitor;
-  const themeLabel = theme === "light" ? "Claro" : theme === "dark" ? "Oscuro" : "Sistema";
+  const themeLabel = theme === "light" ? "Light" : theme === "dark" ? "Dark" : "System";
 
   return { theme, cycleTheme, themeLabel, ThemeIcon };
 }

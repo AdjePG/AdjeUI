@@ -1,8 +1,8 @@
 import type { Config } from "tailwindcss";
 import path from "path";
 
-// Rutas absolutas con barras normales para que los globs funcionen igual en
-// Windows y en Unix.
+// Absolute paths with forward slashes so the globs work the same on
+// Windows and on Unix.
 const p = (rel: string) => path.join(__dirname, rel).replace(/\\/g, "/");
 
 export default {

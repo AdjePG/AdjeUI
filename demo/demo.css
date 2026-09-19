@@ -4,8 +4,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Identidad de la demo: cada app define la suya en su globals.css; aquí
-   usamos una neutra azul/violeta para el escaparate. */
+/* Demo identity: each app defines its own in its globals.css; here we
+   use a neutral blue/violet one for the showcase. */
 :root {
   --accent-pink: #8b5cf6;
   --accent-blue: #227cd1;

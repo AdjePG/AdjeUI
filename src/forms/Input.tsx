@@ -4,17 +4,17 @@ import { InputHTMLAttributes, TextareaHTMLAttributes } from "react";
 import { useFieldInvalid } from "./Field";
 import type { ControlSize } from "../controls/Button";
 
-// Piel común de los campos (borde, fondo, foco), SIN tamaño.
+// Shared skin of the fields (border, background, focus), WITHOUT size.
 const inputBase =
   "w-full border border-[var(--border)] bg-[var(--background)] outline-none focus:border-[var(--accent-blue)] disabled:opacity-50 disabled:cursor-not-allowed";
 
-// Clase base de los inputs en talla md (compatibilidad: las apps la usaban
-// directamente en elementos nativos). SIN altura: la altura la ponen Input
-// (fija) y Textarea (mínima).
+// Base class of the inputs in md size (compatibility: the apps used it
+// directly on native elements). WITHOUT height: the height is set by Input
+// (fixed) and Textarea (minimum).
 export const inputCls = `${inputBase} rounded-xl px-3 py-2 text-sm`;
 
-// Tallas: las MISMAS alturas, radios y tipografía que Button (tokens
-// --control-h-*), para que un input y su botón de al lado midan igual.
+// Sizes: the SAME heights, radii and typography as Button (--control-h-*
+// tokens), so an input and the button next to it measure the same.
 export const INPUT_SIZES: Record<ControlSize, string> = {
   sm: "h-[var(--control-h-sm)] px-2.5 text-[13px] rounded-lg",
   md: "h-[var(--control-h)] px-3 text-sm rounded-xl",
@@ -23,11 +23,11 @@ export const INPUT_SIZES: Record<ControlSize, string> = {
 
 const invalidCls = "!border-[var(--negative)]";
 
-// Input de línea con ALTURA FIJA por talla (--control-h-*), la misma que
-// Button y Select: nunca un control más alto que otro. Cubre también
-// type="date"/"time"/… (el nativo trae alturas distintas; aquí queda igualado,
-// ver theme.css). Dentro de un <Field error="…"> se pinta en rojo solo.
-//   <Input size="sm" … /> junto a <Button size="sm">…</Button>
+// Single-line input with a FIXED HEIGHT per size (--control-h-*), the same as
+// Button and Select: never one control taller than another. Also covers
+// type="date"/"time"/… (the native one comes with different heights; here it
+// is evened out, see theme.css). Inside a <Field error="…"> it turns red on its own.
+//   <Input size="sm" … /> next to <Button size="sm">…</Button>
 export function Input({
   className = "",
   invalid,
@@ -45,7 +45,7 @@ export function Input({
   );
 }
 
-// Área de texto con la misma piel que Input, altura libre (min-h + resize).
+// Text area with the same skin as Input, free height (min-h + resize).
 export function Textarea({
   className = "",
   invalid,

@@ -1,7 +1,7 @@
 "use client";
 
-// Editor de chips/tags: escribe y pulsa Enter (o coma) para añadir. Valida
-// límites (nº máximo y longitud por chip) marcando en rojo lo que se pasa.
+// Chip/tag editor: type and press Enter (or comma) to add. Validates limits
+// (max count and length per chip), marking whatever exceeds them in red.
 import { useState } from "react";
 import { X } from "lucide-react";
 import { useFieldInvalid } from "./Field";
@@ -15,8 +15,8 @@ export function ChipEditor({
 }: {
   values: string[];
   onChange: (v: string[]) => void;
-  max?: number; // máx nº de chips
-  maxLen?: number; // máx caracteres por chip
+  max?: number; // max number of chips
+  maxLen?: number; // max characters per chip
   placeholder?: string;
 }) {
   const [draft, setDraft] = useState("");
@@ -64,7 +64,7 @@ export function ChipEditor({
         return (
           <span
             key={`${v}-${i}`}
-            title={tooLong ? `Demasiado largo: ${v.length}/${maxLen} caracteres` : overIdx ? `Máximo ${max}` : undefined}
+            title={tooLong ? `Too long: ${v.length}/${maxLen} characters` : overIdx ? `Max ${max}` : undefined}
             className={`inline-flex items-center gap-1 rounded-full pl-2.5 pr-1 py-0.5 text-[12px] font-medium ${
               bad ? "bg-[var(--negative)]/15 text-[var(--negative)]" : "bg-[var(--hover)]"
             }`}
@@ -75,7 +75,7 @@ export function ChipEditor({
               type="button"
               onClick={() => onChange(values.filter((_, j) => j !== i))}
               className="w-4 h-4 rounded-full inline-flex items-center justify-center hover:bg-[var(--hover)]"
-              aria-label={`Quitar ${v}`}
+              aria-label={`Remove ${v}`}
             >
               <X size={11} />
             </button>
@@ -85,7 +85,7 @@ export function ChipEditor({
       <input
         className="flex-1 min-w-[110px] bg-transparent outline-none py-0.5 px-1"
         value={draft}
-        placeholder={values.length ? "" : placeholder ?? "Escribe y pulsa Enter…"}
+        placeholder={values.length ? "" : placeholder ?? "Type and press Enter…"}
         onChange={(e) => setDraft(e.target.value)}
         onKeyDown={onKey}
         onBlur={commit}

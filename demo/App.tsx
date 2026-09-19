@@ -82,17 +82,17 @@ import {
   useToast,
 } from "../src";
 import { RichText, RichTextEditor, richTextToPlain } from "../rich-text";
-import { SITES, Section } from "./comunes";
-import { TokensSection } from "./secciones/Tokens";
-import { PrimitivesSection } from "./secciones/Primitives";
-import { ControlsSection } from "./secciones/Controls";
-import { FormsSection } from "./secciones/Forms";
-import { OverlaysSection } from "./secciones/Overlays";
-import { DataSection } from "./secciones/Data";
-import { LayoutSection } from "./secciones/Layout";
+import { SITES, Section } from "./common";
+import { TokensSection } from "./sections/Tokens";
+import { PrimitivesSection } from "./sections/Primitives";
+import { ControlsSection } from "./sections/Controls";
+import { FormsSection } from "./sections/Forms";
+import { OverlaysSection } from "./sections/Overlays";
+import { DataSection } from "./sections/Data";
+import { LayoutSection } from "./sections/Layout";
 
-// Escaparate de AdjeUI: una sección por categoría, con ejemplos vivos de TODAS
-// las props de cada componente. Arranca con `npm run demo` (puerto 4400).
+// AdjeUI showcase: one section per category, with live examples of EVERY
+// prop of each component. Start it with `npm run demo` (port 4400).
 
 const SECTIONS = [
   { id: "tokens", label: "Tokens", icon: <Palette size={18} /> },
@@ -112,17 +112,17 @@ export function App() {
   );
 }
 
-// La demo ES una app con el layout real: .principal = SideNav (tres zonas) +
-// main con scroll. Estrecha la ventana por debajo de 768px: el SideNav se
-// oculta y aparece la hamburguesa en el PageHeader.
+// The demo IS an app with the real layout: .app-shell = SideNav (three zones) +
+// scrolling main. Narrow the window below 768px: the SideNav hides and the
+// hamburger shows up in the PageHeader.
 function Showcase() {
   const { toast } = useToast();
-  // useTheme: el mismo hook que usan las apps (sistema → claro → oscuro).
+  // useTheme: the same hook the apps use (system → light → dark).
   const { cycleTheme, themeLabel, ThemeIcon } = useTheme("adjeui-demo-theme");
   const [active, setActive] = useState(() => (typeof location !== "undefined" && location.hash.slice(1)) || "tokens");
-  const [site, setSite] = useState("academia");
+  const [site, setSite] = useState("academy");
 
-  // La sección visible marca el item activo del menú.
+  // The visible section sets the active menu item.
   useEffect(() => {
     const main = document.getElementById("demo-main");
     if (!main) return;
@@ -141,7 +141,7 @@ function Showcase() {
   }, []);
 
   return (
-    <div className="principal">
+    <div className="app-shell">
       <SideNav
         top={
           <SideNavBrand href="#tokens" title="AdjeUI" icon={<IconChip size="lg"><Sparkles size={16} /></IconChip>}>
@@ -152,11 +152,11 @@ function Showcase() {
         activePath={`#${active}`}
         bottom={
           <>
-            <SideNavAction icon={<Bell size={17} className="text-muted" />} label="Notificaciones" badge={2} placement="top" popoverWidth={300}>
+            <SideNavAction icon={<Bell size={17} className="text-muted" />} label="Notifications" badge={2} placement="top" popoverWidth={300}>
               {({ close }) => (
                 <div className="p-1">
-                  <span className="block text-[9.5px] font-semibold uppercase tracking-widest text-muted px-2.5 pt-1.5 pb-1">Notificaciones</span>
-                  {["Nuevo componente: SideNavAction", "La paleta fija ya tiene 15 colores"].map((t) => (
+                  <span className="block text-[9.5px] font-semibold uppercase tracking-widest text-muted px-2.5 pt-1.5 pb-1">Notifications</span>
+                  {["New component: SideNavAction", "The fixed palette now has 15 colors"].map((t) => (
                     <button key={t} type="button" onClick={close} className="w-full flex items-start gap-2 rounded-lg px-2.5 py-2 text-left text-[13px] hover:bg-[var(--hover)]">
                       <span className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 bg-[var(--accent-blue)]" />
                       <span className="flex-1">{t}</span>
@@ -167,18 +167,18 @@ function Showcase() {
             </SideNavAction>
             <SideNavUser
               name="Adje"
-              subtitle={SITES.find((s) => s.id === site)!.nombre}
+              subtitle={SITES.find((s) => s.id === site)!.name}
               groups={[
                 {
-                  title: "Estás en",
-                  items: SITES.map((s) => ({ key: s.id, label: s.nombre, hint: s.detalle, active: s.id === site, onClick: () => setSite(s.id) })),
+                  title: "You are in",
+                  items: SITES.map((s) => ({ key: s.id, label: s.name, hint: s.detail, active: s.id === site, onClick: () => setSite(s.id) })),
                 },
                 {
-                  title: "Cuenta",
+                  title: "Account",
                   items: [
-                    { label: `Tema: ${themeLabel}`, icon: <ThemeIcon size={16} />, onClick: cycleTheme },
-                    { label: "Repositorio", hint: "github.com/AdjePG/AdjeUI", icon: <ExternalLink size={16} />, onClick: () => window.open("https://github.com/AdjePG/AdjeUI", "_blank") },
-                    { label: "Cerrar sesión", icon: <LogOut size={16} />, danger: true, onClick: () => toast("Aquí la app cerraría sesión.", "info") },
+                    { label: `Theme: ${themeLabel}`, icon: <ThemeIcon size={16} />, onClick: cycleTheme },
+                    { label: "Repository", hint: "github.com/AdjePG/AdjeUI", icon: <ExternalLink size={16} />, onClick: () => window.open("https://github.com/AdjePG/AdjeUI", "_blank") },
+                    { label: "Sign out", icon: <LogOut size={16} />, danger: true, onClick: () => toast("Here the app would sign out.", "info") },
                   ],
                 },
               ]}
@@ -192,7 +192,7 @@ function Showcase() {
           icon={<Sparkles size={17} />}
           title="AdjeUI"
           actions={
-            <Button variant="outline" size="sm" onClick={cycleTheme} title="Cambiar tema (useTheme)">
+            <Button variant="outline" size="sm" onClick={cycleTheme} title="Switch theme (useTheme)">
               <ThemeIcon size={14} /> {themeLabel}
             </Button>
           }

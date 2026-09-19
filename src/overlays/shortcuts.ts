@@ -2,20 +2,20 @@
 
 import { useEffect, useRef, useState } from "react";
 
-// Combinaciones de teclas (13 sep 2026). Viven aquí porque nacieron para los
-// items de Menu, pero NO son cosa del Popover: el popover solo existe mientras
-// está abierto, y un atajo tiene que funcionar con el menú cerrado. Por eso el
-// Menu solo PINTA el atajo, y quien posee las acciones las ENGANCHA con
-// useShortcuts — normalmente la misma pantalla que construye los items.
+// Keyboard shortcuts (13 Sep 2026). They live here because they were born for
+// Menu items, but they are NOT a Popover concern: the popover only exists
+// while it's open, and a shortcut has to work with the menu closed. That's why
+// the Menu only DRAWS the shortcut, and whoever owns the actions HOOKS them
+// with useShortcuts — usually the same screen that builds the items.
 //
-//   const items = [{ label: "Duplicar", shortcut: "mod+d", onClick: duplicar }];
-//   useShortcuts(items);            // funciona esté el menú abierto o no
+//   const items = [{ label: "Duplicate", shortcut: "mod+d", onClick: duplicate }];
+//   useShortcuts(items);            // works whether the menu is open or not
 //   <Popover …><Menu items={items} /></Popover>
 //
-// Sintaxis: partes separadas por "+", en cualquier orden.
-//   mod    → ⌘ en Mac, Ctrl en el resto (es el que quieres el 90 % de las veces)
+// Syntax: parts separated by "+", in any order.
+//   mod    → ⌘ on Mac, Ctrl elsewhere (the one you want 90% of the time)
 //   ctrl · shift · alt
-//   la tecla: una letra, un dígito o un nombre (enter, delete, escape, arrowup…)
+//   the key: a letter, a digit or a name (enter, delete, escape, arrowup…)
 
 export type Combo = {
   key: string;
@@ -25,10 +25,10 @@ export type Combo = {
   alt: boolean;
 };
 
-export function parseShortcut(atajo: string): Combo {
+export function parseShortcut(shortcut: string): Combo {
   const combo: Combo = { key: "", mod: false, ctrl: false, shift: false, alt: false };
-  for (const parte of atajo.toLowerCase().split("+")) {
-    const p = parte.trim();
+  for (const part of shortcut.toLowerCase().split("+")) {
+    const p = part.trim();
     if (!p) continue;
     if (p === "mod" || p === "cmd" || p === "meta" || p === "command") combo.mod = true;
     else if (p === "ctrl" || p === "control") combo.ctrl = true;
@@ -39,21 +39,21 @@ export function parseShortcut(atajo: string): Combo {
   return combo;
 }
 
-export function esMac(): boolean {
+export function isMac(): boolean {
   if (typeof navigator === "undefined") return false;
   return /mac|iphone|ipad|ipod/i.test(navigator.userAgent);
 }
 
-// Detección de Mac segura para SSR: en el primer render siempre dice "no", y
-// se corrige al montar. Sin esto, el HTML del servidor y el del cliente no
-// coinciden y React protesta.
-export function useEsMac(): boolean {
+// SSR-safe Mac detection: on the first render it always says "no", and it
+// corrects itself on mount. Without this, the server HTML and the client HTML
+// don't match and React complains.
+export function useIsMac(): boolean {
   const [mac, setMac] = useState(false);
-  useEffect(() => setMac(esMac()), []);
+  useEffect(() => setMac(isMac()), []);
   return mac;
 }
 
-const NOMBRES_MAC: Record<string, string> = {
+const MAC_NAMES: Record<string, string> = {
   mod: "⌘",
   ctrl: "⌃",
   shift: "⇧",
@@ -69,14 +69,14 @@ const NOMBRES_MAC: Record<string, string> = {
   arrowright: "→",
 };
 
-const NOMBRES: Record<string, string> = {
+const NAMES: Record<string, string> = {
   mod: "Ctrl",
   ctrl: "Ctrl",
   shift: "Shift",
   alt: "Alt",
   enter: "Enter",
-  delete: "Supr",
-  backspace: "Retroceso",
+  delete: "Del",
+  backspace: "Backspace",
   escape: "Esc",
   esc: "Esc",
   arrowup: "↑",
@@ -85,78 +85,78 @@ const NOMBRES: Record<string, string> = {
   arrowright: "→",
 };
 
-// "mod+shift+d" → "⌘⇧D" en Mac, "Ctrl+Shift+D" en el resto.
-export function formatShortcut(atajo: string, mac = esMac()): string {
-  const tabla = mac ? NOMBRES_MAC : NOMBRES;
-  const partes = atajo
+// "mod+shift+d" → "⌘⇧D" on Mac, "Ctrl+Shift+D" elsewhere.
+export function formatShortcut(shortcut: string, mac = isMac()): string {
+  const table = mac ? MAC_NAMES : NAMES;
+  const parts = shortcut
     .toLowerCase()
     .split("+")
     .map((p) => p.trim())
     .filter(Boolean)
-    .map((p) => tabla[p] ?? (p.length === 1 ? p.toUpperCase() : p[0].toUpperCase() + p.slice(1)));
-  return partes.join(mac ? "" : "+");
+    .map((p) => table[p] ?? (p.length === 1 ? p.toUpperCase() : p[0].toUpperCase() + p.slice(1)));
+  return parts.join(mac ? "" : "+");
 }
 
-function coincide(e: KeyboardEvent, c: Combo, mac: boolean): boolean {
+function matches(e: KeyboardEvent, c: Combo, mac: boolean): boolean {
   if (!c.key) return false;
-  const tecla = e.key.toLowerCase();
-  if (tecla !== c.key && !(c.key.length === 1 && e.code.toLowerCase() === `key${c.key}`)) return false;
-  // "mod" es ⌘ en Mac y Ctrl fuera; si además se pidió ctrl explícito, se exige.
+  const key = e.key.toLowerCase();
+  if (key !== c.key && !(c.key.length === 1 && e.code.toLowerCase() === `key${c.key}`)) return false;
+  // "mod" is ⌘ on Mac and Ctrl elsewhere; if explicit ctrl was also requested, it's required.
   const modOk = c.mod ? (mac ? e.metaKey : e.ctrlKey) : mac ? !e.metaKey : true;
   const ctrlOk = c.ctrl ? e.ctrlKey : c.mod && !mac ? true : !e.ctrlKey;
   return modOk && ctrlOk && e.shiftKey === c.shift && e.altKey === c.alt;
 }
 
-// ¿El foco está en un sitio donde escribir? Ahí los atajos sin modificador
-// estorban (escribir "d" no puede borrar nada).
-function escribiendo(destino: EventTarget | null): boolean {
-  const el = destino as HTMLElement | null;
+// Is the focus somewhere you type? There, modifier-less shortcuts get in the
+// way (typing "d" must not delete anything).
+function isTyping(target: EventTarget | null): boolean {
+  const el = target as HTMLElement | null;
   if (!el || !el.tagName) return false;
   const tag = el.tagName.toLowerCase();
   return tag === "input" || tag === "textarea" || tag === "select" || el.isContentEditable;
 }
 
-export type AccionConAtajo = {
+export type ShortcutAction = {
   shortcut?: string;
   onClick?: () => void;
   disabled?: boolean;
-  // Para poder pasarle tal cual la lista de items de un Menu, separadores
-  // incluidos: se ignoran (no tienen atajo que enganchar).
+  // So a Menu's item list can be passed as is, separators included: they are
+  // ignored (they have no shortcut to hook).
   separator?: boolean;
 };
 
-// Engancha los atajos de una lista de acciones mientras el componente esté
-// montado. Los items sin `shortcut` se ignoran, así que puedes pasarle
-// directamente los MenuItem de un menú, separadores incluidos.
+// Hooks the shortcuts of a list of actions while the component is mounted.
+// Items without `shortcut` are ignored, so you can pass a menu's MenuItems
+// directly, separators included.
 //
-// La lista suele construirse en cada render (menuLeccion(activa), por
-// ejemplo), así que el oyente NO se vuelve a enganchar por eso: solo cuando
-// cambian los atajos. Las acciones se leen de una ref, siempre las últimas.
-export function useShortcuts(acciones: readonly AccionConAtajo[], opciones?: { enabled?: boolean }) {
-  const activo = opciones?.enabled ?? true;
-  const firma = acciones.map((a) => a.shortcut ?? "").join("|");
-  const ref = useRef(acciones);
-  ref.current = acciones;
+// The list is usually built on every render (lessonMenu(active), for
+// example), so the listener is NOT re-hooked because of that: only when the
+// shortcuts change. The actions are read from a ref, always the latest ones.
+export function useShortcuts(actions: readonly ShortcutAction[], options?: { enabled?: boolean }) {
+  const active = options?.enabled ?? true;
+  const signature = actions.map((a) => a.shortcut ?? "").join("|");
+  const ref = useRef(actions);
+  ref.current = actions;
 
   useEffect(() => {
-    if (!activo || !firma.replace(/\|/g, "")) return;
-    const mac = esMac();
+    if (!active || !signature.replace(/\|/g, "")) return;
+    const mac = isMac();
 
     function onKey(e: KeyboardEvent) {
-      for (const accion of ref.current) {
-        if (!accion.shortcut) continue;
-        const combo = parseShortcut(accion.shortcut);
-        const sinModificador = !combo.mod && !combo.ctrl && !combo.alt;
-        if (sinModificador && escribiendo(e.target)) continue;
-        if (!coincide(e, combo, mac)) continue;
-        if (accion.disabled) return;
+      for (const action of ref.current) {
+        if (!action.shortcut) continue;
+        const combo = parseShortcut(action.shortcut);
+        const noModifier = !combo.mod && !combo.ctrl && !combo.alt;
+        if (noModifier && isTyping(e.target)) continue;
+        if (!matches(e, combo, mac)) continue;
+        if (action.disabled) return;
         e.preventDefault();
-        accion.onClick?.();
+        action.onClick?.();
         return;
       }
     }
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [activo, firma]);
+  }, [active, signature]);
 }

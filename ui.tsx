@@ -1,5 +1,5 @@
-// Compatibilidad: el punto de entrada histórico "adje-shared-ui/ui" sigue
-// funcionando, pero la implementación vive ahora en src/ (un componente por
-// archivo, organizado por categorías). Importa desde aquí o desde
-// "adje-shared-ui" a secas; es lo mismo.
+// Compatibility: the historical "adje-shared-ui/ui" entry point keeps
+// working, but the implementation now lives in src/ (one component per
+// file, organized by category). Import from here or from plain
+// "adje-shared-ui"; it is the same thing.
 export * from "./src";

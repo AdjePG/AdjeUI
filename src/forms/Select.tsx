@@ -6,9 +6,9 @@ import { useFieldInvalid } from "./Field";
 import { INPUT_SIZES } from "./Input";
 import type { ControlSize } from "../controls/Button";
 
-// Select personalizado (mismo aspecto en todas las apps y sistemas). El
-// disparador mide --control-h-* según `size` (sm/md/lg), igual que Input y
-// Button. Dentro de un <Field error="…"> se pinta en rojo solo.
+// Custom select (same look in every app and OS). The trigger measures
+// --control-h-* according to `size` (sm/md/lg), just like Input and Button.
+// Inside a <Field error="…"> it turns red on its own.
 export function Select({
   value,
   onChange,

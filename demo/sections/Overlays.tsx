@@ -82,42 +82,42 @@ import {
   useToast,
 } from "../../src";
 import { RichText, RichTextEditor, richTextToPlain } from "../../rich-text";
-import { Block, Frame, Section } from "../comunes";
+import { Block, Frame, Section } from "../common";
 
 // ---------------- overlays ----------------
 
-// Menú con líneas divisorias y combinaciones de teclas. El menú solo PINTA el
-// atajo; quien lo hace funcionar es useShortcuts, aquí arriba — por eso los
-// atajos van aunque el menú esté cerrado (pruébalo sin abrirlo).
-function BlockMenuAtajos() {
+// Menu with dividers and key combinations. The menu only DRAWS the
+// shortcut; what makes it work is useShortcuts, up here — that is why the
+// shortcuts work even with the menu closed (try it without opening it).
+function ShortcutsMenuBlock() {
   const { toast } = useToast();
   const items = useMemo(
     () => [
-      { label: "Editar", icon: <Pencil size={15} />, shortcut: "mod+e", onClick: () => toast("Editar", "info") },
-      { label: "Duplicar", icon: <Copy size={15} />, shortcut: "mod+d", onClick: () => toast("Duplicar", "info") },
+      { label: "Edit", icon: <Pencil size={15} />, shortcut: "mod+e", onClick: () => toast("Edit", "info") },
+      { label: "Duplicate", icon: <Copy size={15} />, shortcut: "mod+d", onClick: () => toast("Duplicate", "info") },
       { separator: true as const },
-      { label: "Filtrar", icon: <Filter size={15} />, onClick: () => toast("Filtrar", "info") },
+      { label: "Filter", icon: <Filter size={15} />, onClick: () => toast("Filter", "info") },
       { separator: true as const },
-      { label: "Eliminar", icon: <Trash2 size={15} />, danger: true, shortcut: "mod+shift+backspace", onClick: () => toast("Eliminar", "warning") },
+      { label: "Delete", icon: <Trash2 size={15} />, danger: true, shortcut: "mod+shift+backspace", onClick: () => toast("Delete", "warning") },
     ],
     [toast],
   );
   useShortcuts(items);
 
   return (
-    <Block name="Menu: separadores + atajos de teclado (useShortcuts los engancha, aunque el menú esté cerrado)">
+    <Block name="Menu: separators + keyboard shortcuts (useShortcuts wires them up, even with the menu closed)">
       <Popover
         align="start"
         width={260}
         trigger={({ open, toggle }) => (
           <Button variant="outline" onClick={toggle} className={open ? "!bg-[var(--hover)]" : ""}>
-            <Settings size={14} /> Con atajos <ChevronsUpDown size={13} />
+            <Settings size={14} /> With shortcuts <ChevronsUpDown size={13} />
           </Button>
         )}
       >
-        {({ close }) => <Menu title="Acciones" onPick={close} items={items} />}
+        {({ close }) => <Menu title="Actions" onPick={close} items={items} />}
       </Popover>
-      <span className="text-[12px] text-muted">Prueba Ctrl/⌘+E o Ctrl/⌘+D sin abrir el menú.</span>
+      <span className="text-[12px] text-muted">Try Ctrl/⌘+E or Ctrl/⌘+D without opening the menu.</span>
     </Block>
   );
 }
@@ -144,7 +144,7 @@ export function OverlaysSection() {
 
   function saveModal() {
     if (!validate({ name: rules.required()(name) })) return;
-    toast(`"${name}" creado.`, "success");
+    toast(`"${name}" created.`, "success");
     setModal(false);
     setName("");
     reset();
@@ -154,44 +154,44 @@ export function OverlaysSection() {
     <Section
       id="overlays"
       title="Overlays"
-      subtitle="src/overlays — Modal y Drawer con zona de acciones propia (footer), ConfirmDialog, HelpTip y toasts"
+      subtitle="src/overlays — Modal and Drawer with their own action zone (footer), ConfirmDialog, HelpTip and toasts"
     >
       <Card className="flex flex-col gap-4">
         <Block name="Modal (normal / wide) · Drawer (normal / wide)">
-          <Button onClick={() => openModal(false)}>Abrir Modal</Button>
+          <Button onClick={() => openModal(false)}>Open Modal</Button>
           <Button variant="outline" onClick={() => openModal(true)}>Modal wide</Button>
-          <Button onClick={() => openDrawer(false)}>Abrir Drawer</Button>
+          <Button onClick={() => openDrawer(false)}>Open Drawer</Button>
           <Button variant="outline" onClick={() => openDrawer(true)}>Drawer wide</Button>
         </Block>
-        <Block name="ConfirmDialog (danger / neutro con cancelLabel)">
-          <Button variant="danger" onClick={() => setConfirm(true)}>Eliminar algo…</Button>
-          <Button variant="outline" onClick={() => setConfirmSoft(true)}>Publicar…</Button>
+        <Block name="ConfirmDialog (danger / neutral with cancelLabel)">
+          <Button variant="danger" onClick={() => setConfirm(true)}>Delete something…</Button>
+          <Button variant="outline" onClick={() => setConfirmSoft(true)}>Publish…</Button>
         </Block>
         <Block name="Toast: success · error · warning · info">
-          <Button size="sm" variant="outline" onClick={() => toast("Guardado correctamente.", "success")}>success</Button>
-          <Button size="sm" variant="outline" onClick={() => toast("No se pudo guardar.", "error")}>error</Button>
-          <Button size="sm" variant="outline" onClick={() => toast("Revisa los campos.", "warning")}>warning</Button>
-          <Button size="sm" variant="outline" onClick={() => toast("Un toast informativo.", "info")}>info</Button>
+          <Button size="sm" variant="outline" onClick={() => toast("Saved successfully.", "success")}>success</Button>
+          <Button size="sm" variant="outline" onClick={() => toast("Could not save.", "error")}>error</Button>
+          <Button size="sm" variant="outline" onClick={() => toast("Check the fields.", "warning")}>warning</Button>
+          <Button size="sm" variant="outline" onClick={() => toast("An informational toast.", "info")}>info</Button>
         </Block>
-        <Block name="Popover + Menu (clic fuera / Escape cierra; placement top|bottom; align start|end|stretch)">
+        <Block name="Popover + Menu (click outside / Escape closes; placement top|bottom; align start|end|stretch)">
           <Popover
             align="start"
             width={240}
             trigger={({ open, toggle }) => (
               <Button variant="outline" onClick={toggle} className={open ? "!bg-[var(--hover)]" : ""}>
-                <Settings size={14} /> Menú de acciones <ChevronsUpDown size={13} />
+                <Settings size={14} /> Actions menu <ChevronsUpDown size={13} />
               </Button>
             )}
           >
             {({ close }) => (
               <Menu
-                title="Acciones"
+                title="Actions"
                 onPick={close}
                 items={[
-                  { label: "Editar", icon: <Pencil size={15} />, onClick: () => toast("Editar", "info") },
-                  { label: "Duplicar", hint: "Copia sin alumnos", icon: <Copy size={15} />, onClick: () => toast("Duplicar", "info") },
-                  { label: "Activo", icon: <Filter size={15} />, active: true },
-                  { label: "Eliminar", icon: <Trash2 size={15} />, danger: true, onClick: () => toast("Eliminar", "warning") },
+                  { label: "Edit", icon: <Pencil size={15} />, onClick: () => toast("Edit", "info") },
+                  { label: "Duplicate", hint: "Copy without students", icon: <Copy size={15} />, onClick: () => toast("Duplicate", "info") },
+                  { label: "Active", icon: <Filter size={15} />, active: true },
+                  { label: "Delete", icon: <Trash2 size={15} />, danger: true, onClick: () => toast("Delete", "warning") },
                 ]}
               />
             )}
@@ -202,23 +202,23 @@ export function OverlaysSection() {
             width={260}
             trigger={({ toggle }) => (
               <Button variant="ghost" onClick={toggle}>
-                <Bell size={14} /> Contenido libre (arriba)
+                <Bell size={14} /> Free content (top)
               </Button>
             )}
           >
             <div className="p-3 text-[13px]">
-              <b>Cualquier contenido.</b>
-              <p className="text-muted mt-1">Un Popover no tiene que ser un Menu: campanita de avisos, selector de sitio, filtros…</p>
+              <b>Any content.</b>
+              <p className="text-muted mt-1">A Popover does not have to be a Menu: notification bell, site switcher, filters…</p>
             </div>
           </Popover>
         </Block>
-        <BlockMenuAtajos />
-        <Block name="HelpTip (hover/focus, formato con p/ul/b, nunca se sale de pantalla)">
+        <ShortcutsMenuBlock />
+        <Block name="HelpTip (hover/focus, formatting with p/ul/b, never leaves the screen)">
           <span className="text-sm text-muted inline-flex items-center gap-1">
-            Ayuda contextual <HelpTip label="HelpTip"><p>Un tooltip con <b>formato</b>.</p><ul><li>Solo hover</li><li>Nunca se sale de pantalla</li></ul></HelpTip>
+            Contextual help <HelpTip label="HelpTip"><p>A tooltip with <b>formatting</b>.</p><ul><li>Hover only</li><li>Never leaves the screen</li></ul></HelpTip>
           </span>
           <span className="text-sm text-muted inline-flex items-center gap-1 ml-auto">
-            Pegado al borde derecho <HelpTip><p>Se recorta al viewport en vez de salirse.</p></HelpTip>
+            Stuck to the right edge <HelpTip><p>It is clamped to the viewport instead of overflowing.</p></HelpTip>
           </span>
         </Block>
       </Card>
@@ -226,19 +226,19 @@ export function OverlaysSection() {
       <Modal
         open={modal}
         onClose={() => setModal(false)}
-        title={modalWide ? "Modal wide" : "Nuevo diseño"}
+        title={modalWide ? "Modal wide" : "New design"}
         wide={modalWide}
         footer={
           <>
-            <Button variant="ghost" onClick={() => setModal(false)}>Cancelar</Button>
-            <Button onClick={saveModal}>Crear</Button>
+            <Button variant="ghost" onClick={() => setModal(false)}>Cancel</Button>
+            <Button onClick={saveModal}>Create</Button>
           </>
         }
       >
-        <Field label="Nombre" required error={errors.name}>
+        <Field label="Name" required error={errors.name}>
           <Input
             value={name}
-            placeholder="Déjalo vacío y pulsa Crear…"
+            placeholder="Leave it empty and press Create…"
             onChange={(e) => {
               setName(e.target.value);
               clearError("name");
@@ -248,7 +248,7 @@ export function OverlaysSection() {
         </Field>
         {modalWide && (
           <p className="text-[13px] text-muted mt-3">
-            La variante <b>wide</b> da más ancho para formularios a dos columnas o tablas.
+            The <b>wide</b> variant gives more width for two-column forms or tables.
           </p>
         )}
       </Modal>
@@ -261,13 +261,13 @@ export function OverlaysSection() {
         wide={drawerWide}
         footer={
           <>
-            <Button variant="ghost" onClick={() => setDrawer(false)}>Cancelar</Button>
-            <Button onClick={() => { toast("Guardado.", "success"); setDrawer(false); }}>Guardar cambios</Button>
+            <Button variant="ghost" onClick={() => setDrawer(false)}>Cancel</Button>
+            <Button onClick={() => { toast("Saved.", "success"); setDrawer(false); }}>Save changes</Button>
           </>
         }
       >
         <p className="text-[13px] text-muted leading-relaxed">
-          El contenido hace scroll; la zona de acciones de abajo queda siempre visible.
+          The content scrolls; the action zone at the bottom stays always visible.
         </p>
         <div className="mt-3 flex flex-col gap-3">
           {Array.from({ length: 12 }, (_, i) => (
@@ -279,20 +279,20 @@ export function OverlaysSection() {
       <ConfirmDialog
         open={confirm}
         onClose={() => setConfirm(false)}
-        onConfirm={() => toast("Eliminado.", "info")}
-        title="¿Eliminar el elemento?"
-        message="Esta acción no se puede deshacer."
-        confirmLabel="Eliminar"
+        onConfirm={() => toast("Deleted.", "info")}
+        title="Delete the item?"
+        message="This action cannot be undone."
+        confirmLabel="Delete"
         danger
       />
       <ConfirmDialog
         open={confirmSoft}
         onClose={() => setConfirmSoft(false)}
-        onConfirm={() => toast("Publicado.", "success")}
-        title="¿Publicar ahora?"
-        message={<>Se publicará en <b>Etsy</b> con los datos actuales.</>}
-        confirmLabel="Publicar"
-        cancelLabel="Todavía no"
+        onConfirm={() => toast("Published.", "success")}
+        title="Publish now?"
+        message={<>It will be published to <b>Etsy</b> with the current data.</>}
+        confirmLabel="Publish"
+        cancelLabel="Not yet"
       />
     </Section>
   );

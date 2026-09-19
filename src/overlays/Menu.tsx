@@ -2,47 +2,47 @@
 
 import { ReactNode } from "react";
 import { Check } from "lucide-react";
-import { formatShortcut, useEsMac } from "./shortcuts";
+import { formatShortcut, useIsMac } from "./shortcuts";
 
-// Lista de acciones, normalmente dentro de un Popover. Vive en su propio
-// archivo desde el 13 sep 2026 (antes iba pegado al Popover, y son dos cosas
-// distintas: el Popover es una capa, el Menu es una lista).
+// List of actions, usually inside a Popover. Lives in its own file since
+// 13 Sep 2026 (it used to be glued to the Popover, and they are two different
+// things: the Popover is a layer, the Menu is a list).
 
 export type MenuAction = {
   key?: string;
   label: ReactNode;
-  hint?: ReactNode; // texto secundario debajo de la etiqueta
+  hint?: ReactNode; // secondary text under the label
   icon?: ReactNode;
   onClick?: () => void;
-  active?: boolean; // marcado con check (selección actual)
-  danger?: boolean; // en rojo (salir, eliminar)
+  active?: boolean; // marked with a check (current selection)
+  danger?: boolean; // in red (sign out, delete)
   disabled?: boolean;
-  // Combinación de teclas ("mod+d", "shift+delete"…). El menú la PINTA; para
-  // que funcione de verdad, engánchala con useShortcuts donde vivan las
-  // acciones — el menú cerrado no puede escuchar nada.
+  // Key combination ("mod+d", "shift+delete"…). The menu only DRAWS it; to
+  // make it actually work, hook it up with useShortcuts where the actions
+  // live — a closed menu can't listen to anything.
   shortcut?: string;
 };
 
-// Línea divisoria: separa grupos de acciones dentro del mismo menú (lo de
-// siempre antes de un "Eliminar").
+// Divider line: separates groups of actions within the same menu (the usual
+// one before a "Delete").
 export type MenuSeparator = { separator: true; key?: string };
 
 export type MenuItem = MenuAction | MenuSeparator;
 
-function esSeparador(it: MenuItem): it is MenuSeparator {
+function isSeparator(it: MenuItem): it is MenuSeparator {
   return (it as MenuSeparator).separator === true;
 }
 
-// `onPick` se llama después del onClick del item: úsalo para cerrar el popover.
+// `onPick` is called after the item's onClick: use it to close the popover.
 export function Menu({ title, items, onPick }: { title?: ReactNode; items: MenuItem[]; onPick?: () => void }) {
-  const mac = useEsMac();
+  const mac = useIsMac();
   return (
     <div className="p-1">
       {title && (
         <span className="block px-2.5 pb-1 pt-1.5 text-[9.5px] font-semibold uppercase tracking-widest text-muted">{title}</span>
       )}
       {items.map((it, i) => {
-        if (esSeparador(it)) {
+        if (isSeparator(it)) {
           return <hr key={it.key ?? `sep-${i}`} className="my-1 border-0 border-t border-[var(--border)]" />;
         }
         return (

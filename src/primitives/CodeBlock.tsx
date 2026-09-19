@@ -2,19 +2,19 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import { Check, Copy, Hash, Palette } from "lucide-react";
-import { porLineas, tokenizar, type TipoToken } from "./resaltado";
+import { splitLines, tokenize, type TokenType } from "./highlight";
 
-// Bloque de código. Es un ELEMENTO, no formato de texto: por eso no vive
-// dentro del editor enriquecido sino como pieza propia.
+// Code block. It is an ELEMENT, not text formatting: that is why it does not
+// live inside the rich-text editor but as its own piece.
 //
-// Quien LEE manda sobre cómo lo ve (14 sep 2026): puede encender el color y
-// los números de línea con dos botones, con el mismo aspecto que los de la
-// barra del texto enriquecido. Son preferencias de lectura, no del autor.
+// The READER decides how they see it (14 Sep 2026): they can turn on colors
+// and line numbers with two buttons that look the same as the ones in the
+// rich-text toolbar. These are reading preferences, not the author's.
 //
-// El color lo pone un resaltador propio y sin dependencias (resaltado.ts) que
-// devuelve tokens y pinta React: no hay HTML inyectado.
+// Colors come from our own dependency-free highlighter (highlight.ts) that
+// returns tokens which React renders: no injected HTML.
 
-const COLOR: Record<TipoToken, string | undefined> = {
+const COLOR: Record<TokenType, string | undefined> = {
   txt: undefined,
   str: "var(--code-str)",
   com: "var(--code-com)",
@@ -24,13 +24,13 @@ const COLOR: Record<TipoToken, string | undefined> = {
   pun: "var(--code-pun)",
 };
 
-function BotonLectura({
-  activo,
+function ReaderButton({
+  active,
   onClick,
   label,
   children,
 }: {
-  activo: boolean;
+  active: boolean;
   onClick: () => void;
   label: string;
   children: ReactNode;
@@ -40,10 +40,10 @@ function BotonLectura({
       type="button"
       title={label}
       aria-label={label}
-      aria-pressed={activo}
+      aria-pressed={active}
       onClick={onClick}
       className={`inline-flex h-7 w-7 items-center justify-center rounded-md border transition ${
-        activo
+        active
           ? "border-[var(--accent-blue)] bg-[var(--hover)] text-[var(--accent-blue)]"
           : "border-transparent text-muted hover:bg-[var(--hover)]"
       }`}
@@ -56,33 +56,33 @@ function BotonLectura({
 export function CodeBlock({
   code,
   language,
-  copiable = true,
-  colorPorDefecto = true,
-  numerosPorDefecto = false,
+  copyable = true,
+  defaultColor = true,
+  defaultLineNumbers = false,
   className = "",
 }: {
   code: string;
-  /** Etiqueta del lenguaje ("js", "python"…). También elige las reglas de color. */
+  /** Language label ("js", "python"...). Also picks the coloring rules. */
   language?: string;
-  copiable?: boolean;
-  colorPorDefecto?: boolean;
-  numerosPorDefecto?: boolean;
+  copyable?: boolean;
+  defaultColor?: boolean;
+  defaultLineNumbers?: boolean;
   className?: string;
 }) {
-  const [copiado, setCopiado] = useState(false);
-  const [color, setColor] = useState(colorPorDefecto);
-  const [numeros, setNumeros] = useState(numerosPorDefecto);
+  const [copied, setCopied] = useState(false);
+  const [color, setColor] = useState(defaultColor);
+  const [lineNumbers, setLineNumbers] = useState(defaultLineNumbers);
 
-  const lineas = useMemo(() => porLineas(tokenizar(code, language)), [code, language]);
-  const ancho = String(lineas.length).length;
+  const lines = useMemo(() => splitLines(tokenize(code, language)), [code, language]);
+  const width = String(lines.length).length;
 
-  async function copiar() {
+  async function copy() {
     try {
       await navigator.clipboard.writeText(code);
-      setCopiado(true);
-      setTimeout(() => setCopiado(false), 1600);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
     } catch {
-      /* sin portapapeles no pasa nada: el código sigue seleccionable */
+      /* no clipboard is fine: the code is still selectable */
     }
   }
 
@@ -93,45 +93,45 @@ export function CodeBlock({
           <span className="px-1.5 font-mono text-[11px] uppercase tracking-wide text-muted">{language}</span>
         )}
         <span className="flex-1" />
-        <BotonLectura activo={color} onClick={() => setColor(!color)} label="Colorear el código">
+        <ReaderButton active={color} onClick={() => setColor(!color)} label="Syntax colors">
           <Palette size={14} />
-        </BotonLectura>
-        <BotonLectura activo={numeros} onClick={() => setNumeros(!numeros)} label="Números de línea">
+        </ReaderButton>
+        <ReaderButton active={lineNumbers} onClick={() => setLineNumbers(!lineNumbers)} label="Line numbers">
           <Hash size={14} />
-        </BotonLectura>
-        {copiable && (
+        </ReaderButton>
+        {copyable && (
           <button
             type="button"
-            onClick={copiar}
-            title="Copiar el código"
+            onClick={copy}
+            title="Copy code"
             className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] text-muted transition hover:bg-[var(--hover)] hover:text-[var(--foreground)]"
           >
-            {copiado ? <Check size={12} className="text-[var(--positive)]" /> : <Copy size={12} />}
-            {copiado ? "Copiado" : "Copiar"}
+            {copied ? <Check size={12} className="text-[var(--positive)]" /> : <Copy size={12} />}
+            {copied ? "Copied" : "Copy"}
           </button>
         )}
       </div>
 
-      {/* La barra de desplazamiento se VE: antes iba con .sin-scrollbar y una
-          línea larga no había forma de alcanzarla salvo con rueda horizontal. */}
-      <pre className="codigo-scroll overflow-x-auto py-3 text-[13px] leading-[1.6]">
+      {/* The scrollbar is VISIBLE: it used to have .no-scrollbar and there was
+          no way to reach a long line except with horizontal wheel scrolling. */}
+      <pre className="code-scroll overflow-x-auto py-3 text-[13px] leading-[1.6]">
         <code className="block min-w-max font-mono">
-          {lineas.map((linea, i) => (
+          {lines.map((line, i) => (
             <span key={i} className="flex">
-              {numeros && (
-                // Pegado a la izquierda: al desplazarse en horizontal el número
-                // se queda, que es justo para lo que sirve.
+              {lineNumbers && (
+                // Stuck to the left: when scrolling horizontally the number
+                // stays put, which is exactly what it is for.
                 <span
                   className="sticky left-0 shrink-0 select-none bg-[var(--hover)] pl-3.5 pr-3 text-right text-muted/70"
-                  style={{ minWidth: `${ancho + 3}ch` }}
+                  style={{ minWidth: `${width + 3}ch` }}
                   aria-hidden
                 >
                   {i + 1}
                 </span>
               )}
-              <span className={numeros ? "pr-3.5" : "px-3.5"}>
-                {linea.length ? (
-                  linea.map((tk, j) => (
+              <span className={lineNumbers ? "pr-3.5" : "px-3.5"}>
+                {line.length ? (
+                  line.map((tk, j) => (
                     <span key={j} style={color && COLOR[tk.t] ? { color: COLOR[tk.t] } : undefined}>
                       {tk.v}
                     </span>

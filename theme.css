@@ -1,9 +1,9 @@
-/* Design system compartido por las apps de Adje (librería AdjeUI).
-   Cada app define su identidad en su globals.css (:root):
+/* Design system shared by the Adje apps (AdjeUI library).
+   Each app defines its identity in its globals.css (:root):
      --accent-pink, --accent-blue, --app-gradient, --blue-shadow,
      --scrollbar-thumb, --scrollbar-thumb-hover
-   Este archivo aporta el resto: paleta base, layout, tarjetas, scrollbars,
-   animaciones y estilos de los tooltips de ayuda. */
+   This file provides the rest: base palette, layout, cards, scrollbars,
+   animations and the help tooltip styles. */
 
 :root {
   --background: light-dark(#f5f5f5, #121212);
@@ -19,16 +19,16 @@
   --negative: light-dark(#c02a4a, #f87171);
   --warning: light-dark(#b07708, #e0a025);
 
-  /* Tamaños CONCRETOS de los controles: Button, Input, Select y el resto de
-     controles de línea miden exactamente esto, para que nunca haya un botón
-     más alto que un input (incluido el input de fecha nativo). */
+  /* CONCRETE control sizes: Button, Input, Select and the rest of the inline
+     controls measure exactly this, so there is never a button taller than an
+     input (including the native date input). */
   --control-h-sm: 32px;
   --control-h: 38px;
   --control-h-lg: 46px;
 
-  /* Paleta FIJA: 15 colores x 10 tonos (--c-<color>-<tono>). Generada desde
-     src/tokens/palette.ts; no editar a mano. Los tonos no cambian con el tema:
-     elige el tono adecuado (500-600 en claro, 300-400 en oscuro). */
+  /* FIXED palette: 15 colors x 10 shades (--c-<color>-<shade>). Generated from
+     src/tokens/palette.ts; do not edit by hand. Shades do not change with the
+     theme: pick the right shade (500-600 in light, 300-400 in dark). */
   --c-slate-50: #f8fafc; --c-slate-100: #f1f5f9; --c-slate-200: #e2e8f0; --c-slate-300: #cbd5e1; --c-slate-400: #94a3b8; --c-slate-500: #64748b; --c-slate-600: #475569; --c-slate-700: #334155; --c-slate-800: #1e293b; --c-slate-900: #0f172a;
   --c-red-50: #fef2f2; --c-red-100: #fee2e2; --c-red-200: #fecaca; --c-red-300: #fca5a5; --c-red-400: #f87171; --c-red-500: #ef4444; --c-red-600: #dc2626; --c-red-700: #b91c1c; --c-red-800: #991b1b; --c-red-900: #7f1d1d;
   --c-orange-50: #fff7ed; --c-orange-100: #ffedd5; --c-orange-200: #fed7aa; --c-orange-300: #fdba74; --c-orange-400: #fb923c; --c-orange-500: #f97316; --c-orange-600: #ea580c; --c-orange-700: #c2410c; --c-orange-800: #9a3412; --c-orange-900: #7c2d12;
@@ -45,8 +45,8 @@
   --c-pink-50: #fdf2f8; --c-pink-100: #fce7f3; --c-pink-200: #fbcfe8; --c-pink-300: #f9a8d4; --c-pink-400: #f472b6; --c-pink-500: #ec4899; --c-pink-600: #db2777; --c-pink-700: #be185d; --c-pink-800: #9d174d; --c-pink-900: #831843;
   --c-rose-50: #fff1f2; --c-rose-100: #ffe4e6; --c-rose-200: #fecdd3; --c-rose-300: #fda4af; --c-rose-400: #fb7185; --c-rose-500: #f43f5e; --c-rose-600: #e11d48; --c-rose-700: #be123c; --c-rose-800: #9f1239; --c-rose-900: #881337;
 
-  /* Colores del resaltado de código (CodeBlock). Tonos de la paleta fija, no
-     inventados: legibles sobre --hover en claro y en oscuro. */
+  /* Code highlighting colors (CodeBlock). Shades from the fixed palette, not
+     made up: readable over --hover in light and in dark. */
   --code-str: light-dark(#0f766e, #5eead4);
   --code-com: light-dark(#6b6b6b, #8b8b8b);
   --code-num: light-dark(#c2410c, #fdba74);
@@ -85,18 +85,18 @@ body {
   overflow: hidden;
 }
 
-.principal {
+.app-shell {
   display: grid;
-  grid-template-columns: auto 1fr; /* el ancho lo pone .sidenav (232px o 72px compacto) */
+  grid-template-columns: auto 1fr; /* the width is set by .sidenav (232px, or 72px compact) */
   grid-template-areas: "nav content";
   height: 100dvh;
   overflow: hidden;
 }
 
-.principal > nav {
+.app-shell > nav {
   grid-area: nav;
 }
-.principal > main {
+.app-shell > main {
   grid-area: content;
 }
 
@@ -139,16 +139,16 @@ body {
   box-shadow: inset 0 0 5px 5px var(--scrollbar-thumb-hover);
 }
 
-/* Borde en degradado con esquinas redondeadas. No se puede con border-image
-   (se lleva mal con border-radius), así que van dos capas de fondo: el relleno
-   recortado a padding-box y el degradado a border-box, asomando justo por el
-   grosor del borde, que se queda transparente.
+/* Gradient border with rounded corners. It cannot be done with border-image
+   (it does not get along with border-radius), so it is two background layers:
+   the fill clipped to padding-box and the gradient to border-box, peeking out
+   by exactly the border width, which stays transparent.
 
-   El relleno NO es --card a secas: es --card teñido con un 14% del acento. Con
-   el relleno plano se veía un corte feo entre un borde saturado y un interior
-   gris que no tenía nada que ver con él; tiñéndolo, borde e interior son el
-   mismo objeto. Lo usan ChoiceOption y cualquier superficie elegible. */
-.borde-degradado {
+   The fill is NOT plain --card: it is --card tinted with 14% of the accent. With
+   a flat fill there was an ugly cut between a saturated border and a grey
+   interior that had nothing to do with it; tinted, border and interior are the
+   same object. Used by ChoiceOption and any selectable surface. */
+.gradient-border {
   border-color: transparent;
   background-image: linear-gradient(
       color-mix(in srgb, var(--accent-blue) 14%, var(--card)),
@@ -159,35 +159,35 @@ body {
   background-clip: padding-box, border-box;
 }
 
-/* Barra de desplazamiento del bloque de código: fina pero VISIBLE. Ocultarla
-   dejaba las líneas largas fuera de alcance salvo con rueda horizontal. */
-.codigo-scroll {
+/* Code block scrollbar: thin but VISIBLE. Hiding it left long lines out of
+   reach except with a horizontal wheel. */
+.code-scroll {
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) transparent;
 }
-.codigo-scroll::-webkit-scrollbar {
+.code-scroll::-webkit-scrollbar {
   height: 10px;
 }
-.codigo-scroll::-webkit-scrollbar-track {
+.code-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
-.codigo-scroll::-webkit-scrollbar-thumb {
+.code-scroll::-webkit-scrollbar-thumb {
   border: solid 3px transparent;
   border-radius: 6px;
   background-clip: padding-box;
   box-shadow: inset 0 0 4px 4px var(--scrollbar-thumb);
 }
-.codigo-scroll::-webkit-scrollbar-thumb:hover {
+.code-scroll::-webkit-scrollbar-thumb:hover {
   box-shadow: inset 0 0 4px 4px var(--scrollbar-thumb-hover);
 }
 
-/* Se desplaza pero no enseña barra: lo usa ScrollArrows, que pone dos flechas
-   en los extremos en su lugar. */
-.sin-scrollbar {
+/* Scrolls but shows no bar: used by ScrollArrows, which puts two arrows at
+   the ends instead. */
+.no-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
-.sin-scrollbar::-webkit-scrollbar {
+.no-scrollbar::-webkit-scrollbar {
   display: none;
 }
 
@@ -220,7 +220,7 @@ body {
   animation: help-pop 0.13s ease-out;
 }
 
-/* Formato del contenido de los tooltips de ayuda */
+/* Formatting of the help tooltip content */
 .help-body p {
   margin: 0 0 7px;
 }
@@ -248,7 +248,7 @@ body {
   margin: 8px 0;
 }
 
-/* Skeleton (placeholder de carga) */
+/* Skeleton (loading placeholder) */
 @keyframes skeleton-shimmer {
   from {
     background-position: 200% 0;
@@ -268,7 +268,7 @@ body {
   animation: skeleton-shimmer 1.4s ease-in-out infinite;
 }
 
-/* Drawer lateral */
+/* Side drawer */
 @keyframes drawer-in {
   from {
     transform: translateX(100%);
@@ -303,8 +303,8 @@ textarea {
   font-size: inherit;
 }
 
-/* Inputs nativos de fecha/hora: normalizados para que midan y se vean como
-   el resto de controles (el nativo trae altura y tipografía distintas). */
+/* Native date/time inputs: normalized so they measure and look like the rest
+   of the controls (the native one comes with a different height and font). */
 input[type="date"],
 input[type="time"],
 input[type="datetime-local"],
@@ -325,31 +325,31 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   opacity: 1;
 }
 
-/* El menú del SideNav no reserva hueco para la barra de scroll: si lo hiciera,
-   sus filas quedarían 7px a la izquierda del resto de zonas (top/bottom). */
+/* The SideNav menu does not reserve room for the scrollbar: if it did, its
+   rows would sit 7px to the left of the other zones (top/bottom). */
 .sidenav-menu.custom-scrollbar {
   scrollbar-gutter: auto;
 }
 
-/* SideNav en escritorio: rail completo o compacto (solo iconos). */
+/* SideNav on desktop: full rail or compact (icons only). */
 @media (min-width: 768px) {
   .sidenav {
     width: 232px;
     transition: width 0.2s ease-out;
   }
   .sidenav[data-collapsed] {
-    width: 73px; /* 12 + 48 (cuadrado) + 12 + 1 de borde */
+    width: 73px; /* 12 + 48 (square) + 12 + 1 border */
   }
 }
 
-/* Móvil (< md, 768px = breakpoint md de Tailwind): el SideNav se oculta a la
-   izquierda (off-canvas) y se abre con la hamburguesa del PageHeader. El
-   contenido ocupa todo el ancho. */
+/* Mobile (< md, 768px = Tailwind's md breakpoint): the SideNav hides to the
+   left (off-canvas) and opens with the PageHeader hamburger. The content
+   takes the full width. */
 @media (max-width: 767px) {
   body {
     overflow: auto;
   }
-  .principal {
+  .app-shell {
     grid-template-areas: "content";
     grid-template-columns: 1fr;
     grid-template-rows: 1fr;
@@ -378,8 +378,8 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   animation: drawer-fade 0.22s ease-out;
 }
 
-/* Texto enriquecido (adje-shared-ui/rich-text): mismo aspecto en el editor y
-   en el visor. Sin plugin typography: reglas mínimas y controladas. */
+/* Rich text (adje-shared-ui/rich-text): same look in the editor and in the
+   viewer. No typography plugin: minimal, controlled rules. */
 .rich-text {
   font-size: 15px;
   line-height: 1.65;
@@ -434,9 +434,9 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   border-radius: 4px;
   padding: 0.05em 0.35em;
 }
-/* Bloque de código: caja propia con scroll horizontal si la línea es larga
-   (14 sep 2026). El <code> de dentro NO lleva el fondo ni el relleno del
-   código en línea: ya los pone el <pre>. */
+/* Code block: its own box with horizontal scroll when the line is long
+   (14 Sep 2026). The inner <code> does NOT get the inline code background or
+   padding: the <pre> already provides them. */
 .rich-text pre {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.875em;
@@ -461,8 +461,8 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   border-top: 1px solid var(--border);
 }
 
-/* Editor: el área de escritura hereda la altura mínima del contenedor y el
-   placeholder se pinta sobre el primer párrafo vacío. */
+/* Editor: the writing area inherits the container's min-height and the
+   placeholder is drawn over the first empty paragraph. */
 .rich-text-editor {
   min-height: inherit;
 }

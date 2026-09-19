@@ -3,8 +3,8 @@
 import { ReactNode, useState } from "react";
 import { ChevronDown } from "lucide-react";
 
-// Sección plegable (FAQs, detalles avanzados, guías). Cabecera con chevron
-// que rota; el contenido se muestra/oculta sin animar la altura.
+// Collapsible section (FAQs, advanced details, guides). Header with a rotating
+// chevron; the content is shown/hidden without animating the height.
 export function Collapsible({
   title,
   icon,

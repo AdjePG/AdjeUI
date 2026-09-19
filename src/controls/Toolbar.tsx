@@ -4,12 +4,12 @@ import { ReactNode, useCallback, useEffect, useLayoutEffect, useRef, useState } 
 import { Check, MoreHorizontal } from "lucide-react";
 import { Button, ButtonVariant } from "./Button";
 
-// Barra de acciones que se adapta al ancho disponible: muestra los botones que
-// caben y guarda el resto en un menú "···". Así el header nunca parte a dos filas
-// ni deja botones a medias. Uso: <Toolbar leading={<Select…/>} items={[…]} />.
-//   - leading: control fijo que NO colapsa (p. ej. el selector de año).
-//   - pinned:  el botón siempre visible (p. ej. la acción principal "Añadir").
-//   - el resto colapsa al menú "···" por orden, de izquierda a derecha.
+// Action bar that adapts to the available width: it shows the buttons that
+// fit and stores the rest in a "···" menu. That way the header never wraps to
+// two rows or leaves half-visible buttons. Usage: <Toolbar leading={<Select.../>} items={[...]} />.
+//   - leading: fixed control that does NOT collapse (e.g. the year selector).
+//   - pinned:  the always-visible button (e.g. the main "Add" action).
+//   - the rest collapse into the "···" menu in order, left to right.
 export type ToolbarItem = {
   key: string;
   label: string;
@@ -18,8 +18,8 @@ export type ToolbarItem = {
   variant?: ButtonVariant;
   disabled?: boolean;
   title?: string;
-  active?: boolean; // botón tipo interruptor (se marca en el menú)
-  pinned?: boolean; // nunca colapsa; se ancla al final
+  active?: boolean; // toggle-style button (gets a check mark in the menu)
+  pinned?: boolean; // never collapses; anchored at the end
 };
 
 const GAP = 8; // = gap-2
@@ -44,8 +44,8 @@ function OverflowButton({ active, onClick }: { active?: boolean; onClick?: () =>
     <button
       type="button"
       onClick={onClick}
-      title="Más acciones"
-      aria-label="Más acciones"
+      title="More actions"
+      aria-label="More actions"
       className={`inline-flex h-[var(--control-h)] w-[var(--control-h)] shrink-0 items-center justify-center rounded-xl border border-[var(--border)] transition ${
         active ? "bg-[var(--hover)]" : "bg-[var(--card)] hover:bg-[var(--hover)]"
       }`}
@@ -93,18 +93,18 @@ export function Toolbar({
     const itemW = itemEls.map((el) => w(el) + GAP);
     const total = itemW.reduce((a, b) => a + b, 0);
 
-    // Si el botón anclado con su etiqueta no cabe ni dejando todo lo demás en el
-    // "···", pasa a solo-icono. Así el TÍTULO de la página nunca se recorta.
+    // If the pinned button with its label does not fit even with everything
+    // else in the "···", it goes icon-only. That way the page TITLE is never clipped.
     const compact = leadW + (nonPinned.length ? overflowW : 0) + pinFullW > avail;
     const pinW = compact ? pinIconW : pinFullW;
     setPinnedCompact(compact);
 
-    // ¿Caben todos sin necesidad de menú?
+    // Do they all fit without needing a menu?
     if (leadW + pinW + total <= avail) {
       setVisibleCount(nonPinned.length);
       return;
     }
-    // Hay que reservar sitio para el "···": metemos los que quepan por orden.
+    // Room has to be reserved for the "···": add as many as fit, in order.
     let acc = leadW + pinW + overflowW;
     let k = 0;
     for (const iw of itemW) {
@@ -146,7 +146,7 @@ export function Toolbar({
 
   return (
     <div ref={rowRef} className={`relative flex w-full min-w-0 items-center justify-end gap-2 ${className}`}>
-      {/* Medidor invisible: siempre a tamaño completo, para saber qué cabe */}
+      {/* Invisible measurer: always at full size, to know what fits */}
       <div
         ref={measureRef}
         aria-hidden
@@ -174,7 +174,7 @@ export function Toolbar({
         ))}
       </div>
 
-      {/* Fila real */}
+      {/* Real row */}
       {leading}
       {shown.map((it) => (
         <ToolbarButton key={it.key} item={it} />

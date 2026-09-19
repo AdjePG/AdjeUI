@@ -4,9 +4,9 @@ import { ReactNode, useEffect } from "react";
 import { X } from "lucide-react";
 import { IconChip } from "../primitives/IconChip";
 
-// Panel lateral (editores, paneles de IA). `footer` es la ZONA DE ACCIONES:
-// barra fija abajo, siempre visible aunque el contenido haga scroll. Pásale
-// los botones (guardar/cancelar); no los metas en children.
+// Side panel (editors, AI panels). `footer` is the ACTION ZONE: a bar fixed
+// at the bottom, always visible even when the content scrolls. Pass it the
+// buttons (save/cancel); don't put them in children.
 export function Drawer({
   open,
   onClose,
@@ -46,7 +46,7 @@ export function Drawer({
           <button
             onClick={onClose}
             className="w-8 h-8 rounded-lg hover:bg-[var(--hover)] inline-flex items-center justify-center"
-            aria-label="Cerrar"
+            aria-label="Close"
           >
             <X size={18} />
           </button>

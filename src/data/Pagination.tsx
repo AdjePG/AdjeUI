@@ -2,13 +2,13 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-// Paginación de listas: total + anterior/siguiente.
+// List pagination: total + previous/next.
 export function Pagination({
   page,
   pageCount,
   total,
   onPage,
-  noun = "resultados",
+  noun = "results",
 }: {
   page: number; // 1-indexed
   pageCount: number;
@@ -27,18 +27,18 @@ export function Pagination({
           className="p-1.5 rounded-lg hover:bg-[var(--hover)] disabled:opacity-30 disabled:cursor-not-allowed"
           onClick={() => onPage(page - 1)}
           disabled={page <= 1}
-          aria-label="Anterior"
+          aria-label="Previous"
         >
           <ChevronLeft size={16} />
         </button>
         <span className="px-1">
-          Página <b className="text-[var(--foreground)]">{page}</b> de {pageCount}
+          Page <b className="text-[var(--foreground)]">{page}</b> of {pageCount}
         </span>
         <button
           className="p-1.5 rounded-lg hover:bg-[var(--hover)] disabled:opacity-30 disabled:cursor-not-allowed"
           onClick={() => onPage(page + 1)}
           disabled={page >= pageCount}
-          aria-label="Siguiente"
+          aria-label="Next"
         >
           <ChevronRight size={16} />
         </button>

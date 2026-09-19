@@ -1,12 +1,11 @@
-// AdjeUI — barrel principal. Un componente por archivo, organizado por
-// categoría:
-//   primitives/  superficies y piezas básicas (Card, Pill, IconChip, Empty, Skeleton, CodeBlock)
-//   controls/    botones y toggles (Button, IconButton, Segmented, Tabs, Switch, ChoiceOption, ScrollArrows)
-//   forms/       formularios (Field, Input, Textarea, Select, validación)
-//   overlays/    capas (Modal, Drawer, ConfirmDialog, HelpTip, Toast, Popover, Menu, useShortcuts)
-//   data/        datos e indicadores (Stat, ProgressBar, Pagination)
-//   layout/      estructura de página (PageHeader, SectionTitle, Collapsible, SideNav/SideNavUser, useTheme)
-//   tokens/      paleta fija de 15 colores × 10 tonos (palette, PALETTE)
+// AdjeUI — main barrel. One component per file, organized by category:
+//   primitives/  surfaces and basic pieces (Card, Pill, IconChip, Empty, Skeleton, CodeBlock)
+//   controls/    buttons and toggles (Button, IconButton, Segmented, Tabs, Switch, ChoiceOption, ScrollArrows)
+//   forms/       forms (Field, Input, Textarea, Select, validation)
+//   overlays/    layers (Modal, Drawer, ConfirmDialog, HelpTip, Toast, Popover, Menu, useShortcuts)
+//   data/        data and indicators (Stat, ProgressBar, Pagination)
+//   layout/      page structure (PageHeader, SectionTitle, Collapsible, SideNav/SideNavUser, useTheme)
+//   tokens/      fixed palette of 15 colors x 10 shades (palette, PALETTE)
 
 // primitives
 export { Card } from "./primitives/Card";
@@ -45,10 +44,10 @@ export {
   useShortcuts,
   formatShortcut,
   parseShortcut,
-  esMac,
-  useEsMac,
+  isMac,
+  useIsMac,
   type Combo,
-  type AccionConAtajo,
+  type ShortcutAction,
 } from "./overlays/shortcuts";
 
 // data

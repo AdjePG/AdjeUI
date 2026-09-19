@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 import { IconChip } from "../primitives/IconChip";
 import { HelpTip } from "../overlays/HelpTip";
 
-// Título de sección dentro de una Card: chip + título + subtítulo + acciones.
+// Section title inside a Card: chip + title + subtitle + actions.
 export function SectionTitle({
   icon,
   title,

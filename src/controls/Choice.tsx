@@ -3,42 +3,43 @@
 import { ReactNode } from "react";
 import { Check } from "lucide-react";
 
-// ELEGIR, una sola familia (13 sep 2026). Antes había tres componentes para lo
-// mismo —PickCard, ChoiceToggle y ChoiceOption— cada uno con su aspecto: el
-// resultado es que en una misma app la opción elegida se marcaba de tres
-// maneras distintas. Ahora hay UNO, ChoiceOption, y los otros dos se retiran.
+// CHOOSING, a single family (13 Sep 2026). There used to be three components
+// for the same thing —PickCard, ChoiceToggle and ChoiceOption— each with its
+// own look: the result was that within one app the chosen option was marked
+// in three different ways. Now there is ONE, ChoiceOption, and the other two
+// are retired.
 //
-// El lenguaje es el que mejor funcionaba (el de PickCard): borde en degradado
-// + tic. Y la FORMA de la marca dice cuántas puedes elegir:
-//   · redonda  → una sola (lo que antes era un radio)
-//   · cuadrada → varias a la vez (lo que antes era un checkbox)
+// The language is the one that worked best (PickCard's): gradient border +
+// check. And the SHAPE of the mark says how many you can choose:
+//   · round   → only one (what used to be a radio)
+//   · square  → several at once (what used to be a checkbox)
 //
-// El radio ya no lleva punto central: encendido es un círculo relleno con un
-// tic, igual que el checkbox. Un punto y un tic significaban lo mismo con dos
-// dibujos distintos.
+// The radio no longer has a center dot: on is a filled circle with a check,
+// just like the checkbox. A dot and a check meant the same thing with two
+// different drawings.
 //
-//   <ChoiceOption checked={a===1} onToggle={…}>Una sola</ChoiceOption>
-//   <ChoiceOption multiple checked={…} onToggle={…}>Varias</ChoiceOption>
-//   <ChoiceOption checked icon={<Car/>} marca={false}>Tarjeta (lo de PickCard)</ChoiceOption>
-//   <ChoiceOption checked tone="positive" align="center" icon={<Up/>}>Ingreso</ChoiceOption>
+//   <ChoiceOption checked={a===1} onToggle={...}>Only one</ChoiceOption>
+//   <ChoiceOption multiple checked={...} onToggle={...}>Several</ChoiceOption>
+//   <ChoiceOption checked icon={<Car/>} mark={false}>Card (what PickCard did)</ChoiceOption>
+//   <ChoiceOption checked tone="positive" align="center" icon={<Up/>}>Income</ChoiceOption>
 
-const TAMANOS = {
-  sm: { marca: "h-4 w-4", cuadrada: "rounded-[5px]", tic: 10, fila: "px-2.5 py-2 text-[13px]", hueco: "gap-2" },
-  md: { marca: "h-[18px] w-[18px]", cuadrada: "rounded-[6px]", tic: 12, fila: "px-3 py-2.5 text-sm", hueco: "gap-3" },
-  lg: { marca: "h-5 w-5", cuadrada: "rounded-[7px]", tic: 13, fila: "px-3.5 py-3 text-[15px]", hueco: "gap-3" },
+const SIZES = {
+  sm: { mark: "h-4 w-4", square: "rounded-[5px]", check: 10, row: "px-2.5 py-2 text-[13px]", gap: "gap-2" },
+  md: { mark: "h-[18px] w-[18px]", square: "rounded-[6px]", check: 12, row: "px-3 py-2.5 text-sm", gap: "gap-3" },
+  lg: { mark: "h-5 w-5", square: "rounded-[7px]", check: 13, row: "px-3.5 py-3 text-[15px]", gap: "gap-3" },
 } as const;
 
-export type ChoiceSize = keyof typeof TAMANOS;
+export type ChoiceSize = keyof typeof SIZES;
 export type ChoiceTone = "accent" | "positive" | "negative";
 
-function colorDe(tone: ChoiceTone): string | undefined {
+function colorFor(tone: ChoiceTone): string | undefined {
   return tone === "positive" ? "var(--positive)" : tone === "negative" ? "var(--negative)" : undefined;
 }
 
-// La marca: redonda si eliges una, cuadrada si puedes elegir varias. Encendida
-// se rellena (con el degradado de la app, o con el color del tono) y enseña el
-// tic. Exportada suelta para cuando necesitas la marca sin la fila entera —
-// una tabla, una lista propia—, pero lo normal es usar ChoiceOption.
+// The mark: round if you choose one, square if you can choose several. When on
+// it fills (with the app gradient, or with the tone color) and shows the
+// check. Exported on its own for when you need the mark without the whole row
+// —a table, a custom list— but the normal thing is to use ChoiceOption.
 export function ChoiceMark({
   checked,
   multiple = false,
@@ -52,26 +53,26 @@ export function ChoiceMark({
   tone?: ChoiceTone;
   className?: string;
 }) {
-  const t = TAMANOS[size];
-  const color = colorDe(tone);
+  const t = SIZES[size];
+  const color = colorFor(tone);
   return (
     <span
       aria-hidden
-      className={`grid shrink-0 place-items-center border-2 transition ${t.marca} ${
-        multiple ? t.cuadrada : "rounded-full"
+      className={`grid shrink-0 place-items-center border-2 transition ${t.mark} ${
+        multiple ? t.square : "rounded-full"
       } ${checked ? "border-transparent text-white" : "border-[var(--border)]"} ${className}`}
-      // backgroundOrigin border-box es OBLIGATORIO aquí: el borde de 2px es
-      // transparente y el degradado se pinta por debajo (clip border-box), pero
-      // por defecto el degradado se DIMENSIONA al padding-box. Resultado: esos
-      // 2px de más repetían el color del extremo y dibujaban un recuadro dentro
-      // del relleno — el corte que se veía entre el borde y el color interno.
+      // backgroundOrigin border-box is REQUIRED here: the 2px border is
+      // transparent and the gradient is painted underneath (clip border-box),
+      // but by default the gradient is SIZED to the padding-box. Result: those
+      // extra 2px repeated the edge color and drew a box inside the fill — the
+      // seam that was visible between the border and the inner color.
       style={
         checked
           ? { backgroundImage: color ? `linear-gradient(${color}, ${color})` : "var(--app-gradient)", backgroundOrigin: "border-box" }
           : undefined
       }
     >
-      <Check size={t.tic} strokeWidth={3.5} className={`transition-opacity ${checked ? "opacity-100" : "opacity-0"}`} />
+      <Check size={t.check} strokeWidth={3.5} className={`transition-opacity ${checked ? "opacity-100" : "opacity-0"}`} />
     </span>
   );
 }
@@ -85,41 +86,41 @@ export function ChoiceOption({
   prefix,
   children,
   tone = "accent",
-  marca = true,
+  mark = true,
   align = "start",
   size = "md",
   className = "",
 }: {
   checked: boolean;
-  /** true = se pueden elegir varias (marca cuadrada); false = una sola (redonda). */
+  /** true = several can be chosen (square mark); false = only one (round). */
   multiple?: boolean;
   onToggle: () => void;
   disabled?: boolean;
-  /** Icono a la izquierda, antes de la etiqueta. */
+  /** Icon on the left, before the label. */
   icon?: ReactNode;
-  /** Letra o número delante (A, B, C…), para quizzes. */
+  /** Letter or number in front (A, B, C...), for quizzes. */
   prefix?: ReactNode;
   children: ReactNode;
-  /** Color del borde y de la marca: el de la app, o semántico. */
+  /** Color of the border and the mark: the app's, or semantic. */
   tone?: ChoiceTone;
-  /** false = sin marca a la izquierda; el tic se va a la derecha (tarjeta). */
-  marca?: boolean;
-  /** center para rejillas de dos opciones. */
+  /** false = no mark on the left; the check moves to the right (card). */
+  mark?: boolean;
+  /** center for two-option grids. */
   align?: "start" | "center";
   size?: ChoiceSize;
   className?: string;
 }) {
-  const t = TAMANOS[size];
-  const color = colorDe(tone);
+  const t = SIZES[size];
+  const color = colorFor(tone);
 
-  // Elegida: borde en degradado (o del color del tono). Apagada: borde normal.
-  const marco = checked
+  // Chosen: gradient border (or the tone color). Off: normal border.
+  const frame = checked
     ? color
       ? "border-transparent"
-      : "borde-degradado"
+      : "gradient-border"
     : "border-[var(--border)] hover:bg-[var(--hover)]";
 
-  const estiloTono =
+  const toneStyle =
     checked && color
       ? { borderColor: color, background: `color-mix(in srgb, ${color} 12%, transparent)`, color }
       : undefined;
@@ -131,18 +132,18 @@ export function ChoiceOption({
       aria-checked={checked}
       disabled={disabled}
       onClick={onToggle}
-      style={estiloTono}
-      className={`flex w-full items-center rounded-xl border-2 text-left transition ${t.fila} ${t.hueco} ${marco} ${
+      style={toneStyle}
+      className={`flex w-full items-center rounded-xl border-2 text-left transition ${t.row} ${t.gap} ${frame} ${
         align === "center" ? "justify-center" : ""
       } ${disabled ? "cursor-default opacity-50" : "cursor-pointer"} ${checked ? "font-semibold" : ""} ${className}`}
     >
-      {marca && <ChoiceMark checked={checked} multiple={multiple} size={size} tone={tone} />}
+      {mark && <ChoiceMark checked={checked} multiple={multiple} size={size} tone={tone} />}
       {icon && <span className="inline-flex shrink-0">{icon}</span>}
       {prefix != null && <span className="w-4 shrink-0 font-mono text-[11px] text-muted">{prefix}</span>}
       <span className={`min-w-0 ${align === "center" ? "" : "flex-1"}`}>{children}</span>
-      {/* Sin marca a la izquierda, el tic se enseña aquí: así siempre hay UNA
-          señal de "elegido", nunca dos ni ninguna. */}
-      {!marca && checked && <Check size={15} className="ml-auto shrink-0" style={{ color: color ?? "var(--accent-blue)" }} />}
+      {/* Without a mark on the left, the check shows here: so there is always
+          ONE "chosen" signal, never two or none. */}
+      {!mark && checked && <Check size={15} className="ml-auto shrink-0" style={{ color: color ?? "var(--accent-blue)" }} />}
     </button>
   );
 }

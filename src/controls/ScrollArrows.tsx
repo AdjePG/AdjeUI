@@ -3,90 +3,90 @@
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-// Fila que no cabe (13 sep 2026): en vez de una barra de desplazamiento —fea,
-// distinta en cada sistema y que en Mac ni se ve hasta que la tocas— aparecen
-// dos flechas en los extremos. Cada una se muestra SOLO si queda contenido por
-// ese lado, así que en cuanto cabe todo desaparecen las dos y no queda rastro.
+// Row that does not fit (13 Sep 2026): instead of a scrollbar —ugly, different
+// on every OS and invisible on Mac until you touch it— two arrows appear at
+// the ends. Each one shows ONLY if there is content left on that side, so as
+// soon as everything fits both disappear and leave no trace.
 //
-// Envuelve cualquier fila horizontal:
-//   <ScrollArrows><div className="flex gap-2">…</div></ScrollArrows>
+// Wraps any horizontal row:
+//   <ScrollArrows><div className="flex gap-2">...</div></ScrollArrows>
 //
-// Lo usan Tabs y Segmented por dentro; también vale suelto.
+// Tabs and Segmented use it internally; it also works on its own.
 
 export function ScrollArrows({
   children,
   className = "",
-  paso = 140,
+  step = 140,
 }: {
   children: ReactNode;
   className?: string;
-  /** Píxeles que avanza cada pulsación. */
-  paso?: number;
+  /** Pixels advanced per press. */
+  step?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [izq, setIzq] = useState(false);
-  const [der, setDer] = useState(false);
+  const [left, setLeft] = useState(false);
+  const [right, setRight] = useState(false);
 
-  const medir = useCallback(() => {
+  const measure = useCallback(() => {
     const el = ref.current;
     if (!el) return;
-    // 1px de margen: los navegadores redondean y si no, la flecha derecha se
-    // queda encendida para siempre al final del recorrido.
-    setIzq(el.scrollLeft > 1);
-    setDer(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+    // 1px of slack: browsers round, and otherwise the right arrow stays on
+    // forever at the end of the track.
+    setLeft(el.scrollLeft > 1);
+    setRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
   }, []);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    medir();
-    // Hay que mirar tanto el contenedor (cambia de ancho) como el contenido
-    // (cambian los items): con solo uno, las flechas se quedan desfasadas.
-    const ro = new ResizeObserver(medir);
+    measure();
+    // Both the container (its width changes) and the content (its items
+    // change) must be watched: with only one, the arrows fall out of sync.
+    const ro = new ResizeObserver(measure);
     ro.observe(el);
     if (el.firstElementChild) ro.observe(el.firstElementChild);
-    window.addEventListener("resize", medir);
+    window.addEventListener("resize", measure);
     return () => {
       ro.disconnect();
-      window.removeEventListener("resize", medir);
+      window.removeEventListener("resize", measure);
     };
-  }, [medir]);
+  }, [measure]);
 
-  function mover(dir: -1 | 1) {
-    ref.current?.scrollBy({ left: dir * paso, behavior: "smooth" });
+  function move(dir: -1 | 1) {
+    ref.current?.scrollBy({ left: dir * step, behavior: "smooth" });
   }
 
   return (
     <div className={`relative min-w-0 ${className}`}>
-      <div ref={ref} onScroll={medir} className="sin-scrollbar overflow-x-auto overscroll-x-contain">
+      <div ref={ref} onScroll={measure} className="no-scrollbar overflow-x-auto overscroll-x-contain">
         {children}
       </div>
 
-      {izq && <Flecha lado="izq" onClick={() => mover(-1)} />}
-      {der && <Flecha lado="der" onClick={() => mover(1)} />}
+      {left && <Arrow side="left" onClick={() => move(-1)} />}
+      {right && <Arrow side="right" onClick={() => move(1)} />}
     </div>
   );
 }
 
-// La flecha va sobre un velo degradado hacia el fondo, para que el contenido
-// no se corte a hachazo limpio por debajo.
-function Flecha({ lado, onClick }: { lado: "izq" | "der"; onClick: () => void }) {
-  const izquierda = lado === "izq";
+// The arrow sits on a gradient veil fading into the background, so the content
+// underneath is not cut off with a hard edge.
+function Arrow({ side, onClick }: { side: "left" | "right"; onClick: () => void }) {
+  const isLeft = side === "left";
   return (
     <div
-      className={`pointer-events-none absolute inset-y-0 z-10 flex items-center ${izquierda ? "left-0 pr-6" : "right-0 pl-6"}`}
+      className={`pointer-events-none absolute inset-y-0 z-10 flex items-center ${isLeft ? "left-0 pr-6" : "right-0 pl-6"}`}
       style={{
-        background: `linear-gradient(to ${izquierda ? "right" : "left"}, var(--card) 55%, transparent)`,
+        background: `linear-gradient(to ${isLeft ? "right" : "left"}, var(--card) 55%, transparent)`,
       }}
     >
       <button
         type="button"
         tabIndex={-1}
-        aria-label={izquierda ? "Desplazar a la izquierda" : "Desplazar a la derecha"}
+        aria-label={isLeft ? "Scroll left" : "Scroll right"}
         onClick={onClick}
         className="pointer-events-auto inline-flex h-6 w-6 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--card)] text-muted shadow-sm transition hover:text-[var(--foreground)]"
       >
-        {izquierda ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+        {isLeft ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
       </button>
     </div>
   );

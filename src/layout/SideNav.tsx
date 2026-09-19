@@ -1,23 +1,23 @@
 "use client";
 
-// Barra de navegación de la app, en TRES zonas:
-//   top     → logo o lo más importante (selector de sitio, campanita…)
-//   menú    → los items de navegación (hace scroll si no caben)
-//   bottom  → lo que sea: en general el usuario (SideNavUser) y sus cosas
+// The app's navigation bar, in THREE zones:
+//   top     → logo or whatever matters most (site picker, notification bell…)
+//   menu    → the navigation items (scrolls if they don't fit)
+//   bottom  → anything: usually the user (SideNavUser) and their stuff
 //
-// Escritorio (≥ md): rail de 232px a la izquierda (layout .principal), que se
-// puede CONTRAER a solo iconos (73px) con el botón de abajo; la preferencia se
-// recuerda (localStorage). Medidas: filas de 48px (px-2 py-2, icono de 32) en
-// expandido y cuadrados de 48×48 en compacto, con el mismo padding del rail
-// (12px): el icono no se mueve de sitio al contraer. Las filas van siempre a todo
-// el ancho (siguen la animación del rail) y las etiquetas se funden con opacidad. En compacto, top/bottom muestran `topCompact` /
-// `bottomCompact` si se dan (SideNavUser y SideNavButton se adaptan solos).
-// Móvil (< md): oculta a la izquierda (off-canvas), siempre completa; se abre
-// con la hamburguesa que el PageHeader pinta solo cuando hay un SideNav
-// montado (sideNavState), y se cierra al navegar, con la X, Escape o el fondo.
+// Desktop (≥ md): 232px rail on the left (.app-shell layout), which can be
+// COLLAPSED to icons only (73px) with the button at the bottom; the preference
+// is remembered (localStorage). Measurements: 48px rows (px-2 py-2, 32px icon)
+// when expanded and 48×48 squares when compact, with the same rail padding
+// (12px): the icon doesn't move when collapsing. Rows always span the full
+// width (they follow the rail animation) and labels fade out with opacity. When compact, top/bottom show `topCompact` /
+// `bottomCompact` if given (SideNavUser and SideNavButton adapt on their own).
+// Mobile (< md): hidden on the left (off-canvas), always full; opened with the
+// hamburger that the PageHeader draws only when there's a SideNav mounted
+// (sideNavState), and closed on navigation, with the X, Escape or the backdrop.
 //
 //   <SideNav
-//     top={<SideNavBrand icon={<IconChip…/>} href="/">Aula Propia</SideNavBrand>}
+//     top={<SideNavBrand icon={<IconChip…/>} href="/">Aulora</SideNavBrand>}
 //     items={[{ href, label, icon }]}
 //     activePath={usePathname()}
 //     LinkComponent={Link}                       // next/link
@@ -29,7 +29,7 @@ import { sideNavState, useSideNavCompact, useSideNavState } from "./sideNavState
 import { Popover } from "../overlays/Popover";
 import { Menu, type MenuItem } from "../overlays/Menu";
 
-// Cualquier componente que acepte href/className/children: "a", next/link…
+// Any component that accepts href/className/children: "a", next/link…
 type LinkLike = ElementType;
 
 export function SideNav({
@@ -46,18 +46,18 @@ export function SideNav({
   mobileAction,
   children,
 }: {
-  top?: ReactNode; // zona superior libre (no es un enlace)
-  topCompact?: ReactNode; // versión para el modo compacto (si no, se muestra `top`: usa SideNavBrand o useSideNavCompact)
-  logo?: ReactNode; // compat: logo enlazado a logoHref (si no hay `top`)
+  top?: ReactNode; // free top zone (not a link)
+  topCompact?: ReactNode; // version for compact mode (otherwise `top` is shown: use SideNavBrand or useSideNavCompact)
+  logo?: ReactNode; // compat: logo linked to logoHref (if there's no `top`)
   logoHref?: string;
   items: { href: string; label: string; icon: ReactNode }[];
   activePath: string;
   LinkComponent?: LinkLike;
   bottom?: ReactNode;
-  bottomCompact?: ReactNode; // versión compacta (por defecto se reutiliza `bottom`: SideNavUser/SideNavButton se adaptan)
-  collapsible?: boolean; // botón de contraer/expandir en escritorio
-  mobileAction?: { label: string; icon: ReactNode; onClick: () => void }; // compat: se añade al pie
-  children?: ReactNode; // modales u otros elementos que cuelgan del nav
+  bottomCompact?: ReactNode; // compact version (by default `bottom` is reused: SideNavUser/SideNavButton adapt)
+  collapsible?: boolean; // collapse/expand button on desktop
+  mobileAction?: { label: string; icon: ReactNode; onClick: () => void }; // compat: appended to the footer
+  children?: ReactNode; // modals or other elements hanging off the nav
 }) {
   const A: LinkLike = LinkComponent ?? "a";
   const { open, collapsed } = useSideNavState();
@@ -68,7 +68,7 @@ export function SideNav({
     return () => sideNavState.unmount();
   }, []);
 
-  // Escape cierra en móvil.
+  // Escape closes on mobile.
   useEffect(() => {
     if (!open) return;
     function onEsc(e: KeyboardEvent) {
@@ -84,7 +84,7 @@ export function SideNav({
     </A>
   );
   const topNode = compact ? topCompact ?? top ?? logoNode : top ?? logoNode;
-  // Solo hay "salto" de contenido cuando se intercambia top/topCompact: ahí se funde.
+  // Content only "jumps" when swapping top/topCompact: that's where it fades.
   const topKey = topCompact !== undefined ? (compact ? "c" : "f") : "top";
 
   return (
@@ -93,7 +93,7 @@ export function SideNav({
         className="sidenav h-full flex flex-col bg-[var(--secondary)] border-r border-[var(--border)] px-3 py-4 gap-3"
         data-open={open || undefined}
         data-collapsed={collapsed || undefined}
-        aria-label="Navegación principal"
+        aria-label="Main navigation"
       >
         {/* top */}
         {(topNode || !compact) && (
@@ -102,7 +102,7 @@ export function SideNav({
             <button
               type="button"
               onClick={() => sideNavState.close()}
-              aria-label="Cerrar menú"
+              aria-label="Close menu"
               className="md:hidden inline-flex items-center justify-center w-8 h-8 rounded-lg text-muted hover:bg-[var(--hover)] shrink-0"
             >
               <X size={18} />
@@ -110,7 +110,7 @@ export function SideNav({
           </div>
         )}
 
-        {/* menú */}
+        {/* menu */}
         <ul className="sidenav-menu flex-1 min-h-0 overflow-y-auto custom-scrollbar flex flex-col gap-1 list-none m-0 p-0">
           {items.map((item) => {
             const active = activePath.startsWith(item.href);
@@ -140,20 +140,20 @@ export function SideNav({
           })}
         </ul>
 
-        {/* contraer / expandir (solo escritorio) */}
+        {/* collapse / expand (desktop only) */}
         {collapsible && (
           <button
             type="button"
             onClick={() => sideNavState.toggleCollapsed()}
-            aria-label={collapsed ? "Expandir menú" : "Contraer menú"}
-            title={collapsed ? "Expandir menú" : "Contraer menú"}
+            aria-label={collapsed ? "Expand menu" : "Collapse menu"}
+            title={collapsed ? "Expand menu" : "Collapse menu"}
             aria-pressed={collapsed}
             className="hidden md:flex items-center gap-2.5 rounded-xl text-muted hover:bg-[var(--hover)] hover:text-[var(--foreground)] transition text-[12px] min-w-0 overflow-hidden px-2 py-2"
           >
             <span className="inline-flex items-center justify-center w-8 h-8 shrink-0">
               {collapsed ? <ChevronsRight size={16} /> : <ChevronsLeft size={16} />}
             </span>
-            <span className={`truncate transition-opacity duration-150 ${compact ? "opacity-0" : "opacity-100"}`}>Contraer</span>
+            <span className={`truncate transition-opacity duration-150 ${compact ? "opacity-0" : "opacity-100"}`}>Collapse</span>
           </button>
         )}
 
@@ -176,11 +176,11 @@ export function SideNav({
   );
 }
 
-// Marca de la app para la zona top: icono (normalmente un IconChip) + nombre,
-// enlazados a la portada. Misma fila de 48px que los items; en compacto el
-// icono se queda en su sitio y el nombre se funde.
+// App brand for the top zone: icon (usually an IconChip) + name, linked to
+// the home page. Same 48px row as the items; when compact the icon stays in
+// place and the name fades out.
 //   <SideNavBrand icon={<IconChip size="lg"><Sparkles size={16} /></IconChip>} href="/panel" LinkComponent={Link}>
-//     Aula Propia
+//     Aulora
 //   </SideNavBrand>
 export function SideNavBrand({
   icon,
@@ -193,7 +193,7 @@ export function SideNavBrand({
   children: ReactNode;
   href?: string;
   LinkComponent?: LinkLike;
-  title?: string; // tooltip en compacto (si children no es texto)
+  title?: string; // tooltip when compact (if children isn't text)
 }) {
   const A: LinkLike = LinkComponent ?? "a";
   const compact = useSideNavCompact();
@@ -216,8 +216,8 @@ export function SideNavBrand({
   );
 }
 
-// Botón de texto para el pie del SideNav (tema, "Mis datos"…): icono + etiqueta.
-// En compacto muestra solo el icono, con la etiqueta como tooltip.
+// Text button for the SideNav footer (theme, "My data"…): icon + label.
+// When compact it shows only the icon, with the label as a tooltip.
 export function SideNavButton({
   onClick,
   icon,
@@ -227,7 +227,7 @@ export function SideNavButton({
   onClick: () => void;
   icon: ReactNode;
   children: ReactNode;
-  title?: string; // tooltip en compacto (si children no es texto)
+  title?: string; // tooltip when compact (if children isn't text)
 }) {
   const compact = useSideNavCompact();
   const tip = title ?? (typeof children === "string" ? children : undefined);
@@ -245,12 +245,12 @@ export function SideNavButton({
   );
 }
 
-// Acción genérica para las zonas top/bottom: icono + etiqueta (+ badge) que
-// hace algo al pulsar o abre un popover con lo que sea (notificaciones,
-// avisos, filtros…). Se adapta solo al modo compacto (solo icono + tooltip).
+// Generic action for the top/bottom zones: icon + label (+ badge) that does
+// something on click or opens a popover with anything (notifications,
+// alerts, filters…). Adapts on its own to compact mode (icon only + tooltip).
 //
-//   <SideNavAction icon={<Bell/>} label="Notificaciones" badge={3} popoverWidth={300}>
-//     {({ close }) => <ListaDeAvisos onPick={close} />}
+//   <SideNavAction icon={<Bell/>} label="Notifications" badge={3} popoverWidth={300}>
+//     {({ close }) => <AlertList onPick={close} />}
 //   </SideNavAction>
 export function SideNavAction({
   icon,
@@ -264,11 +264,11 @@ export function SideNavAction({
 }: {
   icon: ReactNode;
   label: string;
-  badge?: ReactNode; // contador o punto; nada/0 → no se pinta
-  onClick?: () => void; // acción directa (si no hay popover)
-  children?: ReactNode | ((p: { close: () => void }) => ReactNode); // contenido del popover
-  popoverWidth?: number; // ancho del panel en compacto (en completo ocupa el ancho del rail)
-  placement?: "top" | "bottom"; // top para la zona inferior
+  badge?: ReactNode; // counter or dot; nothing/0 → not drawn
+  onClick?: () => void; // direct action (if there's no popover)
+  children?: ReactNode | ((p: { close: () => void }) => ReactNode); // popover content
+  popoverWidth?: number; // panel width when compact (when full it takes the rail width)
+  placement?: "top" | "bottom"; // top for the bottom zone
   active?: boolean;
 }) {
   const compact = useSideNavCompact();
@@ -321,13 +321,13 @@ function initials(name: string): string {
     .join("");
 }
 
-// Usuario en el pie del SideNav: avatar + nombre (+ detalle) que abre hacia
-// arriba un menú con sus cosas (tema, ajustes, salir…). En compacto, solo el
-// avatar; el menú se despliega hacia la derecha.
-//   <SideNavUser name="Adrià Pulido" subtitle="adria@correo.com" items={[…]} />
-// Con `groups` el menú se divide en bloques con título (p. ej. "Estás en" con
-// los sitios y su check, y debajo "Cuenta"):
-//   <SideNavUser name="…" groups={[{ title: "Estás en", items: sitios }, { title: "Cuenta", items }]} />
+// User in the SideNav footer: avatar + name (+ detail) that opens a menu
+// upwards with their stuff (theme, settings, sign out…). When compact, only
+// the avatar; the menu unfolds to the right.
+//   <SideNavUser name="Adrià Pulido" subtitle="adria@mail.com" items={[…]} />
+// With `groups` the menu is split into titled blocks (e.g. "You are in" with
+// the sites and their check, and "Account" below):
+//   <SideNavUser name="…" groups={[{ title: "You are in", items: sites }, { title: "Account", items }]} />
 export function SideNavUser({
   name,
   subtitle,
@@ -339,14 +339,14 @@ export function SideNavUser({
 }: {
   name: string;
   subtitle?: ReactNode;
-  avatar?: string | ReactNode; // URL de imagen o un nodo; sin nada → iniciales
-  items?: MenuItem[]; // menú simple (si no hay groups)
+  avatar?: string | ReactNode; // image URL or a node; nothing → initials
+  items?: MenuItem[]; // simple menu (if there are no groups)
   menuTitle?: ReactNode;
-  groups?: { title?: ReactNode; items: MenuItem[] }[]; // menú por bloques
-  children?: ReactNode; // contenido extra al final del menú (lo que sea)
+  groups?: { title?: ReactNode; items: MenuItem[] }[]; // menu in blocks
+  children?: ReactNode; // extra content at the end of the menu (anything)
 }) {
   const compact = useSideNavCompact();
-  const bloques = groups ?? [{ title: menuTitle, items }];
+  const blocks = groups ?? [{ title: menuTitle, items }];
   const av =
     typeof avatar === "string" ? (
       <img src={avatar} alt="" className="w-8 h-8 rounded-full object-cover shrink-0" />
@@ -396,7 +396,7 @@ export function SideNavUser({
               {subtitle && <span className="block text-[11px] text-muted truncate">{subtitle}</span>}
             </div>
           )}
-          {bloques.map((g, i) => (
+          {blocks.map((g, i) => (
             <div key={i} className={i > 0 ? "border-t border-[var(--border)]" : ""}>
               <Menu title={g.title} items={g.items} onPick={close} />
             </div>
