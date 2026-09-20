@@ -28,8 +28,14 @@ export function PageHeader({
 }) {
   const { mounted } = useSideNavState();
   return (
-    <header className="sticky top-0 z-40 px-4 sm:px-6 border-b border-[var(--border)] bg-[var(--background)]/90 backdrop-blur-md">
-      <div className="max-w-6xl mx-auto w-full">
+    // The padding goes INSIDE the max-width box, the same way every page lays
+    // its content out. With it on the <header> the box was centred in the
+    // remaining width instead, so the title sat 24px off from the content
+    // underneath it and no screen in the app had a single shared left edge
+    // (20 Sep 2026). The bar itself still spans the full width: the border and
+    // the background live on the <header>.
+    <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--background)]/90 backdrop-blur-md">
+      <div className="max-w-6xl mx-auto w-full px-4 sm:px-6">
         {/* Title + actions row. No bottom padding when there are tabs so they
             sit flush with the edge. */}
         <div className={`flex items-center gap-3 pt-3 ${tabs ? "pb-0" : "pb-3"}`}>

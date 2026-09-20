@@ -88,6 +88,12 @@ body {
 .app-shell {
   display: grid;
   grid-template-columns: auto 1fr; /* the width is set by .sidenav (232px, or 72px compact) */
+  /* One row, and it takes the whole height. The mobile override below always
+     declared its rows and the desktop base did not, so any stray child that
+     landed here without a grid-area opened an implicit second row and ate the
+     leftover height — the side nav then stopped short of the bottom. Declaring
+     the row leaves nothing for that second row to take (20 Sep 2026). */
+  grid-template-rows: 1fr;
   grid-template-areas: "nav content";
   height: 100dvh;
   overflow: hidden;
