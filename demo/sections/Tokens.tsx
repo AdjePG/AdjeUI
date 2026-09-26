@@ -163,8 +163,12 @@ export function TokensSection() {
         </Block>
 
         <Block name="Fixed palette: 15 colors × 10 shades (click = copy var(); the tooltip shows the hex)">
-          <div className="w-full overflow-x-auto custom-scrollbar">
-            <div className="min-w-[640px] flex flex-col gap-1">
+          {/* code-scroll and not custom-scrollbar (26 Sep 2026): that one is the
+              vertical panels' bar, and here it drew a vertical scrollbar over
+              the last column. The hover is a ring, not a scale: a swatch
+              growing 10% pushed past the edge and cut the column off. */}
+          <div className="w-full overflow-x-auto overflow-y-hidden code-scroll">
+            <div className="min-w-[640px] flex flex-col gap-1 p-1">
               <div className="grid gap-1" style={{ gridTemplateColumns: "72px repeat(10, minmax(0, 1fr))" }}>
                 <span />
                 {PALETTE_SHADES.map((sh) => (
@@ -182,7 +186,7 @@ export function TokensSection() {
                       type="button"
                       title={`--c-${name}-${sh} · ${PALETTE[name][sh]}`}
                       onClick={() => copy(palette(name, sh))}
-                      className="h-7 rounded-md border border-black/5 hover:scale-110 hover:z-10 transition"
+                      className="h-7 rounded-md border border-black/5 transition hover:ring-2 hover:ring-[var(--foreground)] hover:ring-offset-2 hover:ring-offset-[var(--card)]"
                       style={{ background: palette(name, sh) }}
                     />
                   ))}

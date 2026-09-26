@@ -1,6 +1,6 @@
 "use client";
 
-import { InputHTMLAttributes, TextareaHTMLAttributes } from "react";
+import { forwardRef, InputHTMLAttributes, TextareaHTMLAttributes } from "react";
 import { useFieldInvalid } from "./Field";
 import type { ControlSize } from "../controls/Button";
 
@@ -28,36 +28,38 @@ const invalidCls = "!border-[var(--negative)]";
 // type="date"/"time"/… (the native one comes with different heights; here it
 // is evened out, see theme.css). Inside a <Field error="…"> it turns red on its own.
 //   <Input size="sm" … /> next to <Button size="sm">…</Button>
-export function Input({
-  className = "",
-  invalid,
-  size = "md",
-  ...props
-}: Omit<InputHTMLAttributes<HTMLInputElement>, "size"> & { invalid?: boolean; size?: ControlSize }) {
+// It forwards its ref: a screen that has to put the caret in a field it just
+// created (a new lesson's title) needs the node, and without this it had to
+// keep a bare <input> with the styles copied by hand.
+export const Input = forwardRef<
+  HTMLInputElement,
+  Omit<InputHTMLAttributes<HTMLInputElement>, "size"> & { invalid?: boolean; size?: ControlSize }
+>(function Input({ className = "", invalid, size = "md", ...props }, ref) {
   const fieldInvalid = useFieldInvalid();
   const bad = invalid ?? fieldInvalid;
   return (
     <input
       {...props}
+      ref={ref}
       aria-invalid={bad || undefined}
       className={`${inputBase} ${INPUT_SIZES[size]} ${bad ? invalidCls : ""} ${className}`}
     />
   );
-}
+});
 
 // Text area with the same skin as Input, free height (min-h + resize).
-export function Textarea({
-  className = "",
-  invalid,
-  ...props
-}: TextareaHTMLAttributes<HTMLTextAreaElement> & { invalid?: boolean }) {
+export const Textarea = forwardRef<
+  HTMLTextAreaElement,
+  TextareaHTMLAttributes<HTMLTextAreaElement> & { invalid?: boolean }
+>(function Textarea({ className = "", invalid, ...props }, ref) {
   const fieldInvalid = useFieldInvalid();
   const bad = invalid ?? fieldInvalid;
   return (
     <textarea
       {...props}
+      ref={ref}
       aria-invalid={bad || undefined}
       className={`${inputCls} min-h-[64px] resize-y leading-relaxed ${bad ? invalidCls : ""} ${className}`}
     />
   );
-}
+});

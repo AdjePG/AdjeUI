@@ -48,7 +48,11 @@ export function Segmented({
                 type="button"
                 onClick={() => onChange(o.value)}
                 title={o.title}
-                className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap transition ${t.height} ${t.sides} ${
+                // Icon only (26 Sep 2026): a square, named by its title.
+                aria-label={o.label == null ? o.title : undefined}
+                className={`inline-flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap transition ${t.height} ${
+                  o.label == null ? "aspect-square px-0" : t.sides
+                } ${
                   active ? "text-white" : "hover:bg-[var(--hover)]"
                 }`}
                 style={active ? { background: "var(--app-gradient)" } : undefined}

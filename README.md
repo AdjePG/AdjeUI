@@ -11,7 +11,7 @@ One component per file, grouped by category in `src/`:
 
 | Folder | Components |
 |---|---|
-| `src/primitives` | Card, IconChip, Pill, Empty, Skeleton |
+| `src/primitives` | Card, IconChip, Pill, Overline, Empty, Skeleton |
 | `src/controls` | Button, IconButton, Segmented, Tabs, Switch, ChoiceOption/ChoiceMark, Toolbar, ScrollArrows |
 | `src/forms` | Field, Input, Textarea, Select, ChipEditor, `useFormErrors` + `rules` (validation), `inputCls`; RichTextEditor/RichText (separate entrypoint `adje-shared-ui/rich-text`) |
 | `src/overlays` | Modal, Drawer, ConfirmDialog, HelpTip, ToastProvider/useToast, Popover, Menu, useShortcuts |
@@ -74,6 +74,31 @@ re-exports, so existing apps do not break; for new code import from plain
   computed from the trigger, so no container with overflow clips it (scrolling
   tables, cards, sticky panels) — that was the cause of menus cut in half. If it
   does not fit below, it opens upward.
+- **Scrollbars: `custom-scrollbar`, and `scroll-no-gutter` beside it when the
+  reserved strip is dead space.** The base class keeps `scrollbar-gutter:
+  stable` so a page does not jump sideways the moment its content grows past
+  the window. A panel that opens already at its final size has nothing to keep
+  stable: add `scroll-no-gutter` there (the Select dropdown does) or it draws
+  14px of nothing down its right edge.
+- **On a phone the Popover is a bottom sheet.** Below `sm` it stops being
+  anchored: full width, stuck to the bottom edge, over a scrim and with a grab
+  bar. Anchoring needs a pointer that can aim and room around the trigger to
+  open into, and a thumb has neither — beside a 28px icon button the panel
+  ended up squeezed against whichever edge was nearest. `sheet={false}` keeps it
+  anchored for the panels that must stay glued to their trigger. The sheet has
+  no grab bar: it cannot be dragged, and a handle that does not drag is a
+  control that lies — the first thing anyone asked about it was what it was
+  for. It scrolls with the app's own scrollbar and no reserved gutter.
+- **The small uppercase caption is a component.** `Overline` (and `overlineCls`
+  for the places that are an input or a button and cannot be wrapped). It was
+  never a component: every app wrote `text-[11px] font-semibold uppercase
+  tracking-widest text-muted` out by hand — twenty-five times in Aulora alone,
+  at 9.5, 10 and 11px depending on the day. The recipe is now 12px / 600 /
+  0.06em: at 11px the system font falls into its hardest hinting and the stems
+  come out uneven (the "pixelated" look someone finally complained about), and
+  `tracking-widest` is 0.1em, which pulls eight capitals apart into eight
+  separate marks instead of one word. `Menu`'s own title uses it, so a menu
+  heading and a panel caption are the same thing on screen.
 - **The chosen item is marked with a gradient border.** `PickCard` and `ChoiceOption`
   use the `.gradient-border` class from `theme.css` (three background layers, because
   `border-image` does not get along with `border-radius`). The flat accent was
@@ -91,9 +116,28 @@ re-exports, so existing apps do not break; for new code import from plain
   hole— it keeps the allowed tags aside and escapes everything else.
 - **Menus with separators and shortcuts.** `Menu` items accept
   `{ separator: true }` to group (the usual one before a "Delete") and
-  `shortcut: "mod+d"`, which is drawn as a key. The menu only DRAWS it: what makes
-  it work is `useShortcuts(items)`, called where the actions live — so the
-  shortcut works with the menu closed, which is the whole point.
+  `shortcut: "mod+d"`, which is drawn as a key UNDER the label, not to its
+  right: as a second column it competed with the label for the same width and
+  the label was the one that lost ("Duplicate les…" beside a pristine
+  "Ctrl+Shift+D"). The menu only DRAWS it: what makes it work is
+  `useShortcuts(items)`, called where the actions live — so the shortcut works
+  with the menu closed, which is the whole point. An item with `keepOpen`
+  leaves the menu open after it runs: for toggles (a theme switch) whose new
+  state is shown right on the item.
+- **Collapsible is a folding panel.** Icon, the title as an `Overline`, an
+  optional `summary` line under it, and a chevron that turns over; the content
+  folds with an animation. Open, nothing inside is clipped (a Select's list
+  opens freely); closed, it cannot be tabbed into.
+- **Tables that scroll sideways.** `Table` draws a hairline on each side that
+  has more to show and removes it once you reach that end, so cut-off cells
+  read as "there is more", not as a bug. `stickyFirst` pins the first column
+  (and moves the left line to its edge); `stickyBg` if the table is not on
+  `--card`. The measuring is `useScrollEdges`, shared with `ScrollArrows`.
+- **Options with icons.** Every `Select` option is one template, `[icon]
+  label [check]`: give any option an `icon` and every row keeps the icon slot,
+  so the labels line up, and the closed Select shows the chosen icon too.
+  Pick among things that have a drawing (chart kinds…) with it rather than a
+  hand-made Popover list.
 - **Action zone.** Modal and Drawer have a `footer` prop: the save/cancel
   buttons go there (its own bar, always visible in the Drawer), never loose in
   the content.

@@ -1,5 +1,5 @@
 // AdjeUI — main barrel. One component per file, organized by category:
-//   primitives/  surfaces and basic pieces (Card, Pill, IconChip, Empty, Skeleton, CodeBlock)
+//   primitives/  surfaces and basic pieces (Card, Pill, Overline, IconChip, Empty, Skeleton, CodeBlock)
 //   controls/    buttons and toggles (Button, IconButton, Segmented, Tabs, Switch, ChoiceOption, ScrollArrows)
 //   forms/       forms (Field, Input, Textarea, Select, validation)
 //   overlays/    layers (Modal, Drawer, ConfirmDialog, HelpTip, Toast, Popover, Menu, useShortcuts)
@@ -11,6 +11,7 @@
 export { Card } from "./primitives/Card";
 export { IconChip } from "./primitives/IconChip";
 export { Pill } from "./primitives/Pill";
+export { Overline, overlineCls } from "./primitives/Overline";
 export { Empty } from "./primitives/Empty";
 export { Skeleton } from "./primitives/Skeleton";
 export { CodeBlock } from "./primitives/CodeBlock";
@@ -23,12 +24,13 @@ export { Tabs } from "./controls/Tabs";
 export { Switch, type SwitchSize } from "./controls/Switch";
 export { ChoiceOption, ChoiceMark, type ChoiceSize, type ChoiceTone } from "./controls/Choice";
 export { ScrollArrows } from "./controls/ScrollArrows";
+export { useScrollEdges } from "./controls/useScrollEdges";
 export { Toolbar, type ToolbarItem } from "./controls/Toolbar";
 
 // forms
 export { Field, useFieldInvalid } from "./forms/Field";
 export { Input, Textarea, inputCls, INPUT_SIZES } from "./forms/Input";
-export { Select } from "./forms/Select";
+export { Select, type SelectOption } from "./forms/Select";
 export { ChipEditor } from "./forms/ChipEditor";
 export { useFormErrors, rules, type RuleResult } from "./forms/validation";
 

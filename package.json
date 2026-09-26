@@ -1,6 +1,6 @@
 {
   "name": "adje-shared-ui",
-  "version": "4.0.1",
+  "version": "4.1.0",
   "private": true,
   "description": "AdjeUI: design system shared by the Adje apps. React components organized by category in src/, base theme in theme.css and demo in demo/.",
   "exports": {

@@ -1,7 +1,8 @@
 "use client";
 
-import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { ReactNode } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useScrollEdges } from "./useScrollEdges";
 
 // Row that does not fit (13 Sep 2026): instead of a scrollbar —ugly, different
 // on every OS and invisible on Mac until you touch it— two arrows appear at
@@ -23,34 +24,7 @@ export function ScrollArrows({
   /** Pixels advanced per press. */
   step?: number;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [left, setLeft] = useState(false);
-  const [right, setRight] = useState(false);
-
-  const measure = useCallback(() => {
-    const el = ref.current;
-    if (!el) return;
-    // 1px of slack: browsers round, and otherwise the right arrow stays on
-    // forever at the end of the track.
-    setLeft(el.scrollLeft > 1);
-    setRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
-  }, []);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    measure();
-    // Both the container (its width changes) and the content (its items
-    // change) must be watched: with only one, the arrows fall out of sync.
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    if (el.firstElementChild) ro.observe(el.firstElementChild);
-    window.addEventListener("resize", measure);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener("resize", measure);
-    };
-  }, [measure]);
+  const { ref, measure, start: left, end: right } = useScrollEdges<HTMLDivElement>();
 
   function move(dir: -1 | 1) {
     ref.current?.scrollBy({ left: dir * step, behavior: "smooth" });
@@ -68,15 +42,17 @@ export function ScrollArrows({
   );
 }
 
-// The arrow sits on a gradient veil fading into the background, so the content
-// underneath is not cut off with a hard edge.
+// The arrow (26 Sep 2026): a bare chevron on a gradient veil fading into the
+// background — no circle around it. The round bordered button looked like a
+// control of its own sitting on the row; the veil already says "more this
+// way", and the chevron is what you press.
 function Arrow({ side, onClick }: { side: "left" | "right"; onClick: () => void }) {
   const isLeft = side === "left";
   return (
     <div
-      className={`pointer-events-none absolute inset-y-0 z-10 flex items-center ${isLeft ? "left-0 pr-6" : "right-0 pl-6"}`}
+      className={`pointer-events-none absolute inset-y-0 z-10 flex items-stretch ${isLeft ? "left-0 pr-5" : "right-0 pl-5"}`}
       style={{
-        background: `linear-gradient(to ${isLeft ? "right" : "left"}, var(--card) 55%, transparent)`,
+        background: `linear-gradient(to ${isLeft ? "right" : "left"}, var(--card) 45%, transparent)`,
       }}
     >
       <button
@@ -84,9 +60,9 @@ function Arrow({ side, onClick }: { side: "left" | "right"; onClick: () => void 
         tabIndex={-1}
         aria-label={isLeft ? "Scroll left" : "Scroll right"}
         onClick={onClick}
-        className="pointer-events-auto inline-flex h-6 w-6 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--card)] text-muted shadow-sm transition hover:text-[var(--foreground)]"
+        className="pointer-events-auto inline-flex w-6 items-center justify-center text-muted transition hover:text-[var(--foreground)]"
       >
-        {isLeft ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+        {isLeft ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
       </button>
     </div>
   );

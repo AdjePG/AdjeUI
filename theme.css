@@ -145,6 +145,16 @@ body {
   box-shadow: inset 0 0 5px 5px var(--scrollbar-thumb-hover);
 }
 
+/* Same scrollbar, no reserved gutter. `scrollbar-gutter: stable` is there so a
+   page does not jump sideways the moment its content grows past the window —
+   which is what you want on a page, and dead weight on a panel that opens
+   already at its final size. A three-row dropdown was drawing a 14px strip of
+   nothing down its right edge, with the check mark of the chosen row pushed
+   away from the corner (20 Sep 2026). */
+.custom-scrollbar.scroll-no-gutter {
+  scrollbar-gutter: auto;
+}
+
 /* Gradient border with rounded corners. It cannot be done with border-image
    (it does not get along with border-radius), so it is two background layers:
    the fill clipped to padding-box and the gradient to border-box, peeking out
@@ -296,6 +306,33 @@ body {
 }
 .drawer-fade {
   animation: drawer-fade 0.22s ease-out;
+}
+
+/* Bottom sheet: what a Popover becomes on a phone. An anchored panel needs a
+   pointer that can aim and room around the trigger to open into; a thumb has
+   neither, and a menu opening beside a 28px icon button ended up squeezed
+   against whichever edge was nearest. At the bottom it gets the full width and
+   it sits where the thumb already is (20 Sep 2026). */
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.sheet-in {
+  animation: sheet-in 0.22s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet-in,
+  .drawer-in,
+  .drawer-fade,
+  .toast-in,
+  .help-pop {
+    animation: none;
+  }
 }
 
 /* Range slider accent */
