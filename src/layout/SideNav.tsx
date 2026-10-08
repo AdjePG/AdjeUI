@@ -60,12 +60,22 @@ export function SideNav({
   children?: ReactNode; // modals or other elements hanging off the nav
 }) {
   const A: LinkLike = LinkComponent ?? "a";
-  const { open, collapsed } = useSideNavState();
+  const { open, collapsed, moving } = useSideNavState();
   const compact = useSideNavCompact();
 
   useEffect(() => {
     sideNavState.mount();
     return () => sideNavState.unmount();
+  }, []);
+
+  // Leaving the mobile size closes the panel, without a slide.
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const onChange = () => {
+      if (!mq.matches) sideNavState.closeNow();
+    };
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
   }, []);
 
   // Escape closes on mobile.
@@ -92,6 +102,7 @@ export function SideNav({
       <nav
         className="sidenav h-full flex flex-col bg-[var(--secondary)] border-r border-[var(--border)] px-3 py-4 gap-3"
         data-open={open || undefined}
+        data-moving={moving || undefined}
         data-collapsed={collapsed || undefined}
         aria-label="Main navigation"
       >

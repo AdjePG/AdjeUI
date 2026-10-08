@@ -5,14 +5,19 @@
 //   - collapsed: compact mode on desktop (icons only), remembered in
 //                localStorage
 //   - mounted:   number of mounted SideNavs (if any, PageHeader draws ☰)
+//   - moving:    the mobile panel is sliding because someone opened or closed
+//                it. The slide (CSS transition) only runs then: crossing the
+//                768px line while resizing used to animate the panel out over
+//                whatever was on screen, a full-screen preview included
+//                (4 Oct 2026).
 import { useEffect, useState, useSyncExternalStore } from "react";
 
-type State = { mounted: number; open: boolean; collapsed: boolean };
+type State = { mounted: number; open: boolean; collapsed: boolean; moving: boolean };
 
 const STORAGE_KEY = "adjeui.sidenav.collapsed";
 const MOBILE_QUERY = "(max-width: 767px)"; // = Tailwind's md breakpoint
 
-let state: State = { mounted: 0, open: false, collapsed: false };
+let state: State = { mounted: 0, open: false, collapsed: false, moving: false };
 const listeners = new Set<() => void>();
 
 function set(next: Partial<State>) {
@@ -20,10 +25,26 @@ function set(next: Partial<State>) {
   listeners.forEach((l) => l());
 }
 
+// The slide lasts 0.22s (theme.css); the flag outlives it a little.
+let movingTimer: ReturnType<typeof setTimeout> | undefined;
+function slide(open: boolean) {
+  if (open === state.open) return;
+  clearTimeout(movingTimer);
+  set({ open, moving: true });
+  movingTimer = setTimeout(() => set({ moving: false }), 260);
+}
+
 export const sideNavState = {
-  open: () => set({ open: true }),
-  close: () => set({ open: false }),
-  toggle: () => set({ open: !state.open }),
+  open: () => slide(true),
+  close: () => slide(false),
+  toggle: () => slide(!state.open),
+  // Shut at once, no slide: leaving the mobile size. The panel being open is
+  // a mobile thing — kept open across a resize, it came back open, backdrop
+  // and all, the next time the window got narrow (4 Oct 2026).
+  closeNow: () => {
+    clearTimeout(movingTimer);
+    set({ open: false, moving: false });
+  },
   setCollapsed: (v: boolean) => {
     set({ collapsed: v });
     try {
@@ -48,7 +69,7 @@ export const sideNavState = {
   unmount: () => set({ mounted: Math.max(0, state.mounted - 1), open: false }),
 };
 
-const SERVER: State = { mounted: 0, open: false, collapsed: false };
+const SERVER: State = { mounted: 0, open: false, collapsed: false, moving: false };
 
 export function useSideNavState(): State {
   return useSyncExternalStore(

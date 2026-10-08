@@ -16,7 +16,11 @@ export function PageHeader({
   title,
   actions,
   tabs,
+  menu = true,
 }: {
+  /** false = no ☰ on mobile even with a SideNav mounted: for a screen laid
+   *  over the app (a full-screen preview), where there is no menu to open. */
+  menu?: boolean;
   icon: React.ReactNode;
   title: React.ReactNode;
   actions?: React.ReactNode;
@@ -34,12 +38,12 @@ export function PageHeader({
     // underneath it and no screen in the app had a single shared left edge
     // (20 Sep 2026). The bar itself still spans the full width: the border and
     // the background live on the <header>.
-    <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--background)]/90 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[color-mix(in_srgb,var(--background)_80%,transparent)] backdrop-blur-md">
       <div className="max-w-6xl mx-auto w-full px-4 sm:px-6">
         {/* Title + actions row. No bottom padding when there are tabs so they
             sit flush with the edge. */}
         <div className={`flex items-center gap-3 pt-3 ${tabs ? "pb-0" : "pb-3"}`}>
-          {mounted > 0 && (
+          {menu && mounted > 0 && (
             <button
               type="button"
               onClick={() => sideNavState.open()}

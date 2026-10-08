@@ -114,11 +114,14 @@ export function ChoiceOption({
   const color = colorFor(tone);
 
   // Chosen: gradient border (or the tone color). Off: normal border.
+  // Hover darkens the BORDER (row and mark) instead of filling the row: in the
+  // dark theme --hover over a card is almost exactly --border, so a filled row
+  // swallowed its own border and the mark's circle (29 Sep 2026).
   const frame = checked
     ? color
       ? "border-transparent"
       : "gradient-border"
-    : "border-[var(--border)] hover:bg-[var(--hover)]";
+    : "border-[var(--border)] hover:border-[color-mix(in_srgb,var(--foreground)_22%,transparent)]";
 
   const toneStyle =
     checked && color
@@ -133,11 +136,19 @@ export function ChoiceOption({
       disabled={disabled}
       onClick={onToggle}
       style={toneStyle}
-      className={`flex w-full items-center rounded-xl border-2 text-left transition ${t.row} ${t.gap} ${frame} ${
+      className={`group flex w-full items-center rounded-xl border-2 text-left transition ${t.row} ${t.gap} ${frame} ${
         align === "center" ? "justify-center" : ""
       } ${disabled ? "cursor-default opacity-50" : "cursor-pointer"} ${checked ? "font-semibold" : ""} ${className}`}
     >
-      {mark && <ChoiceMark checked={checked} multiple={multiple} size={size} tone={tone} />}
+      {mark && (
+        <ChoiceMark
+          checked={checked}
+          multiple={multiple}
+          size={size}
+          tone={tone}
+          className={checked || disabled ? "" : "group-hover:border-[color-mix(in_srgb,var(--foreground)_40%,transparent)]"}
+        />
+      )}
       {icon && <span className="inline-flex shrink-0">{icon}</span>}
       {prefix != null && <span className="w-4 shrink-0 font-mono text-[11px] text-muted">{prefix}</span>}
       <span className={`min-w-0 ${align === "center" ? "" : "flex-1"}`}>{children}</span>

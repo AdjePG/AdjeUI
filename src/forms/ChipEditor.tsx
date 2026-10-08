@@ -66,7 +66,7 @@ export function ChipEditor({
             key={`${v}-${i}`}
             title={tooLong ? `Too long: ${v.length}/${maxLen} characters` : overIdx ? `Max ${max}` : undefined}
             className={`inline-flex items-center gap-1 rounded-full pl-2.5 pr-1 py-0.5 text-[12px] font-medium ${
-              bad ? "bg-[var(--negative)]/15 text-[var(--negative)]" : "bg-[var(--hover)]"
+              bad ? "bg-[color-mix(in_srgb,var(--negative)_15%,transparent)] text-[var(--negative)]" : "bg-[var(--hover)]"
             }`}
           >
             {v}

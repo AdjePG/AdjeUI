@@ -17,7 +17,7 @@ const VARIANTS: Record<ButtonVariant, string> = {
   primary: "text-white blue-shadow hover:opacity-90",
   ghost: "hover:bg-[var(--hover)]",
   outline: "border border-[var(--border)] bg-[var(--card)] hover:bg-[var(--hover)]",
-  danger: "text-[var(--negative)] border border-[var(--negative)] hover:bg-[var(--negative)]/10",
+  danger: "text-[var(--negative)] border border-[var(--negative)] hover:bg-[color-mix(in_srgb,var(--negative)_10%,transparent)]",
 };
 
 export function Button({

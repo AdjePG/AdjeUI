@@ -64,6 +64,7 @@ export { SectionTitle } from "./layout/SectionTitle";
 export { Collapsible } from "./layout/Collapsible";
 export { SideNav, SideNavBrand, SideNavButton, SideNavUser, SideNavAction } from "./layout/SideNav";
 export { sideNavState, useSideNavState, useSideNavCompact, useIsMobile } from "./layout/sideNavState";
+export { OverlayScrollbar } from "./layout/OverlayScrollbar";
 export { useTheme, type Theme } from "./layout/theme";
 
 // tokens

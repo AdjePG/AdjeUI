@@ -16,6 +16,7 @@ export function Modal({
   children,
   footer,
   wide = false,
+  scrollBody = false,
 }: {
   open: boolean;
   onClose: () => void;
@@ -24,6 +25,11 @@ export function Modal({
   children: ReactNode;
   footer?: ReactNode;
   wide?: boolean;
+  /** The dialog fits in the window and only its content scrolls, with the
+   *  title (and the footer) staying put. Off by default: the page scrolls
+   *  instead, which a dialog with menus inside needs to keep them unclipped.
+   *  For a long list to pick from (a catalogue of blocks). */
+  scrollBody?: boolean;
 }) {
   useEffect(() => {
     function onEsc(e: KeyboardEvent) {
@@ -35,16 +41,16 @@ export function Modal({
   if (!open) return null;
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 p-4 overflow-y-auto custom-scrollbar"
+      className={`fixed inset-0 z-50 flex justify-center bg-black/50 p-4 ${scrollBody ? "items-center" : "items-start overflow-y-auto custom-scrollbar"}`}
       onMouseDown={onClose}
       role="dialog"
       aria-modal="true"
     >
       <div
-        className={`card w-full ${wide ? "max-w-3xl" : "max-w-lg"} my-8 blue-shadow flex flex-col`}
+        className={`card w-full ${wide ? "max-w-3xl" : "max-w-lg"} blue-shadow flex flex-col ${scrollBody ? "max-h-[calc(100dvh-4rem)] my-4" : "my-8"}`}
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-5 pb-4">
+        <div className={`flex shrink-0 items-center justify-between p-5 pb-4 ${scrollBody ? "border-b border-[var(--border)]" : ""}`}>
           <h3 className="text-lg font-semibold min-w-0">{title}</h3>
           <button
             onClick={onClose}
@@ -54,9 +60,15 @@ export function Modal({
             <X size={18} />
           </button>
         </div>
-        <div className="px-5 pb-5">{children}</div>
+        {scrollBody ? (
+          // The bar's 14px gutter is always there, so the right padding is
+          // what is left of the 20px: the content sits centred all the same.
+          <div className="custom-scrollbar min-h-0 flex-1 pb-5 pl-5 pr-1.5 pt-4">{children}</div>
+        ) : (
+          <div className="px-5 pb-5">{children}</div>
+        )}
         {footer && (
-          <div className="flex items-center justify-end gap-2 px-5 py-3.5 border-t border-[var(--border)]">
+          <div className="flex shrink-0 items-center justify-end gap-2 px-5 py-3.5 border-t border-[var(--border)]">
             {footer}
           </div>
         )}

@@ -1,6 +1,10 @@
 "use client";
 
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
+
+// Before paint on the client (no server warning): the clip must be on in the
+// very frame the fold starts, or the content spills out of the box for one.
+const useBeforePaint = typeof window === "undefined" ? useEffect : useLayoutEffect;
 import { ChevronUp } from "lucide-react";
 import { Overline } from "../primitives/Overline";
 
@@ -15,12 +19,20 @@ import { Overline } from "../primitives/Overline";
 // open it is NOT, so a Select or anything else that opens inside it is never
 // cut off (an overflow-hidden on the box showed two options out of four).
 // Closed, it is hidden as well, so its fields cannot be tabbed into.
+//
+// Open, a rule in the border's colour runs under the header from edge to edge
+// (4 Oct 2026), the same as on Aulora's course structure panel: a long panel
+// otherwise read as one block with no line between its title and its content.
+// It fades with the fold and takes its 1px in both states, so nothing jumps.
 export function Collapsible({
   title,
   icon,
   summary,
   children,
   defaultOpen = false,
+  open: openProp,
+  onOpenChange,
+  className = "",
 }: {
   title: ReactNode;
   icon?: ReactNode;
@@ -28,23 +40,41 @@ export function Collapsible({
   summary?: ReactNode;
   children: ReactNode;
   defaultOpen?: boolean;
+  /** Controlled (4 Oct 2026): for a panel that closes itself — after picking
+   *  something inside, or a click outside. Without it, it keeps its own state. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** Extra classes on the box (a background, when it sits over content). */
+  className?: string;
 }) {
-  const [open, setOpen] = useState(defaultOpen);
+  const [inner, setInner] = useState(defaultOpen);
+  const open = openProp ?? inner;
   const [moving, setMoving] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout>>();
   useEffect(() => () => clearTimeout(timer.current), []);
 
-  function toggle() {
-    setOpen((o) => !o);
+  // Whoever opens or closes it — the header, or the owner of a controlled
+  // one — the content is clipped while it moves.
+  const first = useRef(true);
+  useBeforePaint(() => {
+    if (first.current) {
+      first.current = false;
+      return;
+    }
     setMoving(true);
     // A timer and not transitionend: with reduced motion there is no
     // transition, and nothing would ever say it had finished.
     clearTimeout(timer.current);
     timer.current = setTimeout(() => setMoving(false), 220);
+  }, [open]);
+
+  function toggle() {
+    if (openProp === undefined) setInner(!open);
+    onOpenChange?.(!open);
   }
 
   return (
-    <div className="rounded-xl border border-[var(--border)]">
+    <div className={`rounded-xl border border-[var(--border)] ${className}`}>
       <button
         type="button"
         onClick={toggle}
@@ -61,6 +91,10 @@ export function Collapsible({
         </span>
       </button>
       <div
+        aria-hidden
+        className={`h-px transition-colors duration-200 ease-out motion-reduce:transition-none ${open ? "bg-[var(--border)]" : "bg-transparent"}`}
+      />
+      <div
         className="grid transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none"
         style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
       >
@@ -69,7 +103,7 @@ export function Collapsible({
           style={!open && !moving ? { visibility: "hidden" } : undefined}
           aria-hidden={!open}
         >
-          <div className="px-3.5 pb-3.5 pt-1 text-[13px] leading-relaxed">{children}</div>
+          <div className="px-3.5 pb-3.5 pt-3 text-[13px] leading-relaxed">{children}</div>
         </div>
       </div>
     </div>
