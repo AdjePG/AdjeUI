@@ -76,7 +76,7 @@ export function Select({
         type="button"
         aria-invalid={bad || undefined}
         onClick={() => setOpen((o) => !o)}
-        className={`flex w-full items-center justify-between gap-2 border bg-[var(--background)] transition ${INPUT_SIZES[size]} ${
+        className={`flex w-full items-center justify-between gap-2 border bg-[var(--field-bg,var(--background))] transition ${INPUT_SIZES[size]} ${
           bad
             ? "border-[var(--negative)]"
             : open

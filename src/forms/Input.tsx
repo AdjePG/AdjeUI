@@ -5,8 +5,12 @@ import { useFieldInvalid } from "./Field";
 import type { ControlSize } from "../controls/Button";
 
 // Shared skin of the fields (border, background, focus), WITHOUT size.
+// The background is --field-bg, the page's background unless whoever places
+// the field says otherwise (10 Oct 2026): a field is drawn on a card, and a
+// toolbar sitting straight on the page sets `[--field-bg:var(--card)]` so
+// its fields do not melt into it.
 const inputBase =
-  "w-full border border-[var(--border)] bg-[var(--background)] outline-none focus:border-[var(--accent-blue)] disabled:opacity-50 disabled:cursor-not-allowed";
+  "w-full border border-[var(--border)] bg-[var(--field-bg,var(--background))] outline-none focus:border-[var(--accent-blue)] disabled:opacity-50 disabled:cursor-not-allowed";
 
 // Base class of the inputs in md size (compatibility: the apps used it
 // directly on native elements). WITHOUT height: the height is set by Input
