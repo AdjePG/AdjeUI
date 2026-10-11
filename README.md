@@ -16,7 +16,7 @@ One component per file, grouped by category in `src/`:
 | `src/forms` | Field, Input, Textarea, Select, ChipEditor, `useFormErrors` + `rules` (validation), `inputCls`; RichTextEditor/RichText (separate entrypoint `adje-shared-ui/rich-text`) |
 | `src/overlays` | Modal, Drawer, ConfirmDialog, HelpTip, ToastProvider/useToast, Popover, Menu, useShortcuts |
 | `src/data` | Stat, ProgressBar, Pagination, Table |
-| `src/layout` | PageHeader, SectionTitle, Collapsible, SideNav + SideNavBrand/SideNavAction/SideNavButton/SideNavUser, `useTheme` |
+| `src/layout` | PageHeader, SectionTitle, Collapsible, Carousel, SideNav + SideNavBrand/SideNavAction/SideNavButton/SideNavUser, `useTheme` |
 | `src/tokens` | `palette(name, shade)`, `paletteHex`, `PALETTE` — fixed palette of 15 colors × 10 shades |
 
 Charts (recharts) still live in MisFinanzas (`src/components/charts.tsx`):
@@ -128,10 +128,17 @@ re-exports, so existing apps do not break; for new code import from plain
   optional `summary` line under it, and a chevron that turns over; the content
   folds with an animation. Open, nothing inside is clipped (a Select's list
   opens freely); closed, it cannot be tabbed into.
+- **Carousel is a row that stays one row.** Anything goes inside. While there
+  is room the items share the width; once they reach `itemWidth` (220 px by
+  default) they stop shrinking and the row scrolls sideways — they never wrap
+  and never grow back. It scrolls the way the device does (finger, trackpad,
+  the thin bar), each item settles at its start, the side with more to see
+  fades out, and a small round button on that edge moves one item along.
+  Nothing to drag by hand.
 - **Tables that scroll sideways.** `Table` draws a hairline on each side that
   has more to show and removes it once you reach that end, so cut-off cells
   read as "there is more", not as a bug. `stickyFirst` pins the first column
-  (and moves the left line to its edge); `stickyBg` if the table is not on
+  (and moves the left line to its edge, measured again when the rows change); `stickyBg` if the table is not on
   `--card`. The measuring is `useScrollEdges`, shared with `ScrollArrows`.
 - **Options with icons.** Every `Select` option is one template, `[icon]
   label [check]`: give any option an `icon` and every row keeps the icon slot,

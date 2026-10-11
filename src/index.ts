@@ -4,7 +4,7 @@
 //   forms/       forms (Field, Input, Textarea, Select, validation)
 //   overlays/    layers (Modal, Drawer, ConfirmDialog, HelpTip, Toast, Popover, Menu, useShortcuts)
 //   data/        data and indicators (Stat, ProgressBar, Pagination)
-//   layout/      page structure (PageHeader, SectionTitle, Collapsible, SideNav/SideNavUser, useTheme)
+//   layout/      page structure (PageHeader, SectionTitle, Collapsible, Carousel, SideNav/SideNavUser, useTheme)
 //   tokens/      fixed palette of 15 colors x 10 shades (palette, PALETTE)
 
 // primitives
@@ -59,6 +59,7 @@ export { Pagination } from "./data/Pagination";
 export { Table } from "./data/Table";
 
 // layout
+export { Carousel } from "./layout/Carousel";
 export { PageHeader } from "./layout/PageHeader";
 export { SectionTitle } from "./layout/SectionTitle";
 export { Collapsible } from "./layout/Collapsible";

@@ -37,14 +37,30 @@ export function Table({
   // The pinned column's width: the left line is drawn on its edge, as one
   // element like the right one (a shadow per cell broke at every row and was
   // barely there).
+  // Measured again whenever the table's rows change (11 Oct 2026): a table
+  // whose header was rebuilt kept watching a cell no longer in it, and the
+  // line fell to the left edge.
   const [pinW, setPinW] = useState(0);
   useEffect(() => {
-    const cell = stickyFirst ? ref.current?.querySelector<HTMLElement>("tr > :first-child") : null;
-    if (!cell) return setPinW(0);
-    const ro = new ResizeObserver(() => setPinW(cell.offsetWidth));
-    ro.observe(cell);
-    setPinW(cell.offsetWidth);
-    return () => ro.disconnect();
+    const box = ref.current;
+    if (!stickyFirst || !box) return setPinW(0);
+    let watched: HTMLElement | null = null;
+    const ro = new ResizeObserver(() => setPinW(watched?.offsetWidth ?? 0));
+    const pick = () => {
+      const cell = box.querySelector<HTMLElement>("tbody tr > :first-child") ?? box.querySelector<HTMLElement>("tr > :first-child");
+      if (cell === watched) return;
+      if (watched) ro.unobserve(watched);
+      watched = cell;
+      if (cell) ro.observe(cell);
+      setPinW(cell?.offsetWidth ?? 0);
+    };
+    pick();
+    const mo = new MutationObserver(pick);
+    mo.observe(box, { childList: true, subtree: true });
+    return () => {
+      ro.disconnect();
+      mo.disconnect();
+    };
   }, [stickyFirst, ref]);
   const sticky = stickyFirst
     ? "[&_tr>*:first-child]:sticky [&_tr>*:first-child]:left-0 [&_tr>*:first-child]:z-[2] [&_tr>*:first-child]:bg-[var(--sticky-bg)]"

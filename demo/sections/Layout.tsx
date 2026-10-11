@@ -40,6 +40,7 @@ import {
   SideNavUser,
   Button,
   Card,
+  Carousel,
   ChipEditor,
   Collapsible,
   ConfirmDialog,
@@ -211,6 +212,16 @@ export function LayoutSection() {
         <Collapsible title="Collapsible closed by default, no icon">
           <p>Content folded until opened.</p>
         </Collapsible>
+
+        <SectionTitle title="Carousel" subtitle="One row: the items share the width, and below 180 px each the row scrolls" />
+        <Carousel itemWidth={180} label="Carousel demo">
+          {["Courses", "Students", "To grade", "Groups", "Lessons"].map((t, i) => (
+            <div key={t} className="rounded-xl border border-[var(--border)] p-4">
+              <div className="text-2xl font-bold">{(i + 1) * 7}</div>
+              <div className="text-[13px] text-muted">{t}</div>
+            </div>
+          ))}
+        </Carousel>
       </Card>
     </Section>
   );
