@@ -222,6 +222,15 @@ export function LayoutSection() {
             </div>
           ))}
         </Carousel>
+        <SectionTitle title="Carousel with fade" subtitle="fade: the side with more to see fades out" />
+        <Carousel itemWidth={180} label="Carousel with fade" fade>
+          {["Courses", "Students", "To grade", "Groups", "Lessons"].map((t, i) => (
+            <div key={t} className="rounded-xl border border-[var(--border)] p-4">
+              <div className="text-2xl font-bold">{(i + 1) * 7}</div>
+              <div className="text-[13px] text-muted">{t}</div>
+            </div>
+          ))}
+        </Carousel>
       </Card>
     </Section>
   );

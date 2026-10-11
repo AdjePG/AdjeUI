@@ -131,10 +131,13 @@ re-exports, so existing apps do not break; for new code import from plain
 - **Carousel is a row that stays one row.** Anything goes inside. While there
   is room the items share the width; once they reach `itemWidth` (220 px by
   default) they stop shrinking and the row scrolls sideways — they never wrap
-  and never grow back. It scrolls the way the device does (finger, trackpad,
-  the thin bar), each item settles at its start, the side with more to see
-  fades out, and a small round button on that edge moves one item along.
-  Nothing to drag by hand.
+  and never grow back. No scrollbar: it moves with the finger or trackpad,
+  by dragging it with the mouse (it stays where you let go, and a drag is not
+  a click on what is inside), or with a button in the app's colour on the
+  edge that has more, which moves one item along. `bleed` (the page's side
+  padding) lets the row run out to the page's edge while it scrolls, so the
+  items are cut by the screen and not inside the margin. `fade` also fades
+  out the side with more to see (off by default).
 - **Tables that scroll sideways.** `Table` draws a hairline on each side that
   has more to show and removes it once you reach that end, so cut-off cells
   read as "there is more", not as a bug. `stickyFirst` pins the first column
