@@ -14,6 +14,8 @@ export function Card({
   glow?: boolean;
 }) {
   return (
-    <div className={`card p-4 sm:p-5 ${glow ? "blue-shadow" : ""} ${className}`}>{children}</div>
+    // --card-pad says how much padding it has, for whatever inside has to
+    // reach its edge (a Table with `bleed`; 12 Oct 2026).
+    <div className={`card p-4 [--card-pad:1rem] sm:p-5 sm:[--card-pad:1.25rem] ${glow ? "blue-shadow" : ""} ${className}`}>{children}</div>
   );
 }

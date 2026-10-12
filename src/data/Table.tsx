@@ -20,19 +20,29 @@ import { useScrollEdges } from "../controls/useScrollEdges";
 // under it; the left line is then drawn on that column's edge, which is where
 // the hidden content actually is. The pinned cells take `--card` as their
 // background: pass `stickyBg` when the table sits on another surface.
+//
+// `bleed` (12 Oct 2026): what scrolls runs out to the edge of the Card the
+// table is in, instead of being cut where the Card's padding starts — that
+// strip used to stay empty while the columns went past. At rest the table
+// lines up with the rest of the Card as before. A pinned first column covers
+// the strip on its left, so nothing shows behind it. It reads the Card's
+// padding from --card-pad; pass a length to use another.
 export function Table({
   children,
   minWidth = 520,
   className = "",
   stickyFirst = false,
   stickyBg = "var(--card)",
+  bleed = false,
 }: {
   children: ReactNode;
   minWidth?: number;
   className?: string;
   stickyFirst?: boolean;
   stickyBg?: string;
+  bleed?: boolean | string;
 }) {
+  const pad = bleed === true ? "var(--card-pad, 1.25rem)" : bleed || "0px";
   const { ref, measure, start, end, bar } = useScrollEdges<HTMLDivElement>();
   // The pinned column's width: the left line is drawn on its edge, as one
   // element like the right one (a shadow per cell broke at every row and was
@@ -62,24 +72,39 @@ export function Table({
       mo.disconnect();
     };
   }, [stickyFirst, ref]);
+  // Pinned at the padding's edge; a solid shadow of the cell's own colour
+  // covers the strip to its left (only there when the table bleeds).
   const sticky = stickyFirst
-    ? "[&_tr>*:first-child]:sticky [&_tr>*:first-child]:left-0 [&_tr>*:first-child]:z-[2] [&_tr>*:first-child]:bg-[var(--sticky-bg)]"
+    ? "[&_tr>*:first-child]:sticky [&_tr>*:first-child]:left-[var(--bleed)] [&_tr>*:first-child]:z-[2] [&_tr>*:first-child]:bg-[var(--sticky-bg)] [&_tr>*:first-child]:shadow-[calc(-1*var(--bleed))_0_0_0_var(--sticky-bg)]"
     : "";
   return (
-    <div className="relative" style={stickyFirst ? ({ "--sticky-bg": stickyBg } as CSSProperties) : undefined}>
+    <div
+      className="relative"
+      style={{ "--sticky-bg": stickyBg, "--bleed": pad, marginInline: bleed ? `calc(-1 * ${pad})` : undefined } as CSSProperties}
+    >
       {/* code-scroll, not custom-scrollbar (25 Sep 2026): custom-scrollbar is the
           vertical panels' bar and sets overflow-x: hidden, so a table wider than
           its box was cut off with no way across. This is the thin horizontal bar
           the code block wears. */}
       <div ref={ref} onScroll={measure} className="overflow-x-auto overflow-y-hidden code-scroll">
-        <table
-          className={`w-full text-[13px] [&_th]:font-medium [&_th]:text-left [&_th]:text-muted [&_th]:px-2 [&_th]:py-2 [&_th]:whitespace-nowrap [&_td]:px-2 [&_td]:py-2 [&_tbody_tr]:border-t [&_tbody_tr]:border-[var(--border)] ${sticky} ${className}`}
-          style={{ minWidth }}
-        >
-          {children}
-        </table>
+        {/* The padding is on this box, not on the scroller: a scroller's own
+            padding is not always counted at the end of what scrolls. */}
+        <div style={{ paddingInline: "var(--bleed)", width: "max-content", minWidth: "100%", boxSizing: "border-box" }}>
+          <table
+            className={`w-full text-[13px] [&_th]:font-medium [&_th]:text-left [&_th]:text-muted [&_th]:px-2 [&_th]:py-2 [&_th]:whitespace-nowrap [&_td]:px-2 [&_td]:py-2 [&_tbody_tr]:border-t [&_tbody_tr]:border-[var(--border)] ${sticky} ${className}`}
+            style={{ minWidth }}
+          >
+            {children}
+          </table>
+        </div>
       </div>
-      {start && <span aria-hidden className="pointer-events-none absolute top-0 z-[3] w-px bg-[var(--border)]" style={{ left: stickyFirst ? pinW : 0, bottom: bar }} />}
+      {start && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute top-0 z-[3] w-px bg-[var(--border)]"
+          style={{ left: stickyFirst ? `calc(${pad} + ${pinW}px)` : 0, bottom: bar }}
+        />
+      )}
       {end && <span aria-hidden className="pointer-events-none absolute right-0 top-0 z-[3] w-px bg-[var(--border)]" style={{ bottom: bar }} />}
     </div>
   );
