@@ -43,8 +43,11 @@ export function Button({
   full?: boolean; // takes the full width (w-full)
   loading?: boolean; // spinner + disabled
 }) {
+  // leading-none (12 Oct 2026): the word's line is its own size, like the icon
+  // beside it, so the two centre on the same pixel at any zoom; the height
+  // comes from --control-h, not from the line.
   const base =
-    "inline-flex items-center justify-center gap-2 font-semibold whitespace-nowrap transition disabled:opacity-40 disabled:cursor-not-allowed shrink-0";
+    "inline-flex items-center justify-center gap-2 font-semibold leading-none whitespace-nowrap transition disabled:opacity-40 disabled:cursor-not-allowed shrink-0";
   return (
     <button
       type={type}
