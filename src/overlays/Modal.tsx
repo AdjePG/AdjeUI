@@ -50,7 +50,10 @@ export function Modal({
         className={`card w-full ${wide ? "max-w-3xl" : "max-w-lg"} blue-shadow flex flex-col ${scrollBody ? "max-h-[calc(100dvh-4rem)] my-4" : "my-8"}`}
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <div className={`flex shrink-0 items-center justify-between p-5 pb-4 ${scrollBody ? "border-b border-[var(--border)]" : ""}`}>
+        {/* Always a line under the title (13 Oct 2026), as the Drawer has —
+            it was only there when the body scrolled, so two dialogs side by
+            side looked like two different components. */}
+        <div className="flex shrink-0 items-center justify-between border-b border-[var(--border)] p-5 pb-4">
           <h3 className="text-lg font-semibold min-w-0">{title}</h3>
           <button
             onClick={onClose}
@@ -65,7 +68,7 @@ export function Modal({
           // what is left of the 20px: the content sits centred all the same.
           <div className="custom-scrollbar min-h-0 flex-1 pb-5 pl-5 pr-1.5 pt-4">{children}</div>
         ) : (
-          <div className="px-5 pb-5">{children}</div>
+          <div className="px-5 pb-5 pt-4">{children}</div>
         )}
         {footer && (
           <div className="flex shrink-0 items-center justify-end gap-2 px-5 py-3.5 border-t border-[var(--border)]">
