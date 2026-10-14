@@ -17,6 +17,7 @@ export function Modal({
   footer,
   wide = false,
   scrollBody = false,
+  bare = false,
 }: {
   open: boolean;
   onClose: () => void;
@@ -30,6 +31,10 @@ export function Modal({
    *  instead, which a dialog with menus inside needs to keep them unclipped.
    *  For a long list to pick from (a catalogue of blocks). */
   scrollBody?: boolean;
+  /** Fits in the window like scrollBody, but the body has no padding and
+   *  does not scroll: the content lays itself out — a search that stays on
+   *  top and a list that scrolls under it (14 Oct 2026). */
+  bare?: boolean;
 }) {
   useEffect(() => {
     function onEsc(e: KeyboardEvent) {
@@ -39,15 +44,20 @@ export function Modal({
     return () => document.removeEventListener("keydown", onEsc);
   }, [open, onClose]);
   if (!open) return null;
+  const fit = scrollBody || bare;
+  // On a phone every dialog takes the whole screen (14 Oct 2026): no
+  // margins, no corners, the footer at the bottom.
   return (
     <div
-      className={`fixed inset-0 z-50 flex justify-center bg-black/50 p-4 ${scrollBody ? "items-center" : "items-start overflow-y-auto custom-scrollbar"}`}
+      className={`fixed inset-0 z-50 flex justify-center bg-black/50 p-4 max-sm:p-0 ${fit ? "items-center" : "items-start overflow-y-auto custom-scrollbar"}`}
       onMouseDown={onClose}
       role="dialog"
       aria-modal="true"
     >
       <div
-        className={`card w-full ${wide ? "max-w-3xl" : "max-w-lg"} blue-shadow flex flex-col ${scrollBody ? "max-h-[calc(100dvh-4rem)] my-4" : "my-8"}`}
+        className={`card w-full ${wide ? "max-w-3xl" : "max-w-lg"} blue-shadow flex flex-col max-sm:max-w-none max-sm:rounded-none max-sm:border-0 ${
+          fit ? "max-h-[calc(100dvh-4rem)] my-4 max-sm:my-0 max-sm:h-dvh max-sm:max-h-none" : "my-8 max-sm:my-0 max-sm:min-h-dvh"
+        }`}
         onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Always a line under the title (13 Oct 2026), as the Drawer has —
@@ -63,12 +73,14 @@ export function Modal({
             <X size={18} />
           </button>
         </div>
-        {scrollBody ? (
+        {bare ? (
+          <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+        ) : scrollBody ? (
           // The bar's 14px gutter is always there, so the right padding is
           // what is left of the 20px: the content sits centred all the same.
           <div className="custom-scrollbar min-h-0 flex-1 pb-5 pl-5 pr-1.5 pt-4">{children}</div>
         ) : (
-          <div className="px-5 pb-5 pt-4">{children}</div>
+          <div className="px-5 pb-5 pt-4 max-sm:flex-1">{children}</div>
         )}
         {footer && (
           <div className="flex shrink-0 items-center justify-end gap-2 px-5 py-3.5 border-t border-[var(--border)]">
