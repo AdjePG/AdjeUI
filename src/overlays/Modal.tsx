@@ -16,6 +16,7 @@ export function Modal({
   children,
   footer,
   wide = false,
+  size,
   scrollBody = false,
   bare = false,
 }: {
@@ -26,6 +27,9 @@ export function Modal({
   children: ReactNode;
   footer?: ReactNode;
   wide?: boolean;
+  /** Width: "md" (the default), "lg" (= wide) or "xl" — a page to read
+   *  inside, such as a document's preview (17 Oct 2026). */
+  size?: "md" | "lg" | "xl";
   /** The dialog fits in the window and only its content scrolls, with the
    *  title (and the footer) staying put. Off by default: the page scrolls
    *  instead, which a dialog with menus inside needs to keep them unclipped.
@@ -45,6 +49,7 @@ export function Modal({
   }, [open, onClose]);
   if (!open) return null;
   const fit = scrollBody || bare;
+  const width = { md: "max-w-lg", lg: "max-w-3xl", xl: "max-w-6xl" }[size ?? (wide ? "lg" : "md")];
   // On a phone every dialog takes the whole screen (14 Oct 2026): no
   // margins, no corners, the footer at the bottom.
   return (
@@ -55,7 +60,7 @@ export function Modal({
       aria-modal="true"
     >
       <div
-        className={`card w-full ${wide ? "max-w-3xl" : "max-w-lg"} blue-shadow flex flex-col max-sm:max-w-none max-sm:rounded-none max-sm:border-0 ${
+        className={`card w-full ${width} blue-shadow flex flex-col max-sm:max-w-none max-sm:rounded-none max-sm:border-0 ${
           fit ? "max-h-[calc(100dvh-4rem)] my-4 max-sm:my-0 max-sm:h-dvh max-sm:max-h-none" : "my-8 max-sm:my-0 max-sm:min-h-dvh"
         }`}
         onMouseDown={(e) => e.stopPropagation()}
