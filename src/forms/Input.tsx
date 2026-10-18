@@ -5,10 +5,8 @@ import { useFieldInvalid } from "./Field";
 import type { ControlSize } from "../controls/Button";
 
 // Shared skin of the fields (border, background, focus), WITHOUT size.
-// The background is --field-bg, the page's background unless whoever places
-// the field says otherwise (10 Oct 2026): a field is drawn on a card, and a
-// toolbar sitting straight on the page sets `[--field-bg:var(--card)]` so
-// its fields do not melt into it.
+// The background is --field-bg, which theme.css sets by layers (12 Oct 2026):
+// white straight on the page, the page's grey on a card or any white surface.
 const inputBase =
   "w-full border border-[var(--border)] bg-[var(--field-bg,var(--background))] outline-none focus:border-[var(--accent-blue)] disabled:opacity-50 disabled:cursor-not-allowed";
 

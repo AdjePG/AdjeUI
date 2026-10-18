@@ -40,6 +40,16 @@ function stickyTop(el: HTMLElement): number {
   return 0;
 }
 
+// Whether a finite CSS animation is running inside the box (a page fading
+// in). Transitions (a hover) do not count, nor endless animations (a spinner,
+// a pulsing placeholder), or the thumb would never come back.
+function entering(el: HTMLElement): boolean {
+  if (typeof el.getAnimations !== "function" || typeof CSSAnimation === "undefined") return false;
+  return el.getAnimations({ subtree: true }).some(
+    (a) => a instanceof CSSAnimation && a.playState === "running" && a.effect?.getTiming().iterations !== Infinity,
+  );
+}
+
 // The box an element sticks in: its nearest ancestor that scrolls (or clips).
 function scrollBox(node: HTMLElement, stop: HTMLElement): HTMLElement | null {
   for (let p = node.parentElement; p; p = p.parentElement) {
@@ -72,6 +82,12 @@ export function OverlayScrollbar({
     let raf = 0;
     const update = () => {
       raf = 0;
+      // While something inside is still coming in (a finite animation), its
+      // movement can overflow the box for a moment: a page that fits flashed
+      // a thumb for a split second (12 Oct 2026), and the previous page's
+      // thumb lingered over the new one. No thumb until it has finished: the
+      // animationend below measures again.
+      if (entering(el)) return setBox(null);
       const max = el.scrollHeight - el.clientHeight;
       const style = getComputedStyle(el);
       if (max <= 1 || style.overflowY === "hidden") return setBox(null);
@@ -89,6 +105,12 @@ export function OverlayScrollbar({
     update();
     el.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule);
+    // A page that comes in moving (a fade with a few pixels of rise) overflows
+    // the box while it moves, and a transform fires no resize: measured then,
+    // a page that fits kept a full-height thumb (12 Oct 2026). Measure again
+    // once any animation or transition inside has finished.
+    el.addEventListener("animationend", schedule);
+    el.addEventListener("transitionend", schedule);
     // The content changes height (a page swaps in, a panel opens): watch the
     // box and whatever is directly inside it, re-watched when that changes.
     const ro = new ResizeObserver(schedule);
@@ -108,6 +130,8 @@ export function OverlayScrollbar({
       cancelAnimationFrame(raf);
       el.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
+      el.removeEventListener("animationend", schedule);
+      el.removeEventListener("transitionend", schedule);
       ro.disconnect();
       mo.disconnect();
       ao.disconnect();

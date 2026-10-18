@@ -126,6 +126,20 @@ html :where(.card) {
   border-radius: 16px;
 }
 
+/* Fields by layers (12 Oct 2026): a field is one layer above what holds it.
+   Straight on the page (grey) it is white; on a white surface — a card, a
+   modal, a popover, the sidebar, a drawer — it is the page's grey, as it was.
+   Inputs, selects, segmented controls and editors read --field-bg; a place
+   can still set it by hand. */
+:root {
+  --field-bg: var(--card);
+}
+.card,
+.sidenav,
+.surface {
+  --field-bg: var(--background);
+}
+
 .blue-shadow {
   box-shadow: var(--blue-shadow);
 }

@@ -63,6 +63,14 @@ export function SideNav({
   const { open, collapsed, moving } = useSideNavState();
   const compact = useSideNavCompact();
 
+  // Only ONE item is active: the most specific one the path starts with.
+  // With "/classroom" and "/classroom/progress", being on the progress page
+  // used to light up both.
+  const activeHref = items
+    .map((item) => item.href)
+    .filter((href) => activePath.startsWith(href))
+    .sort((a, b) => b.length - a.length)[0];
+
   useEffect(() => {
     sideNavState.mount();
     return () => sideNavState.unmount();
@@ -124,7 +132,7 @@ export function SideNav({
         {/* menu */}
         <ul className="sidenav-menu flex-1 min-h-0 overflow-y-auto custom-scrollbar flex flex-col gap-1 list-none m-0 p-0">
           {items.map((item) => {
-            const active = activePath.startsWith(item.href);
+            const active = item.href === activeHref;
             return (
               <li key={item.href}>
                 <A

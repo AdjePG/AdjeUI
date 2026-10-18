@@ -509,7 +509,7 @@ export function RichTextEditor({
 
   return (
     <div
-      className={`rounded-xl border bg-[var(--background)] transition ${border} ${className}`}
+      className={`rounded-xl border bg-[var(--field-bg,var(--background))] transition ${border} ${className}`}
       // If the editor is inside a <label>, clicking the text would activate
       // the first toolbar button (bold). We cancel that activation.
       onClick={(e) => e.preventDefault()}

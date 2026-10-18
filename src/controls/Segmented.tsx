@@ -36,7 +36,7 @@ export function Segmented({
   const t = SIZES[size];
   return (
     <div
-      className={`inline-flex max-w-full shrink-0 overflow-hidden border border-[var(--border)] ${t.radius} ${t.text} ${className}`}
+      className={`inline-flex max-w-full shrink-0 overflow-hidden border border-[var(--border)] bg-[var(--field-bg,var(--background))] ${t.radius} ${t.text} ${className}`}
     >
       <ScrollArrows step={120} className="w-full">
         <div className="flex w-max">

@@ -53,7 +53,7 @@ export function ChipEditor({
 
   return (
     <div
-      className={`w-full rounded-xl border bg-[var(--background)] px-2 py-1.5 text-sm flex flex-wrap items-center gap-1.5 focus-within:border-[var(--accent-blue)] ${
+      className={`w-full rounded-xl border bg-[var(--field-bg,var(--background))] px-2 py-1.5 text-sm flex flex-wrap items-center gap-1.5 focus-within:border-[var(--accent-blue)] ${
         over || fieldInvalid ? "border-[var(--negative)]" : "border-[var(--border)]"
       }`}
     >
