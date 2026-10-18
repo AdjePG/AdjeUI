@@ -226,6 +226,11 @@ affects all of them.
 
 ## Changelog
 
+### 4.6.3
+
+- **Fix:** pressing a `Modal`'s scrollbar (a long dialog scrolls on its
+  backdrop) no longer closes it as a click outside.
+
 ### 4.6.2
 
 - `Textarea grow` removed: the growing box belongs to one dialog of an app,
