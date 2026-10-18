@@ -6,15 +6,12 @@
 //   bottom  → anything: usually the user (SideNavUser) and their stuff
 //
 // Desktop (≥ md): 232px rail on the left (.app-shell layout), which can be
-// COLLAPSED to icons only (73px) with the button at the bottom; the preference
-// is remembered (localStorage). Measurements: 48px rows (px-2 py-2, 32px icon)
-// when expanded and 48×48 squares when compact, with the same rail padding
-// (12px): the icon doesn't move when collapsing. Rows always span the full
-// width (they follow the rail animation) and labels fade out with opacity. When compact, top/bottom show `topCompact` /
-// `bottomCompact` if given (SideNavUser and SideNavButton adapt on their own).
-// Mobile (< md): hidden on the left (off-canvas), always full; opened with the
-// hamburger that the PageHeader draws only when there's a SideNav mounted
-// (sideNavState), and closed on navigation, with the X, Escape or the backdrop.
+// COLLAPSED to icons only (73px); the preference is remembered. Every row is
+// 48px (px-2 py-2 around a 32px icon slot) with the same 12px rail padding,
+// so the icon does not move when collapsing; labels fade out. When compact,
+// top/bottom show `topCompact` / `bottomCompact` if given.
+// Mobile (< md): off-canvas on the left, opened with the hamburger PageHeader
+// draws when a SideNav is mounted; closed on navigation, X, Escape or backdrop.
 //
 //   <SideNav
 //     top={<SideNavBrand icon={<IconChip…/>} href="/">Aulora</SideNavBrand>}
@@ -23,14 +20,60 @@
 //     LinkComponent={Link}                       // next/link
 //     bottom={<SideNavUser name="Adrià" items={[…]} />}
 //   />
-import { ElementType, ReactNode, useEffect } from "react";
+import { ElementType, ReactNode, useEffect, type ComponentPropsWithoutRef } from "react";
 import { ChevronsLeft, ChevronsRight, ChevronsUpDown, X } from "lucide-react";
-import { sideNavState, useSideNavCompact, useSideNavState } from "./sideNavState";
+import { sideNavState, useIsMobile, useSideNavCompact, useSideNavState } from "./sideNavState";
 import { Popover } from "../overlays/Popover";
 import { Menu, type MenuItem } from "../overlays/Menu";
+import { IconButton } from "../controls/IconButton";
+import { Avatar } from "../primitives/Avatar";
+import { useEscape } from "../internal/layers";
+import type { LinkLike } from "../internal/link";
 
-// Any component that accepts href/className/children: "a", next/link…
-type LinkLike = ElementType;
+/** Whether `href` is `path` or one of its parents, on segment boundaries ("/course" is not active on "/courses"). */
+function matches(path: string, href: string): boolean {
+  if (path === href) return true;
+  if (href === "/") return false;
+  return path.startsWith(href.endsWith("/") ? href : `${href}/`);
+}
+
+// The rail row every zone shares: a 32px icon slot and a label that fades out
+// when the rail is compact.
+function RailRow<C extends ElementType = "button">({
+  as,
+  icon,
+  label,
+  compact,
+  active = false,
+  className = "",
+  ...rest
+}: {
+  as?: C;
+  icon: ReactNode;
+  label: ReactNode;
+  compact: boolean;
+  /** Hover fill kept on (open popover, current item). */
+  active?: boolean;
+  className?: string;
+} & Omit<ComponentPropsWithoutRef<C>, "as" | "className" | "children">) {
+  const Tag: ElementType = as ?? "button";
+  return (
+    <Tag
+      {...(Tag === "button" ? { type: "button" } : null)}
+      {...rest}
+      className={`flex items-center gap-2.5 rounded-xl text-left transition w-full min-w-0 overflow-hidden px-2 py-2 ${
+        active ? "bg-[var(--hover)]" : "hover:bg-[var(--hover)]"
+      } ${className}`}
+    >
+      {icon}
+      <span className={`flex-1 min-w-0 truncate transition-opacity duration-150 ${compact ? "opacity-0" : "opacity-100"}`} aria-hidden={compact || undefined}>
+        {label}
+      </span>
+    </Tag>
+  );
+}
+
+const ICON_SLOT = "relative inline-flex items-center justify-center w-8 h-8 shrink-0";
 
 export function SideNav({
   top,
@@ -46,29 +89,39 @@ export function SideNav({
   mobileAction,
   children,
 }: {
-  top?: ReactNode; // free top zone (not a link)
-  topCompact?: ReactNode; // version for compact mode (otherwise `top` is shown: use SideNavBrand or useSideNavCompact)
-  logo?: ReactNode; // compat: logo linked to logoHref (if there's no `top`)
+  /** Free top zone (not a link); normally SideNavBrand. */
+  top?: ReactNode;
+  /** Top zone in compact mode (otherwise `top` is shown). */
+  topCompact?: ReactNode;
+  /** @deprecated Use `top={<SideNavBrand …/>}`. Logo linked to `logoHref` when there is no `top`. */
+  logo?: ReactNode;
+  /** @deprecated Use `top={<SideNavBrand href=…/>}`. */
   logoHref?: string;
   items: { href: string; label: string; icon: ReactNode }[];
+  /** Current path (`usePathname()`): the most specific matching item is active. */
   activePath: string;
+  /** Link component for the items (next/link). Default: "a". */
   LinkComponent?: LinkLike;
+  /** Bottom zone: SideNavAction, SideNavUser… */
   bottom?: ReactNode;
-  bottomCompact?: ReactNode; // compact version (by default `bottom` is reused: SideNavUser/SideNavButton adapt)
-  collapsible?: boolean; // collapse/expand button on desktop
-  mobileAction?: { label: string; icon: ReactNode; onClick: () => void }; // compat: appended to the footer
-  children?: ReactNode; // modals or other elements hanging off the nav
+  /** Bottom zone in compact mode (by default `bottom` is reused: its rows adapt). */
+  bottomCompact?: ReactNode;
+  /** Collapse/expand button on desktop. */
+  collapsible?: boolean;
+  /** @deprecated Put a SideNavAction in `bottom`. Appended to the bottom zone. */
+  mobileAction?: { label: string; icon: ReactNode; onClick: () => void };
+  /** Extra elements hanging off the nav. */
+  children?: ReactNode;
 }) {
   const A: LinkLike = LinkComponent ?? "a";
   const { open, collapsed, moving } = useSideNavState();
   const compact = useSideNavCompact();
+  const mobile = useIsMobile();
 
-  // Only ONE item is active: the most specific one the path starts with.
-  // With "/classroom" and "/classroom/progress", being on the progress page
-  // used to light up both.
+  // Only ONE item is active: the most specific one the path is inside.
   const activeHref = items
     .map((item) => item.href)
-    .filter((href) => activePath.startsWith(href))
+    .filter((href) => matches(activePath, href))
     .sort((a, b) => b.length - a.length)[0];
 
   useEffect(() => {
@@ -78,30 +131,17 @@ export function SideNav({
 
   // Leaving the mobile size closes the panel, without a slide.
   useEffect(() => {
-    const mq = window.matchMedia("(max-width: 767px)");
-    const onChange = () => {
-      if (!mq.matches) sideNavState.closeNow();
-    };
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
+    if (!mobile) sideNavState.closeNow();
+  }, [mobile]);
 
-  // Escape closes on mobile.
-  useEffect(() => {
-    if (!open) return;
-    function onEsc(e: KeyboardEvent) {
-      if (e.key === "Escape") sideNavState.close();
-    }
-    document.addEventListener("keydown", onEsc);
-    return () => document.removeEventListener("keydown", onEsc);
-  }, [open]);
+  useEscape(sideNavState.close, open);
 
   const logoNode = logo && (
-    <A href={logoHref} className="flex items-center gap-2 px-2 py-2 select-none min-w-0 overflow-hidden" onClick={() => sideNavState.close()}>
+    <A href={logoHref} className="flex items-center gap-2 px-2 py-2 select-none min-w-0 overflow-hidden" onClick={sideNavState.close}>
       {logo}
     </A>
   );
-  const topNode = compact ? topCompact ?? top ?? logoNode : top ?? logoNode;
+  const topNode = compact ? (topCompact ?? top ?? logoNode) : (top ?? logoNode);
   // Content only "jumps" when swapping top/topCompact: that's where it fades.
   const topKey = topCompact !== undefined ? (compact ? "c" : "f") : "top";
 
@@ -114,90 +154,67 @@ export function SideNav({
         data-collapsed={collapsed || undefined}
         aria-label="Main navigation"
       >
-        {/* top */}
         {(topNode || !compact) && (
           <div key={topKey} className={`flex items-start gap-2 shrink-0 ${topCompact !== undefined ? "drawer-fade" : ""}`}>
             <div className="min-w-0 flex-1">{topNode}</div>
-            <button
-              type="button"
-              onClick={() => sideNavState.close()}
-              aria-label="Close menu"
-              className="md:hidden inline-flex items-center justify-center w-8 h-8 rounded-lg text-muted hover:bg-[var(--hover)] shrink-0"
-            >
+            <IconButton label="Close menu" onClick={sideNavState.close} className="md:hidden">
               <X size={18} />
-            </button>
+            </IconButton>
           </div>
         )}
 
-        {/* menu */}
-        <ul className="sidenav-menu flex-1 min-h-0 overflow-y-auto custom-scrollbar flex flex-col gap-1 list-none m-0 p-0">
+        {/* No reserved gutter: the rows line up with the other zones. */}
+        <ul className="flex-1 min-h-0 custom-scrollbar scroll-no-gutter flex flex-col gap-1 list-none m-0 p-0">
           {items.map((item) => {
             const active = item.href === activeHref;
             return (
               <li key={item.href}>
-                <A
+                <RailRow
+                  as={A}
                   href={item.href}
                   aria-current={active ? "page" : undefined}
                   title={compact ? item.label : undefined}
-                  onClick={() => sideNavState.close()}
-                  className={`flex items-center gap-2.5 rounded-xl transition min-w-0 overflow-hidden px-2 py-2 ${
-                    active ? "bg-[var(--hover)] font-semibold" : "hover:bg-[var(--hover)]"
-                  }`}
-                >
-                  <span
-                    className={`inline-flex items-center justify-center w-8 h-8 rounded-lg shrink-0 transition ${active ? "text-white blue-shadow" : ""}`}
-                    style={active ? { background: "var(--app-gradient)" } : undefined}
-                  >
-                    {item.icon}
-                  </span>
-                  <span className={`text-sm truncate transition-opacity duration-150 ${compact ? "opacity-0" : "opacity-100"}`} aria-hidden={compact || undefined}>
-                    {item.label}
-                  </span>
-                </A>
+                  onClick={sideNavState.close}
+                  compact={compact}
+                  active={active}
+                  className={`text-sm ${active ? "font-semibold" : ""}`}
+                  icon={<span className={`${ICON_SLOT} rounded-lg transition ${active ? "bg-app-gradient text-white blue-shadow" : ""}`}>{item.icon}</span>}
+                  label={item.label}
+                />
               </li>
             );
           })}
         </ul>
 
-        {/* collapse / expand (desktop only) */}
         {collapsible && (
-          <button
-            type="button"
-            onClick={() => sideNavState.toggleCollapsed()}
+          <RailRow
+            onClick={sideNavState.toggleCollapsed}
             aria-label={collapsed ? "Expand menu" : "Collapse menu"}
             title={collapsed ? "Expand menu" : "Collapse menu"}
             aria-pressed={collapsed}
-            className="hidden md:flex items-center gap-2.5 rounded-xl text-muted hover:bg-[var(--hover)] hover:text-[var(--foreground)] transition text-[12px] min-w-0 overflow-hidden px-2 py-2"
-          >
-            <span className="inline-flex items-center justify-center w-8 h-8 shrink-0">
-              {collapsed ? <ChevronsRight size={16} /> : <ChevronsLeft size={16} />}
-            </span>
-            <span className={`truncate transition-opacity duration-150 ${compact ? "opacity-0" : "opacity-100"}`}>Collapse</span>
-          </button>
+            compact={compact}
+            className="max-md:hidden text-muted hover:text-[var(--foreground)] text-[12px]"
+            icon={<span className={ICON_SLOT}>{collapsed ? <ChevronsRight size={16} /> : <ChevronsLeft size={16} />}</span>}
+            label="Collapse"
+          />
         )}
 
-        {/* bottom */}
         {(bottom || mobileAction) && (
           <div className="flex flex-col gap-1 shrink-0 pt-3 border-t border-[var(--border)]">
             {compact && bottomCompact !== undefined ? bottomCompact : bottom}
-            {mobileAction && (
-              <SideNavButton onClick={mobileAction.onClick} icon={mobileAction.icon}>
-                {mobileAction.label}
-              </SideNavButton>
-            )}
+            {mobileAction && <SideNavAction onClick={mobileAction.onClick} icon={mobileAction.icon} label={mobileAction.label} />}
           </div>
         )}
 
         {children}
       </nav>
-      {open && <div className="sidenav-backdrop md:hidden" onClick={() => sideNavState.close()} aria-hidden />}
+      {open && <div className="sidenav-backdrop md:hidden" onClick={sideNavState.close} aria-hidden />}
     </>
   );
 }
 
 // App brand for the top zone: icon (usually an IconChip) + name, linked to
-// the home page. Same 48px row as the items; when compact the icon stays in
-// place and the name fades out.
+// the home page; the name fades out when compact.
 //   <SideNavBrand icon={<IconChip size="lg"><Sparkles size={16} /></IconChip>} href="/panel" LinkComponent={Link}>
 //     Aulora
 //   </SideNavBrand>
@@ -212,31 +229,30 @@ export function SideNavBrand({
   children: ReactNode;
   href?: string;
   LinkComponent?: LinkLike;
-  title?: string; // tooltip when compact (if children isn't text)
+  /** Tooltip when compact (when children is not plain text). */
+  title?: string;
 }) {
   const A: LinkLike = LinkComponent ?? "a";
   const compact = useSideNavCompact();
   const tip = title ?? (typeof children === "string" ? children : undefined);
   return (
-    <A
+    <RailRow
+      as={A}
       href={href}
       title={compact ? tip : undefined}
-      onClick={() => sideNavState.close()}
-      className="flex items-center gap-2.5 rounded-xl px-2 py-2 min-w-0 overflow-hidden select-none transition hover:bg-[var(--hover)]"
-    >
-      <span className="inline-flex items-center justify-center w-8 h-8 shrink-0">{icon}</span>
-      <span
-        className={`flex-1 min-w-0 flex items-center gap-2 font-bold text-lg truncate transition-opacity duration-150 ${compact ? "opacity-0" : "opacity-100"}`}
-        aria-hidden={compact || undefined}
-      >
-        {children}
-      </span>
-    </A>
+      onClick={sideNavState.close}
+      compact={compact}
+      className="select-none"
+      icon={<span className={ICON_SLOT}>{icon}</span>}
+      label={<span className="flex items-center gap-2 font-bold text-lg">{children}</span>}
+    />
   );
 }
 
-// Text button for the SideNav footer (theme, "My data"…): icon + label.
-// When compact it shows only the icon, with the label as a tooltip.
+/**
+ * Text button for the SideNav (icon + label); icon-only with a tooltip when compact.
+ * @deprecated Use SideNavAction.
+ */
 export function SideNavButton({
   onClick,
   icon,
@@ -246,27 +262,26 @@ export function SideNavButton({
   onClick: () => void;
   icon: ReactNode;
   children: ReactNode;
-  title?: string; // tooltip when compact (if children isn't text)
+  /** Tooltip when compact (when children is not plain text). */
+  title?: string;
 }) {
   const compact = useSideNavCompact();
   const tip = title ?? (typeof children === "string" ? children : undefined);
   return (
-    <button
-      type="button"
+    <RailRow
       onClick={onClick}
       title={compact ? tip : undefined}
       aria-label={compact ? tip : undefined}
-      className="flex items-center gap-2.5 rounded-xl hover:bg-[var(--hover)] text-sm text-left w-full min-w-0 overflow-hidden px-2 py-2"
-    >
-      <span className="inline-flex items-center justify-center w-8 h-8 shrink-0">{icon}</span>
-      <span className={`flex-1 min-w-0 truncate transition-opacity duration-150 ${compact ? "opacity-0" : "opacity-100"}`}>{children}</span>
-    </button>
+      compact={compact}
+      className="text-sm"
+      icon={<span className={ICON_SLOT}>{icon}</span>}
+      label={children}
+    />
   );
 }
 
-// Generic action for the top/bottom zones: icon + label (+ badge) that does
-// something on click or opens a popover with anything (notifications,
-// alerts, filters…). Adapts on its own to compact mode (icon only + tooltip).
+// Action for the top/bottom zones: icon + label (+ badge) that does something
+// on click or opens a popover with anything (notifications, filters…).
 //
 //   <SideNavAction icon={<Bell/>} label="Notifications" badge={3} popoverWidth={300}>
 //     {({ close }) => <AlertList onPick={close} />}
@@ -283,40 +298,45 @@ export function SideNavAction({
 }: {
   icon: ReactNode;
   label: string;
-  badge?: ReactNode; // counter or dot; nothing/0 → not drawn
-  onClick?: () => void; // direct action (if there's no popover)
-  children?: ReactNode | ((p: { close: () => void }) => ReactNode); // popover content
-  popoverWidth?: number; // panel width when compact (when full it takes the rail width)
-  placement?: "top" | "bottom"; // top for the bottom zone
+  /** Counter or dot; nothing, 0, "" or false → not drawn. */
+  badge?: ReactNode;
+  /** Direct action (when there is no popover). */
+  onClick?: () => void;
+  /** Popover content. */
+  children?: ReactNode | ((p: { close: () => void }) => ReactNode);
+  /** Panel width when compact (when full it takes the rail width). */
+  popoverWidth?: number;
+  /** "top" for the bottom zone. */
+  placement?: "top" | "bottom";
   active?: boolean;
 }) {
   const compact = useSideNavCompact();
   const showBadge = badge != null && badge !== 0 && badge !== false && badge !== "";
 
-  const button = (open?: boolean, toggle?: () => void) => (
-    <button
-      type="button"
+  const row = (open?: boolean, toggle?: () => void) => (
+    <RailRow
       onClick={toggle ?? onClick}
       aria-expanded={toggle ? open : undefined}
       title={compact ? label : undefined}
       aria-label={compact ? label : undefined}
-      className={`flex items-center gap-2.5 rounded-xl text-sm text-left transition w-full min-w-0 overflow-hidden px-2 py-2 ${
-        open || active ? "bg-[var(--hover)]" : "hover:bg-[var(--hover)]"
-      }`}
-    >
-      <span className="relative inline-flex items-center justify-center w-8 h-8 shrink-0">
-        {icon}
-        {showBadge && (
-          <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-[var(--negative)] text-white text-[9.5px] font-bold flex items-center justify-center leading-none">
-            {badge}
-          </span>
-        )}
-      </span>
-      <span className={`flex-1 min-w-0 truncate transition-opacity duration-150 ${compact ? "opacity-0" : "opacity-100"}`}>{label}</span>
-    </button>
+      compact={compact}
+      active={open || active}
+      className="text-sm"
+      icon={
+        <span className={ICON_SLOT}>
+          {icon}
+          {showBadge && (
+            <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-[var(--negative)] text-white text-[10px] font-bold flex items-center justify-center leading-none">
+              {badge}
+            </span>
+          )}
+        </span>
+      }
+      label={label}
+    />
   );
 
-  if (children == null) return button();
+  if (children == null) return row();
 
   return (
     <Popover
@@ -324,28 +344,26 @@ export function SideNavAction({
       align={compact ? "start" : "stretch"}
       width={compact ? popoverWidth : undefined}
       className="w-full"
-      trigger={({ open, toggle }) => button(open, toggle)}
+      trigger={({ open, toggle }) => row(open, toggle)}
     >
       {children}
     </Popover>
   );
 }
 
-function initials(name: string): string {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((p) => p[0]!.toUpperCase())
-    .join("");
+function NameBlock({ name, subtitle }: { name: string; subtitle?: ReactNode }) {
+  return (
+    <>
+      <span className="block text-sm font-semibold truncate">{name}</span>
+      {subtitle && <span className="block text-[11px] text-muted truncate">{subtitle}</span>}
+    </>
+  );
 }
 
 // User in the SideNav footer: avatar + name (+ detail) that opens a menu
-// upwards with their stuff (theme, settings, sign out…). When compact, only
-// the avatar; the menu unfolds to the right.
+// upwards (theme, settings, sign out…). When compact, only the avatar.
 //   <SideNavUser name="Adrià Pulido" subtitle="adria@mail.com" items={[…]} />
-// With `groups` the menu is split into titled blocks (e.g. "You are in" with
-// the sites and their check, and "Account" below):
+// With `groups` the menu is split into titled blocks:
 //   <SideNavUser name="…" groups={[{ title: "You are in", items: sites }, { title: "Account", items }]} />
 export function SideNavUser({
   name,
@@ -358,26 +376,23 @@ export function SideNavUser({
 }: {
   name: string;
   subtitle?: ReactNode;
-  avatar?: string | ReactNode; // image URL or a node; nothing → initials
-  items?: MenuItem[]; // simple menu (if there are no groups)
+  /** Image URL or a node; nothing → initials on the app gradient. */
+  avatar?: string | ReactNode;
+  /** Simple menu (when there are no groups). */
+  items?: MenuItem[];
   menuTitle?: ReactNode;
-  groups?: { title?: ReactNode; items: MenuItem[] }[]; // menu in blocks
-  children?: ReactNode; // extra content at the end of the menu (anything)
+  /** Menu in titled blocks. */
+  groups?: { title?: ReactNode; items: MenuItem[] }[];
+  /** Extra content at the end of the menu. */
+  children?: ReactNode;
 }) {
   const compact = useSideNavCompact();
   const blocks = groups ?? [{ title: menuTitle, items }];
-  const av =
-    typeof avatar === "string" ? (
-      <img src={avatar} alt="" className="w-8 h-8 rounded-full object-cover shrink-0" />
-    ) : avatar ? (
-      <span className="inline-flex items-center justify-center w-8 h-8 rounded-full shrink-0 overflow-hidden">{avatar}</span>
+  const face =
+    !avatar || typeof avatar === "string" ? (
+      <Avatar name={name} src={typeof avatar === "string" ? avatar : undefined} decorative />
     ) : (
-      <span
-        className="inline-flex items-center justify-center w-8 h-8 rounded-full text-white text-[12px] font-bold shrink-0"
-        style={{ background: "var(--app-gradient)" }}
-      >
-        {initials(name)}
-      </span>
+      <span className="inline-flex items-center justify-center w-8 h-8 rounded-full shrink-0 overflow-hidden">{avatar}</span>
     );
 
   return (
@@ -386,33 +401,30 @@ export function SideNavUser({
       align={compact ? "start" : "stretch"}
       width={compact ? 240 : undefined}
       trigger={({ open, toggle }) => (
-        <button
-          type="button"
+        <RailRow
           onClick={toggle}
           aria-expanded={open}
           aria-haspopup="menu"
           title={compact ? name : undefined}
-          className={`flex items-center gap-2.5 rounded-xl text-left transition w-full min-w-0 overflow-hidden px-2 py-2 ${
-            open ? "bg-[var(--hover)]" : "hover:bg-[var(--hover)]"
-          }`}
-        >
-          {av}
-          <span className={`flex-1 min-w-0 flex items-center gap-2.5 transition-opacity duration-150 ${compact ? "opacity-0" : "opacity-100"}`} aria-hidden={compact || undefined}>
-            <span className="flex-1 min-w-0">
-              <span className="block text-sm font-semibold truncate">{name}</span>
-              {subtitle && <span className="block text-[11px] text-muted truncate">{subtitle}</span>}
+          compact={compact}
+          active={open}
+          icon={face}
+          label={
+            <span className="flex items-center gap-2.5">
+              <span className="flex-1 min-w-0">
+                <NameBlock name={name} subtitle={subtitle} />
+              </span>
+              <ChevronsUpDown size={14} className="text-muted shrink-0" />
             </span>
-            <ChevronsUpDown size={14} className="text-muted shrink-0" />
-          </span>
-        </button>
+          }
+        />
       )}
     >
       {({ close }) => (
         <>
           {compact && (
             <div className="px-3 pt-2.5 pb-1 border-b border-[var(--border)]">
-              <span className="block text-sm font-semibold truncate">{name}</span>
-              {subtitle && <span className="block text-[11px] text-muted truncate">{subtitle}</span>}
+              <NameBlock name={name} subtitle={subtitle} />
             </div>
           )}
           {blocks.map((g, i) => (

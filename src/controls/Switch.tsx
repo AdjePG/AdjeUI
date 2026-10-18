@@ -1,16 +1,8 @@
 "use client";
 
-// On/off toggle. On uses the app gradient; off, the neutral surface with a
-// border.
-//
-// Mind when to use it: the Switch says "this is enabled or not". For choosing
-// between options —one or several— it is ChoiceOption. If both share the same
-// row they have to read as relatives, not as two things of the same weight:
-// that is why the switch was resized on 13 Sep 2026 to match the ChoiceOption
-// mark (before, an md was 24px tall against the 18px of the mark next to it,
-// and it looked like the main element of the row without being so).
-//
-// Sizes sm / md / lg, the same scale as ChoiceOption.
+// On/off toggle: "this is enabled or not". Choosing between options is
+// ChoiceOption. Sizes sm / md / lg match the ChoiceOption mark, so the two read
+// as relatives when they share a row.
 
 const SIZES = {
   sm: { track: "h-4 w-7", knob: "h-2.5 w-2.5", off: "translate-x-[2px]", on: "translate-x-[13px]" },
@@ -30,6 +22,7 @@ export function Switch({
   checked: boolean;
   onChange: (v: boolean) => void;
   disabled?: boolean;
+  /** aria-label. */
   label?: string;
   size?: SwitchSize;
 }) {
@@ -42,22 +35,14 @@ export function Switch({
       aria-label={label}
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className={`relative inline-flex shrink-0 items-center rounded-full border-2 transition disabled:cursor-not-allowed disabled:opacity-40 ${t.track}`}
-      // backgroundOrigin border-box: the 2px border is transparent and the
-      // gradient is painted underneath, but by default it is SIZED to the
-      // padding-box and those 2px repeat the edge color — a clipped box was
-      // visible inside the track. Same reason as in ChoiceMark.
-      style={
-        checked
-          ? { backgroundImage: "var(--app-gradient)", backgroundOrigin: "border-box", borderColor: "transparent" }
-          : { background: "transparent", borderColor: "var(--border)" }
-      }
+      className={`relative inline-flex shrink-0 items-center rounded-full border-2 transition disabled:cursor-not-allowed disabled:opacity-40 ${t.track} ${
+        checked ? "bg-app-gradient border-transparent" : "border-[var(--border)]"
+      }`}
     >
       <span
         className={`inline-block rounded-full shadow-sm transition-transform ${t.knob} ${
-          checked ? t.on : t.off
+          checked ? `${t.on} bg-white` : `${t.off} bg-[var(--muted)]`
         }`}
-        style={{ background: checked ? "#fff" : "var(--muted)" }}
       />
     </button>
   );

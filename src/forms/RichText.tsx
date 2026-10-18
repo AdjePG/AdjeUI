@@ -2,40 +2,30 @@
 
 // Rich text: WYSIWYG editor (Tiptap) + sanitized viewer (DOMPurify).
 // Stores and receives HTML. Deliberately limited: bold, italic, underline,
-// heading/subheading, lists, quote, link and INLINE code. The code block is
-// an app-level block type, not text formatting.
-// No colors, fonts or sizes: the design is set by the app.
+// heading/subheading, lists, quote, link and INLINE code (a code block is an
+// app-level block). No colours, fonts or sizes: the design is set by the app.
 //
-// Lives in the separate entrypoint "adje-shared-ui/rich-text" (NOT in the
-// barrel) because it drags in Tiptap and DOMPurify: only the apps that use it
-// install them (optional peerDependencies).
+// A separate entrypoint ("adje-shared-ui/rich-text"), not in the barrel: it
+// drags in Tiptap and DOMPurify, optional peerDependencies.
 //
 //   import { RichTextEditor, RichText } from "adje-shared-ui/rich-text";
-//   <Field label="Theory" as="div">      // as="div": an editor does not go inside a <label>
+//   <Field label="Theory">
 //     <RichTextEditor value={html} onChange={setHtml} placeholder="Write…" />
 //   </Field>
 //   <RichText html={html} />              // what the reader sees, already sanitized
-//
-// Bugs the original version (Aulora, then called Aula Propia) carried and that are fixed here:
-//  - Tiptap v3 no longer re-renders on every transaction: the toolbar read
-//    editor.isActive() and went stale. Now it uses useEditorState.
-//  - An external value that changed while typing (data reload) overwrote the
-//    content and moved the cursor. Now it only syncs when the editor does NOT
-//    have focus; if it arrives while focused, it is applied on blur.
-//  - Inside a <label> (Field), clicking the text activated the first toolbar
-//    button (bold). The root cancels that activation and Field accepts
-//    as="div".
-import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { EditorContent, useEditor, useEditorState, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import DOMPurify from "dompurify";
 import { Bold, Code, Heading2, Heading3, Italic, Link2, List, ListOrdered, Quote, Redo2, Underline, Undo2 } from "lucide-react";
 import { useFieldInvalid } from "./Field";
+import { ToggleIconButton } from "../internal/ToggleIconButton";
+import { useLatest } from "../internal/useLatest";
 
 // ---------------- sanitizing and utilities ----------------
 
-const ALLOWED_TAGS = ["p", "br", "strong", "em", "u", "s", "h2", "h3", "h4", "ul", "ol", "li", "a", "blockquote", "code", "pre", "hr"];
+const ALLOWED_TAGS = ["p", "br", "strong", "em", "u", "s", "h2", "h3", "ul", "ol", "li", "a", "blockquote", "code", "pre", "hr"];
 
 // Protocols a link may carry. Everything else is out: javascript:, data:,
 // vbscript: and friends.
@@ -52,11 +42,8 @@ const DANGEROUS = /<(script|style|iframe|object|embed|template|noscript|svg|math
 const CONTROL = /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g;
 const TOKEN = /\u0001(\d+)\u0002/g;
 
-// Editor tools. Removing one is not hiding the button: the capability leaves
-// the document (15 Sep 2026). If in some app headings are provided by
-// something else —in Aulora, the Section block—, keeping them here only lets
-// two ways of doing the same thing coexist, and lets a hand-written h2 sneak
-// into a table of contents that does not expect it.
+// Editor tools. Removing one does not hide a button: the capability leaves the
+// document schema, so it cannot come back by shortcut or paste either.
 export type TextTool =
   | "bold"
   | "italic"
@@ -93,15 +80,10 @@ function escapeAttribute(t: string): string {
   return escapeText(t).replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
-// DOM-less sanitizing (server). DOMPurify needs a `window`: outside the
-// browser the package does not even expose .sanitize, so this blew up the
-// server render. And what other libraries do —return the HTML as is when
-// there is no DOM— is exactly the hole to avoid.
-//
-// The tactic is the reverse of the usual: instead of looking for the bad, the
-// ALLOWED tags are set aside and everything else is escaped as text. That way
-// not a single stray "<" nor a half-closed tag the browser could reassemble
-// survives.
+// DOM-less sanitizing (server), where DOMPurify has no `sanitize`. Returning
+// the HTML as is would be the hole; instead the ALLOWED tags are set aside and
+// everything else is escaped as text, so no stray "<" or half-closed tag
+// survives for the browser to reassemble.
 function sanitizeWithoutDom(html: string): string {
   let s = html.replace(CONTROL, "").replace(/<!--[\s\S]*?-->/g, "").replace(DANGEROUS, "");
 
@@ -136,33 +118,56 @@ function hasDomPurify(): boolean {
   return typeof window !== "undefined" && typeof (DOMPurify as { sanitize?: unknown }).sanitize === "function";
 }
 
-// Whatever is rendered to third parties ALWAYS goes through here: whoever
-// writes the HTML must not be able to slip scripts to whoever reads it. And
-// whatever is PASTED into the editor goes through here before entering, so
-// what gets stored is born clean.
+// Every link opens in a new tab, the same on the server and in the browser
+// (so both renders match), and nothing else carries target/rel.
+function linkTargets(node: Element) {
+  if (node.tagName === "A" && node.hasAttribute("href")) {
+    node.setAttribute("target", "_blank");
+    node.setAttribute("rel", "noopener noreferrer");
+  } else {
+    node.removeAttribute("target");
+    node.removeAttribute("rel");
+  }
+}
+
+/** Sanitizes user HTML before it is stored or rendered: DOMPurify in the browser, an allow-list escaper on the server. */
 export function sanitizeRichText(html: string): string {
   if (!html) return "";
   if (!hasDomPurify()) return sanitizeWithoutDom(html);
-  return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS,
-    ALLOWED_ATTR: ["href", "target", "rel"],
-    ALLOWED_URI_REGEXP: SAFE_URI,
-    // Without this, <p onclick=…> would lose the attribute but DOMPurify could
-    // let data through in data-* attributes from a paste.
-    ALLOW_DATA_ATTR: false,
-    ALLOW_ARIA_ATTR: false,
+  DOMPurify.addHook("afterSanitizeAttributes", linkTargets);
+  try {
+    return DOMPurify.sanitize(html, {
+      ALLOWED_TAGS,
+      ALLOWED_ATTR: ["href"],
+      ALLOWED_URI_REGEXP: SAFE_URI,
+      ALLOW_DATA_ATTR: false,
+      ALLOW_ARIA_ATTR: false,
+    });
+  } finally {
+    DOMPurify.removeHook("afterSanitizeAttributes", linkTargets);
+  }
+}
+
+const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " " };
+
+function decodeEntities(text: string): string {
+  return text.replace(/&(#x[0-9a-f]+|#[0-9]+|[a-z]+);/gi, (whole, name: string) => {
+    if (name[0] !== "#") return ENTITIES[name.toLowerCase()] ?? whole;
+    const code = name[1] === "x" || name[1] === "X" ? parseInt(name.slice(2), 16) : parseInt(name.slice(1), 10);
+    return Number.isFinite(code) && code <= 0x10ffff ? String.fromCodePoint(code) : whole;
   });
 }
 
-// Plain text (summaries, searches, character counting).
+/** Plain text of rich HTML (summaries, search, character counts). */
 export function richTextToPlain(html: string): string {
   if (!html) return "";
-  if (typeof document === "undefined") return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  if (typeof document === "undefined") return decodeEntities(html.replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
   const d = document.createElement("div");
   d.innerHTML = sanitizeRichText(html);
   return (d.textContent ?? "").replace(/\s+/g, " ").trim();
 }
 
+/** Whether rich HTML has no text at all (required-field checks). */
 export function isRichTextEmpty(html: string): boolean {
   return richTextToPlain(html) === "";
 }
@@ -178,39 +183,6 @@ export function RichText({ html, className = "" }: { html: string; className?: s
 }
 
 // ---------------- editor ----------------
-
-function ToolButton({
-  active,
-  onClick,
-  label,
-  children,
-  disabled,
-}: {
-  active?: boolean;
-  onClick: () => void;
-  label: string;
-  children: ReactNode;
-  disabled?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      title={label}
-      aria-label={label}
-      aria-pressed={active}
-      disabled={disabled}
-      onMouseDown={(e) => e.preventDefault()} // do not steal focus from the editor
-      onClick={onClick}
-      className={`h-7 w-7 inline-flex items-center justify-center rounded-md border text-[13px] transition disabled:opacity-40 disabled:cursor-not-allowed ${
-        active
-          ? "border-[var(--accent-blue)] bg-[var(--hover)] text-[var(--accent-blue)]"
-          : "border-transparent hover:bg-[var(--hover)] text-muted"
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
 
 function Divider() {
   return <span className="w-px h-4 bg-[var(--border)] mx-1" />;
@@ -238,6 +210,11 @@ function Toolbar({ editor, floating = false, has }: { editor: Editor; floating?:
     }),
   });
 
+  // A divider only between two groups that are both there.
+  const hasInline = has("bold") || has("italic") || has("underline");
+  const hasHeadings = has("h2") || has("h3");
+  const hasBlocks = has("list") || has("ordered") || has("quote") || has("code") || has("link");
+
   function link() {
     const previous = editor.getAttributes("link").href as string | undefined;
     const url = window.prompt("Link URL", previous ?? "https://");
@@ -247,10 +224,8 @@ function Toolbar({ editor, floating = false, has }: { editor: Editor; floating?:
       return;
     }
     const typed = url.trim();
-    // Without a protocol, https is assumed. With a protocol we do not accept
-    // (javascript:, data:…) it is rejected and the reason is given: before,
-    // "https://" was glued in front and an absurd link came out that led
-    // nowhere, instead of a warning.
+    // Without a protocol, https is assumed; a protocol we do not accept
+    // (javascript:, data:…) is rejected with the reason.
     const hasProtocol = /^[a-z][a-z0-9+.-]*:/i.test(typed);
     const clean = hasProtocol ? typed : `https://${typed}`;
     if (!SAFE_URI.test(clean)) {
@@ -263,66 +238,66 @@ function Toolbar({ editor, floating = false, has }: { editor: Editor; floating?:
   return (
     <div className={floating ? "flex flex-wrap items-center gap-0.5 px-1 py-0.5" : "flex flex-wrap items-center gap-0.5 border-b border-[var(--border)] px-1.5 py-1"}>
       {has("bold") && (
-        <ToolButton label="Bold (Ctrl+B)" active={s.bold} onClick={() => editor.chain().focus().toggleBold().run()}>
+        <ToggleIconButton keepFocus label="Bold (Ctrl+B)" active={s.bold} onClick={() => editor.chain().focus().toggleBold().run()}>
           <Bold size={14} />
-        </ToolButton>
+        </ToggleIconButton>
       )}
       {has("italic") && (
-        <ToolButton label="Italic (Ctrl+I)" active={s.italic} onClick={() => editor.chain().focus().toggleItalic().run()}>
+        <ToggleIconButton keepFocus label="Italic (Ctrl+I)" active={s.italic} onClick={() => editor.chain().focus().toggleItalic().run()}>
           <Italic size={14} />
-        </ToolButton>
+        </ToggleIconButton>
       )}
       {has("underline") && (
-        <ToolButton label="Underline (Ctrl+U)" active={s.underline} onClick={() => editor.chain().focus().toggleUnderline().run()}>
+        <ToggleIconButton keepFocus label="Underline (Ctrl+U)" active={s.underline} onClick={() => editor.chain().focus().toggleUnderline().run()}>
           <Underline size={14} />
-        </ToolButton>
+        </ToggleIconButton>
       )}
-      {(has("h2") || has("h3")) && <Divider />}
+      {hasInline && hasHeadings && <Divider />}
       {has("h2") && (
-        <ToolButton label="Heading" active={s.h2} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}>
+        <ToggleIconButton keepFocus label="Heading" active={s.h2} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}>
           <Heading2 size={14} />
-        </ToolButton>
+        </ToggleIconButton>
       )}
       {has("h3") && (
-        <ToolButton label="Subheading" active={s.h3} onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}>
+        <ToggleIconButton keepFocus label="Subheading" active={s.h3} onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}>
           <Heading3 size={14} />
-        </ToolButton>
+        </ToggleIconButton>
       )}
-      <Divider />
+      {(hasInline || hasHeadings) && hasBlocks && <Divider />}
       {has("list") && (
-        <ToolButton label="Bullet list" active={s.bullet} onClick={() => editor.chain().focus().toggleBulletList().run()}>
+        <ToggleIconButton keepFocus label="Bullet list" active={s.bullet} onClick={() => editor.chain().focus().toggleBulletList().run()}>
           <List size={14} />
-        </ToolButton>
+        </ToggleIconButton>
       )}
       {has("ordered") && (
-        <ToolButton label="Numbered list" active={s.ordered} onClick={() => editor.chain().focus().toggleOrderedList().run()}>
+        <ToggleIconButton keepFocus label="Numbered list" active={s.ordered} onClick={() => editor.chain().focus().toggleOrderedList().run()}>
           <ListOrdered size={14} />
-        </ToolButton>
+        </ToggleIconButton>
       )}
       {has("quote") && (
-        <ToolButton label="Quote" active={s.quote} onClick={() => editor.chain().focus().toggleBlockquote().run()}>
+        <ToggleIconButton keepFocus label="Quote" active={s.quote} onClick={() => editor.chain().focus().toggleBlockquote().run()}>
           <Quote size={14} />
-        </ToolButton>
+        </ToggleIconButton>
       )}
       {has("code") && (
-        <ToolButton label="Inline code" active={s.code} onClick={() => editor.chain().focus().toggleCode().run()}>
+        <ToggleIconButton keepFocus label="Inline code" active={s.code} onClick={() => editor.chain().focus().toggleCode().run()}>
           <Code size={14} />
-        </ToolButton>
+        </ToggleIconButton>
       )}
       {has("link") && (
-        <ToolButton label="Link" active={s.link} onClick={link}>
+        <ToggleIconButton keepFocus label="Link" active={s.link} onClick={link}>
           <Link2 size={14} />
-        </ToolButton>
+        </ToggleIconButton>
       )}
       {has("history") && (
         <>
           <span className="flex-1" />
-          <ToolButton label="Undo (Ctrl+Z)" disabled={!s.canUndo} onClick={() => editor.chain().focus().undo().run()}>
+          <ToggleIconButton keepFocus label="Undo (Ctrl+Z)" disabled={!s.canUndo} onClick={() => editor.chain().focus().undo().run()}>
             <Undo2 size={14} />
-          </ToolButton>
-          <ToolButton label="Redo (Ctrl+Y)" disabled={!s.canRedo} onClick={() => editor.chain().focus().redo().run()}>
+          </ToggleIconButton>
+          <ToggleIconButton keepFocus label="Redo (Ctrl+Y)" disabled={!s.canRedo} onClick={() => editor.chain().focus().redo().run()}>
             <Redo2 size={14} />
-          </ToolButton>
+          </ToggleIconButton>
         </>
       )}
     </div>
@@ -339,17 +314,20 @@ export function RichTextEditor({
   variant = "box",
   tools = TEXT_TOOLS,
 }: {
-  value: string; // HTML ("" = empty)
-  onChange: (html: string) => void; // HTML; "" when the editor is empty
+  /** HTML ("" = empty). */
+  value: string;
+  /** Sanitized HTML; "" when the editor is empty. */
+  onChange: (html: string) => void;
   placeholder?: string;
-  minHeight?: number; // px of the writing area
-  invalid?: boolean; // red border (inside <Field error> it is set automatically)
+  /** Height of the writing area (px). */
+  minHeight?: number;
+  /** Red border; inside a Field with `error` it is set automatically. */
+  invalid?: boolean;
   className?: string;
   /**
    * "box": frame and toolbar always visible (forms).
-   * "plain": no frame or padding, and the toolbar ONLY appears —floating
-   * above— while typing. For document-like editors, where a box per paragraph
-   * turns the page into a form (15 Sep 2026).
+   * "plain": no frame or padding, and the toolbar only floats above while
+   * typing, for document-like editors.
    */
   variant?: "box" | "plain";
   /**
@@ -376,8 +354,22 @@ export function RichTextEditor({
   const lastEmitted = useRef<string | null>(null);
   // External value received while the editor had focus: applied on release.
   const pending = useRef<string | null>(null);
-  const onChangeRef = useRef(onChange);
-  onChangeRef.current = onChange;
+  const onChangeRef = useLatest(onChange);
+  // Read by the editor when it needs them, so changing them does not rebuild it.
+  const placeholderRef = useLatest(placeholder);
+  const classRef = useLatest(`rich-text rich-text-editor outline-none ${plain ? "py-1" : "px-3 py-2.5"}`);
+
+  // Sanitizing the whole document is the costly part of a keystroke: it runs
+  // once typing pauses, and at once on blur and on unmount.
+  const emitTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const emitNow = useRef<(() => void) | null>(null);
+  function flush() {
+    clearTimeout(emitTimer.current);
+    const run = emitNow.current;
+    emitNow.current = null;
+    run?.();
+  }
+  useEffect(() => flush, []);
 
   // Stable extensions (do not recreate the array on every render). A disabled
   // tool is disabled in the SCHEMA, not in the toolbar: if we only hid the
@@ -404,22 +396,21 @@ export function RichTextEditor({
                 openOnClick: false,
                 autolink: true,
                 defaultProtocol: "https",
-                // Barrier 1: a link with javascript:, data: or vbscript: never
-                // even comes to exist as a mark inside the document.
+                // Barrier 1: a javascript:/data:/vbscript: link never becomes a mark.
                 protocols: PROTOCOLS,
                 isAllowedUri: (url: string, ctx: { defaultValidate: (u: string) => boolean }) =>
                   ctx.defaultValidate(url) && SAFE_URI.test(url),
               }
             : false,
-          // The code block does NOT go here: in the apps it is its own block
-          // type, with its language and its box (decision of 14 Sep 2026).
-          // Inside the text only INLINE code remains, which is text formatting.
+          // No tool creates these, so they are not in the schema either.
           codeBlock: false,
+          strike: false,
+          horizontalRule: false,
         }),
-        Placeholder.configure({ placeholder }),
+        Placeholder.configure({ placeholder: () => placeholderRef.current }),
       ];
     },
-    [placeholder, key]
+    [key, placeholderRef],
   );
 
   const editor = useEditor(
@@ -429,32 +420,30 @@ export function RichTextEditor({
       extensions,
       content: value,
       editorProps: {
-        attributes: { class: `rich-text rich-text-editor outline-none ${plain ? "py-1" : "px-3 py-2.5"}` },
-        // Barrier 2: copying from a web page and pasting here is the easiest
-        // way to slip in odd HTML. It is sanitized BEFORE ProseMirror
-        // interprets it, so what enters the document is already clean.
+        attributes: () => ({ class: classRef.current }),
+        // Barrier 2: pasted HTML is sanitized before ProseMirror reads it.
         transformPastedHTML: (html) => sanitizeRichText(html),
-        // Pasting text from a .md file, or from any editor that wraps lines at
-        // 80 characters, glued the words at the break: a text with "an" at the
-        // end of one line and "interpreter" at the start of the next ended up
-        // as "aninterpreter" (seen in Aulora on 15 Sep 2026). A single line
-        // break is a space; two or more still separate paragraphs.
+        // Text wrapped at 80 columns (a .md file) would glue the words at each
+        // break: a single line break is a space; two or more still separate paragraphs.
         transformPastedText: (text) =>
           text.replace(/\r\n?/g, "\n").replace(/([^\n])\n(?!\n)/g, "$1 "),
       },
       onUpdate({ editor }) {
-        // Barrier 3: what goes out to the app —and from there to the
-        // database— is sanitized. That way the stored content is born clean
-        // and does not depend on whoever renders it remembering to sanitize.
-        const html = editor.isEmpty ? "" : sanitizeRichText(editor.getHTML());
-        lastEmitted.current = html;
-        onChangeRef.current(html);
+        // Barrier 3: what goes out to the app (and the database) is sanitized.
+        emitNow.current = () => {
+          const html = editor.isEmpty ? "" : sanitizeRichText(editor.getHTML());
+          lastEmitted.current = html;
+          onChangeRef.current(html);
+        };
+        clearTimeout(emitTimer.current);
+        emitTimer.current = setTimeout(flush, 150);
       },
       onFocus() {
         setFocused(true);
       },
       onBlur({ editor }) {
         setFocused(false);
+        flush();
         // If an external value arrived while typing, apply it now.
         const html = pending.current;
         pending.current = null;
@@ -464,7 +453,7 @@ export function RichTextEditor({
         }
       },
     },
-    [extensions, plain]
+    [extensions],
   );
 
   // External change (loading another record, reloading data): sync without
@@ -492,8 +481,7 @@ export function RichTextEditor({
     );
   }
 
-  // Plain: the toolbar floats over the block instead of pushing it. If it
-  // pushed, the text would jump down every time you put the cursor in a paragraph.
+  // Plain: the toolbar floats over the block instead of pushing the text down.
   if (plain) {
     return (
       <div className={`relative ${className}`} onClick={(e) => e.preventDefault()} aria-invalid={bad || undefined}>
@@ -510,8 +498,7 @@ export function RichTextEditor({
   return (
     <div
       className={`rounded-xl border bg-[var(--field-bg,var(--background))] transition ${border} ${className}`}
-      // If the editor is inside a <label>, clicking the text would activate
-      // the first toolbar button (bold). We cancel that activation.
+      // Inside a wrapping <label> a click would activate the first toolbar button.
       onClick={(e) => e.preventDefault()}
       aria-invalid={bad || undefined}
     >

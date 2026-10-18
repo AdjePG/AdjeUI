@@ -1,27 +1,26 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { useDismiss } from "../internal/layers";
+import { useIsoLayoutEffect } from "../internal/useIsoLayoutEffect";
+import { useMediaQuery } from "../internal/useMediaQuery";
 
-// Popover anchored to a trigger: closes on outside click or Escape. Used for
-// pickers (site, account), notification bells and user menus.
+// Panel anchored to a trigger: closes on outside click or Escape. Used for
+// pickers, notification bells, user menus and the Select list.
 //
 //   <Popover placement="top" trigger={({ open, toggle }) => <button onClick={toggle}>…</button>}>
 //     <Menu title="Account" items={[…]} />
 //   </Popover>
 //
-// The panel is rendered into <body> through a portal with a fixed position
-// computed from the trigger (13 Sep 2026; it used to be absolute inside the
-// tree). That way NO container with overflow clips it —tables with horizontal
-// scroll, cards, sticky panels—, which was the cause of menus cut in half.
-// It repositions on scroll or resize, and if it doesn't fit below it opens
-// upwards (and vice versa).
-//
-// On a phone it stops being anchored at all and becomes a BOTTOM SHEET: full
-// width, stuck to the bottom edge, over a scrim (20 Sep 2026). Anchoring needs
-// a pointer that can aim and room around the trigger; a thumb has neither.
-// `sheet={false}` opts out for the cases where the panel must stay glued to its
-// trigger (a field's own dropdown, for instance).
+// The panel is portalled into <body> with a fixed position computed from the
+// trigger, so no overflow container clips it; it follows scrolls and resizes
+// and opens upwards when it does not fit below. On a phone it becomes a
+// BOTTOM SHEET (full width, over a scrim): anchoring needs a pointer that can
+// aim and room around the trigger, and a thumb has neither.
+
+const SHEET_QUERY = "(max-width: 639.98px)";
+
 export function Popover({
   trigger,
   children,
@@ -31,29 +30,28 @@ export function Popover({
   className = "",
   panelClassName = "",
   sheet = true,
+  role = "dialog",
 }: {
   trigger: (p: { open: boolean; toggle: () => void; close: () => void }) => ReactNode;
   children: ReactNode | ((p: { close: () => void }) => ReactNode);
+  /** Preferred side; it flips when there is no room. */
   placement?: "top" | "bottom";
-  align?: "start" | "end" | "stretch"; // stretch = same width as the trigger
-  width?: number; // fixed panel width (px); overrides align="stretch"
+  /** "stretch" = same width as the trigger. */
+  align?: "start" | "end" | "stretch";
+  /** Fixed panel width (px); overrides align="stretch". */
+  width?: number;
+  /** Classes on the anchor wrapper. */
   className?: string;
+  /** Classes on the panel. Its max height is `--popover-max-h` (default: the window). */
   panelClassName?: string;
-  /** false = stay anchored to the trigger on a phone too. Default: true. */
+  /** false = stay anchored to the trigger on a phone too. */
   sheet?: boolean;
+  /** ARIA role of the panel ("listbox" for a list of values). */
+  role?: "dialog" | "listbox" | "menu";
 }) {
   const [open, setOpen] = useState(false);
-  // Below `sm` the panel is a bottom sheet. Read with a media query and not
-  // with a CSS class because the position is computed in JS: on a sheet there
-  // is nothing to compute, and measuring the trigger would be wasted work.
-  const [narrow, setNarrow] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 639.98px)");
-    const sync = () => setNarrow(mq.matches);
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
+  // Read in JS, not CSS: on a sheet there is no position to compute.
+  const narrow = useMediaQuery(SHEET_QUERY);
   const asSheet = sheet && narrow;
   const anchorRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -81,10 +79,11 @@ export function Popover({
     let left = align === "end" ? r.right - panelWidth : r.left;
     left = Math.max(gap, Math.min(left, window.innerWidth - gap - panelWidth));
 
-    setPos({ top, left, width: width ?? (align === "stretch" ? r.width : undefined) });
+    const next = { top, left, width: width ?? (align === "stretch" ? r.width : undefined) };
+    setPos((p) => (p && p.top === next.top && p.left === next.left && p.width === next.width ? p : next));
   }, [align, placement, width]);
 
-  useLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!open || asSheet) {
       setPos(null);
       return;
@@ -92,31 +91,32 @@ export function Popover({
     place();
   }, [open, asSheet, place]);
 
-  useEffect(() => {
-    if (!open) return;
-    function onDoc(e: MouseEvent) {
-      const t = e.target as Node;
-      if (anchorRef.current?.contains(t) || panelRef.current?.contains(t)) return;
-      setOpen(false);
-    }
-    function onEsc(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
-    }
-    document.addEventListener("mousedown", onDoc);
-    document.addEventListener("keydown", onEsc);
-    // Scroll of any container (capture phase) and resizes.
-    document.addEventListener("scroll", place, true);
-    window.addEventListener("resize", place);
-    return () => {
-      document.removeEventListener("mousedown", onDoc);
-      document.removeEventListener("keydown", onEsc);
-      document.removeEventListener("scroll", place, true);
-      window.removeEventListener("resize", place);
-    };
-  }, [open, place]);
+  const close = useCallback(() => setOpen(false), []);
+  const toggle = useCallback(() => setOpen((o) => !o), []);
 
-  const close = () => setOpen(false);
-  const toggle = () => setOpen((o) => !o);
+  useDismiss([anchorRef, panelRef], close, open);
+
+  // Follow scrolls of any container (capture) and resizes, once per frame.
+  useEffect(() => {
+    if (!open || asSheet) return;
+    let raf = 0;
+    const schedule = () => {
+      if (!raf)
+        raf = requestAnimationFrame(() => {
+          raf = 0;
+          place();
+        });
+    };
+    document.addEventListener("scroll", schedule, true);
+    window.addEventListener("resize", schedule);
+    return () => {
+      cancelAnimationFrame(raf);
+      document.removeEventListener("scroll", schedule, true);
+      window.removeEventListener("resize", schedule);
+    };
+  }, [open, asSheet, place]);
+
+  const body = typeof children === "function" ? children({ close }) : children;
 
   return (
     <div ref={anchorRef} className={`relative ${className}`}>
@@ -126,34 +126,25 @@ export function Popover({
         createPortal(
           asSheet ? (
             <>
-              {/* The scrim is what makes it a sheet and not a box floating at
-                  the bottom: it darkens the page, says the rest is out of play
-                  and gives the thumb a huge target to dismiss with. */}
+              {/* The scrim makes it a sheet: the rest is out of play, and it is a big target to dismiss. */}
               <div className="drawer-fade fixed inset-0 z-[79] bg-black/45" onClick={close} aria-hidden />
               <div
                 ref={panelRef}
-                role="dialog"
-                aria-modal="true"
-                // The sheet's own scrollbar and not the platform's: the panel
-                // is 12px from the edge of a phone and the grey system bar
-                // with its two arrows landed on top of the rounded corner. No
-                // reserved gutter either — a sheet opens at its final size, so
-                // there is nothing to stop from jumping (22 Sep 2026).
+                role={role}
+                aria-modal={role === "dialog" || undefined}
+                // Its own scrollbar with no gutter: the platform's landed on
+                // the rounded corner, and a sheet opens at its final size.
+                // No grab bar: the sheet cannot be dragged.
                 className={`sheet-in custom-scrollbar scroll-no-gutter fixed inset-x-0 bottom-0 z-[80] card max-h-[80vh] overscroll-contain !rounded-b-none !rounded-t-2xl pb-[env(safe-area-inset-bottom)] ${panelClassName}`}
               >
-                {/* No grab bar. It was drawn to say "this came up from the
-                    bottom", but the sheet cannot be dragged: a handle that
-                    does not drag is a control that lies, and the first thing
-                    anyone asked about it was what it was for (22 Sep 2026).
-                    The scrim and the slide up say where it came from. */}
-                {typeof children === "function" ? children({ close }) : children}
+                {body}
               </div>
             </>
           ) : (
             <div
               ref={panelRef}
-              role="dialog"
-              className={`fixed z-[80] card overflow-hidden blue-shadow toast-in ${panelClassName}`}
+              role={role}
+              className={`fixed z-[80] card custom-scrollbar scroll-no-gutter max-h-[var(--popover-max-h,calc(100dvh-16px))] overscroll-contain blue-shadow toast-in ${panelClassName}`}
               style={{
                 top: pos?.top ?? 0,
                 left: pos?.left ?? 0,
@@ -162,7 +153,7 @@ export function Popover({
                 visibility: pos ? "visible" : "hidden",
               }}
             >
-              {typeof children === "function" ? children({ close }) : children}
+              {body}
             </div>
           ),
           document.body,

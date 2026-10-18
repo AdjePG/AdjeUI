@@ -3,7 +3,17 @@
 import { ReactNode } from "react";
 
 // Centered empty state (no results, no data yet).
-export function Empty({ icon, title, children }: { icon?: ReactNode; title: string; children?: ReactNode }) {
+export function Empty({
+  icon,
+  title,
+  children,
+}: {
+  /** Drawn at 36px. */
+  icon?: ReactNode;
+  title: string;
+  /** A hint under the title. */
+  children?: ReactNode;
+}) {
   return (
     <div className="text-center py-10 text-muted">
       {icon && <div className="mb-2 inline-flex text-muted [&>svg]:w-9 [&>svg]:h-9">{icon}</div>}

@@ -1,43 +1,73 @@
 "use client";
 
-// Shared light/dark/system theme: stores the choice in localStorage (each app
-// has its own key) and applies data-theme to <html>. Each app used to
-// duplicate this logic in its Sidebar.
-import { useEffect, useState } from "react";
+// Shared light/dark/system theme: one store for the whole page (every
+// useTheme call sees the same value), saved in localStorage under the app's
+// key and applied as data-theme on <html>.
+import { useCallback, useEffect, useSyncExternalStore } from "react";
 import { LucideIcon, Monitor, Moon, Sun } from "lucide-react";
 
 export type Theme = "system" | "light" | "dark";
 
-function applyTheme(t: Theme) {
-  const el = document.documentElement;
-  if (t === "system") el.removeAttribute("data-theme");
-  else el.setAttribute("data-theme", t);
+const NEXT: Record<Theme, Theme> = { system: "light", light: "dark", dark: "system" };
+const LABEL: Record<Theme, string> = { system: "System", light: "Light", dark: "Dark" };
+const ICON: Record<Theme, LucideIcon> = { system: Monitor, light: Sun, dark: Moon };
+
+let current: Theme = "system";
+let loadedKey: string | null = null;
+const listeners = new Set<() => void>();
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
 }
 
+function apply(theme: Theme) {
+  current = theme;
+  const el = document.documentElement;
+  if (theme === "system") el.removeAttribute("data-theme");
+  else el.setAttribute("data-theme", theme);
+  listeners.forEach((l) => l());
+}
+
+function readSaved(key: string): Theme {
+  try {
+    const saved = localStorage.getItem(key);
+    return saved === "light" || saved === "dark" ? saved : "system";
+  } catch {
+    return "system";
+  }
+}
+
+/** system → light → dark cycle, stored under `storageKey`. Ship an inline head script to avoid a flash on load. */
 export function useTheme(storageKey: string): {
   theme: Theme;
   cycleTheme: () => void;
   themeLabel: string;
   ThemeIcon: LucideIcon;
 } {
-  const [theme, setTheme] = useState<Theme>("system");
+  const theme = useSyncExternalStore(
+    subscribe,
+    () => current,
+    () => "system" as Theme,
+  );
 
   useEffect(() => {
-    const saved = (localStorage.getItem(storageKey) as Theme) || "system";
-    setTheme(saved);
-    applyTheme(saved);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (loadedKey === storageKey) return;
+    loadedKey = storageKey;
+    apply(readSaved(storageKey));
+  }, [storageKey]);
 
-  function cycleTheme() {
-    const next: Theme = theme === "system" ? "light" : theme === "light" ? "dark" : "system";
-    setTheme(next);
-    localStorage.setItem(storageKey, next);
-    applyTheme(next);
-  }
+  const cycleTheme = useCallback(() => {
+    const next = NEXT[current];
+    try {
+      localStorage.setItem(storageKey, next);
+    } catch {
+      // No storage: the theme lasts this visit.
+    }
+    apply(next);
+  }, [storageKey]);
 
-  const ThemeIcon = theme === "light" ? Sun : theme === "dark" ? Moon : Monitor;
-  const themeLabel = theme === "light" ? "Light" : theme === "dark" ? "Dark" : "System";
-
-  return { theme, cycleTheme, themeLabel, ThemeIcon };
+  return { theme, cycleTheme, themeLabel: LABEL[theme], ThemeIcon: ICON[theme] };
 }

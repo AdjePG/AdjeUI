@@ -1,88 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import {
-  BarChart3,
-  Bell,
-  BookOpen,
-  Boxes,
-  Calendar,
-  ChevronsUpDown,
-  Copy,
-  Download,
-  Filter,
-  FormInput,
-  ExternalLink,
-  Grid3X3,
-  Layers,
-  LayoutTemplate,
-  List,
-  LogOut,
-  MousePointerClick,
-  Package,
-  Palette,
-  Pencil,
-  Plus,
-  Rocket,
-  Search,
-  Settings,
-  Sparkles,
-  Table2,
-  Trash2,
-  TrendingDown,
-  TrendingUp,
-  Upload,
-  Wallet,
-} from "lucide-react";
-import {
-  Menu,
-  Popover,
-  SideNavAction,
-  SideNavBrand,
-  SideNavUser,
-  Button,
-  Card,
-  CodeBlock,
-  ChipEditor,
-  Collapsible,
-  ConfirmDialog,
-  Drawer,
-  Empty,
-  Field,
-  HelpTip,
-  IconButton,
-  IconChip,
-  Input,
-  Modal,
-  PALETTE,
-  PALETTE_NAMES,
-  PALETTE_SHADES,
-  PageHeader,
-  Pagination,
-  Pill,
-  ProgressBar,
-  SectionTitle,
-  Segmented,
-  Select,
-  SideNav,
-  SideNavButton,
-  Skeleton,
-  Stat,
-  Switch,
-  ChoiceOption,
-  ScrollArrows,
-  useShortcuts,
-  Table,
-  Tabs,
-  Textarea,
-  ToastProvider,
-  Toolbar,
-  inputCls,
-  palette,
-  rules,
-  useFormErrors,
-  useTheme,
-  useToast,
-} from "../../src";
-import { RichText, RichTextEditor, richTextToPlain } from "../../rich-text";
+import { Package, Search, Sparkles } from "lucide-react";
+import { Avatar, AvatarStack, Card, CodeBlock, Empty, IconChip, Pill, Skeleton, palette } from "../../src";
 import { Block, Frame, Section } from "../common";
 
 // ---------------- primitives ----------------
@@ -103,6 +20,20 @@ export function PrimitivesSection() {
           <Pill color={palette("violet", 600)}>Designing</Pill>
           <Pill color={palette("red", 600)}>Paused</Pill>
           <Pill color="var(--accent-blue)"><Sparkles size={11} /> With icon</Pill>
+        </Block>
+        <Block name="Avatar: initials on the app gradient or a colour, image (broken → initials) × size (sm 24 · md 32 · lg 40 · xl 56) × shape · AvatarStack (+N)">
+          <Avatar name="Ada Lovelace" size="sm" />
+          <Avatar name="Ada Lovelace" />
+          <Avatar name="Grace Hopper" size="lg" color={palette("teal", 600)} />
+          <Avatar name="Alan Turing" size="xl" shape="square" color={palette("violet", 600)} />
+          <Avatar name="Broken image" src="/missing.png" />
+          <AvatarStack
+            items={["Ada Lovelace", "Grace Hopper", "Alan Turing", "Katherine Johnson", "Edsger Dijkstra", "Barbara Liskov"].map((name, i) => ({
+              name,
+              color: palette((["blue", "teal", "violet", "rose", "amber", "green"] as const)[i], 600),
+            }))}
+            max={4}
+          />
         </Block>
         <Block name="Skeleton (className gives the shape)">
           <Skeleton className="h-4 w-32" />

@@ -1,47 +1,43 @@
 "use client";
 
-import { ReactNode } from "react";
 import { ScrollArrows } from "./ScrollArrows";
+import type { SegmentedOption } from "./Segmented";
 
 // Text tab bar with a gradient underline on the active one (browser/YouTube
-// style). For sub-pages; for filters/toggles use Segmented.
-//
-// When there are more tabs than fit, arrows appear at both ends instead of a
-// scrollbar (13 Sep 2026).
-export function Tabs({
+// style). For sub-pages; for filters/toggles use Segmented. When the tabs do
+// not fit, arrows appear at both ends instead of a scrollbar.
+export function Tabs<T extends string = string>({
   value,
   onChange,
   options,
   className = "",
 }: {
-  value: string;
-  onChange: (v: string) => void;
-  options: { value: string; label?: ReactNode; icon?: ReactNode; title?: string }[];
+  value: T;
+  onChange: (v: T) => void;
+  options: SegmentedOption<T>[];
   className?: string;
 }) {
   return (
     <ScrollArrows className={className}>
-      <div className="flex w-max items-center gap-1 pb-0.5">
+      <div role="tablist" className="flex w-max items-center gap-1 pb-0.5">
         {options.map((o) => {
           const active = value === o.value;
           return (
             <button
               key={o.value}
               type="button"
+              role="tab"
+              aria-selected={active}
               onClick={() => onChange(o.value)}
               title={o.title}
+              aria-label={o.label == null ? o.title : undefined}
               className={`relative inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 py-2 text-sm font-semibold transition ${
                 active ? "text-[var(--foreground)]" : "text-muted hover:text-[var(--foreground)]"
               }`}
             >
               {o.icon}
               {o.label}
-              {active && (
-                <span
-                  className="absolute left-2 right-2 bottom-0 h-[3px] rounded-full"
-                  style={{ background: "var(--app-gradient)" }}
-                />
-              )}
+              {active && <span className="bg-app-gradient absolute left-2 right-2 bottom-0 h-[3px] rounded-full" />}
             </button>
           );
         })}

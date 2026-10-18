@@ -1,88 +1,33 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  BarChart3,
   Bell,
-  BookOpen,
   Boxes,
-  Calendar,
-  ChevronsUpDown,
-  Copy,
-  Download,
-  Filter,
   FormInput,
   ExternalLink,
-  Grid3X3,
   Layers,
   LayoutTemplate,
-  List,
   LogOut,
   MousePointerClick,
-  Package,
   Palette,
-  Pencil,
-  Plus,
-  Rocket,
-  Search,
-  Settings,
   Sparkles,
   Table2,
-  Trash2,
-  TrendingDown,
-  TrendingUp,
-  Upload,
-  Wallet,
 } from "lucide-react";
 import {
-  Menu,
-  Popover,
   SideNavAction,
   SideNavBrand,
   SideNavUser,
   Button,
-  Card,
-  ChipEditor,
-  Collapsible,
-  ConfirmDialog,
-  Drawer,
-  Empty,
-  Field,
-  HelpTip,
-  IconButton,
   IconChip,
-  Input,
-  Modal,
-  PALETTE,
-  PALETTE_NAMES,
-  PALETTE_SHADES,
+  Overline,
   PageHeader,
-  Pagination,
   Pill,
-  ProgressBar,
-  SectionTitle,
-  Segmented,
-  Select,
   SideNav,
-  SideNavButton,
-  Skeleton,
-  Stat,
-  Switch,
-  ChoiceOption,
-  ScrollArrows,
-  useShortcuts,
-  Table,
-  Tabs,
-  Textarea,
   ToastProvider,
-  Toolbar,
-  inputCls,
   palette,
-  rules,
-  useFormErrors,
   useTheme,
   useToast,
 } from "../src";
-import { RichText, RichTextEditor, richTextToPlain } from "../rich-text";
-import { SITES, Section } from "./common";
+import { SITES } from "./common";
 import { TokensSection } from "./sections/Tokens";
 import { PrimitivesSection } from "./sections/Primitives";
 import { ControlsSection } from "./sections/Controls";
@@ -145,7 +90,7 @@ function Showcase() {
       <SideNav
         top={
           <SideNavBrand href="#tokens" title="AdjeUI" icon={<IconChip size="lg"><Sparkles size={16} /></IconChip>}>
-            AdjeUI <Pill color={palette("violet", 600)}>v2</Pill>
+            AdjeUI <Pill color={palette("violet", 600)}>v4</Pill>
           </SideNavBrand>
         }
         items={SECTIONS.map((s) => ({ href: `#${s.id}`, label: s.label, icon: s.icon }))}
@@ -155,7 +100,7 @@ function Showcase() {
             <SideNavAction icon={<Bell size={17} className="text-muted" />} label="Notifications" badge={2} placement="top" popoverWidth={300}>
               {({ close }) => (
                 <div className="p-1">
-                  <span className="block text-[9.5px] font-semibold uppercase tracking-widest text-muted px-2.5 pt-1.5 pb-1">Notifications</span>
+                  <Overline as="div" className="px-2.5 pt-1.5 pb-1">Notifications</Overline>
                   {["New component: SideNavAction", "The fixed palette now has 15 colors"].map((t) => (
                     <button key={t} type="button" onClick={close} className="w-full flex items-start gap-2 rounded-lg px-2.5 py-2 text-left text-[13px] hover:bg-[var(--hover)]">
                       <span className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 bg-[var(--accent-blue)]" />
@@ -212,5 +157,4 @@ function Showcase() {
   );
 }
 
-// ---------------- tokens ----------------
 

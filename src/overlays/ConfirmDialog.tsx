@@ -1,11 +1,12 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { Modal } from "./Modal";
 import { Button } from "../controls/Button";
 
-// Action confirmation (delete, overwrite…) built on Modal + Button, so the
-// same dialog isn't rebuilt by hand in every app.
+// Action confirmation (delete, overwrite…) built on Modal + Button. An async
+// `onConfirm` is awaited with a busy button: the dialog closes when it
+// resolves and stays open if it throws.
 export function ConfirmDialog({
   open,
   onClose,
@@ -18,30 +19,38 @@ export function ConfirmDialog({
 }: {
   open: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  /** The confirmed action; a returned promise is awaited before closing. */
+  onConfirm: (() => void) | (() => Promise<unknown>);
   title?: string;
   message?: ReactNode;
   confirmLabel?: string;
   cancelLabel?: string;
+  /** Red confirm button, for destructive actions. */
   danger?: boolean;
 }) {
+  const [busy, setBusy] = useState(false);
+
+  async function confirm() {
+    setBusy(true);
+    try {
+      await onConfirm();
+      onClose();
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <Modal
       open={open}
-      onClose={onClose}
+      onClose={busy ? () => {} : onClose}
       title={title}
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" onClick={onClose} disabled={busy}>
             {cancelLabel}
           </Button>
-          <Button
-            variant={danger ? "danger" : "primary"}
-            onClick={() => {
-              onConfirm();
-              onClose();
-            }}
-          >
+          <Button variant={danger ? "danger" : "primary"} loading={busy} onClick={() => void confirm()}>
             {confirmLabel}
           </Button>
         </>

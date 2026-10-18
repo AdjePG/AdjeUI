@@ -5,31 +5,28 @@ import { Check } from "lucide-react";
 import { formatShortcut, useIsMac } from "./shortcuts";
 import { Overline } from "../primitives/Overline";
 
-// List of actions, usually inside a Popover. Lives in its own file since
-// 13 Sep 2026 (it used to be glued to the Popover, and they are two different
-// things: the Popover is a layer, the Menu is a list).
+// List of actions, usually inside a Popover (the Popover is the layer, the
+// Menu is the list).
 
 export type MenuAction = {
   key?: string;
   label: ReactNode;
-  hint?: ReactNode; // secondary text under the label
+  /** Secondary text under the label. */
+  hint?: ReactNode;
   icon?: ReactNode;
   onClick?: () => void;
-  active?: boolean; // marked with a check (current selection)
-  danger?: boolean; // in red (sign out, delete)
+  /** Marked with a check (current selection). */
+  active?: boolean;
+  /** In red (sign out, delete). */
+  danger?: boolean;
   disabled?: boolean;
-  // The menu stays open after it (26 Sep 2026): for a toggle such as a theme
-  // switch, whose new state is shown right there on the item — closing on it
-  // hid the very change you had just made.
+  /** The menu stays open after it: for a toggle whose new state shows on the item. */
   keepOpen?: boolean;
-  // Key combination ("mod+d", "shift+delete"…). The menu only DRAWS it; to
-  // make it actually work, hook it up with useShortcuts where the actions
-  // live — a closed menu can't listen to anything.
+  /** Key combination ("mod+d"). The menu only draws it; `useShortcuts` where the actions live makes it work. */
   shortcut?: string;
 };
 
-// Divider line: separates groups of actions within the same menu (the usual
-// one before a "Delete").
+// Divider line between groups of actions (the usual one before a "Delete").
 export type MenuSeparator = { separator: true; key?: string };
 
 export type MenuItem = MenuAction | MenuSeparator;
@@ -39,12 +36,21 @@ function isSeparator(it: MenuItem): it is MenuSeparator {
 }
 
 // `onPick` is called after the item's onClick: use it to close the popover.
-export function Menu({ title, items, onPick }: { title?: ReactNode; items: MenuItem[]; onPick?: () => void }) {
+export function Menu({
+  title,
+  items,
+  onPick,
+}: {
+  /** Overline over the items. */
+  title?: ReactNode;
+  items: MenuItem[];
+  /** Called after an item's onClick (unless keepOpen): pass the Popover's close. */
+  onPick?: () => void;
+}) {
   const mac = useIsMac();
   return (
-    // 4px between items (26 Sep 2026): touching, two hovered/active rows
-    // merged into one block.
-    <div className="flex flex-col gap-1 p-1">
+    // 4px between items: touching, two hovered/active rows merge into one block.
+    <div role="menu" className="flex flex-col gap-1 p-1">
       {title && (
         <Overline as="div" className="px-2.5 pb-1 pt-1.5">
           {title}
@@ -52,12 +58,13 @@ export function Menu({ title, items, onPick }: { title?: ReactNode; items: MenuI
       )}
       {items.map((it, i) => {
         if (isSeparator(it)) {
-          return <hr key={it.key ?? `sep-${i}`} className="my-0.5 border-0 border-t border-[var(--border)]" />;
+          return <hr key={it.key ?? `sep-${i}`} role="separator" className="my-0.5 border-0 border-t border-[var(--border)]" />;
         }
         return (
           <button
             key={it.key ?? i}
             type="button"
+            role="menuitem"
             disabled={it.disabled}
             onClick={() => {
               it.onClick?.();
@@ -71,14 +78,9 @@ export function Menu({ title, items, onPick }: { title?: ReactNode; items: MenuI
             <span className="min-w-0 flex-1">
               <span className="block truncate font-medium">{it.label}</span>
               {it.hint && <span className="block truncate text-[11px] text-muted">{it.hint}</span>}
-              {/* The key combination goes UNDER the label, not to its right
-                  (20 Sep 2026). On the right it was a second column competing
-                  for the same width, and the label — the part you actually read
-                  — was the one that lost: "Duplicate les…" next to a pristine
-                  "Ctrl+Shift+D". Underneath, the label gets the whole row and
-                  the shortcut is still there for whoever looks for it. */}
+              {/* Under the label, not beside it: a second column would take the label's width. */}
               {it.shortcut && (
-                <kbd className="mt-1 inline-block rounded border border-[var(--border)] px-1.5 py-0.5 font-sans text-[10.5px] leading-none text-muted">
+                <kbd className="mt-1 inline-block rounded border border-[var(--border)] px-1.5 py-0.5 font-sans text-[11px] leading-none text-muted">
                   {formatShortcut(it.shortcut, mac)}
                 </kbd>
               )}

@@ -3,7 +3,6 @@
 import { ReactNode } from "react";
 
 // Base surface: --card background, border and 16px radius (.card class from theme.css).
-// glow adds the app's identity shadow (--blue-shadow).
 export function Card({
   children,
   className = "",
@@ -11,6 +10,7 @@ export function Card({
 }: {
   children: ReactNode;
   className?: string;
+  /** Adds the app's identity shadow (--blue-shadow). */
   glow?: boolean;
 }) {
   return (

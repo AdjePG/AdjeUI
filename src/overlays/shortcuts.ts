@@ -2,11 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 
-// Keyboard shortcuts (13 Sep 2026). They live here because they were born for
-// Menu items, but they are NOT a Popover concern: the popover only exists
-// while it's open, and a shortcut has to work with the menu closed. That's why
-// the Menu only DRAWS the shortcut, and whoever owns the actions HOOKS them
-// with useShortcuts — usually the same screen that builds the items.
+// Keyboard shortcuts. A shortcut has to work with its menu closed, so the
+// Menu only DRAWS it and whoever owns the actions hooks them with
+// useShortcuts (usually the screen that builds the items).
 //
 //   const items = [{ label: "Duplicate", shortcut: "mod+d", onClick: duplicate }];
 //   useShortcuts(items);            // works whether the menu is open or not

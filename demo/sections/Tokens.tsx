@@ -1,88 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
 import {
-  BarChart3,
-  Bell,
-  BookOpen,
-  Boxes,
-  Calendar,
-  ChevronsUpDown,
-  Copy,
-  Download,
-  Filter,
-  FormInput,
-  ExternalLink,
-  Grid3X3,
-  Layers,
-  LayoutTemplate,
-  List,
-  LogOut,
-  MousePointerClick,
-  Package,
-  Palette,
-  Pencil,
-  Plus,
-  Rocket,
-  Search,
-  Settings,
-  Sparkles,
-  Table2,
-  Trash2,
-  TrendingDown,
-  TrendingUp,
-  Upload,
-  Wallet,
-} from "lucide-react";
-import {
-  Menu,
-  Popover,
-  SideNavAction,
-  SideNavBrand,
-  SideNavUser,
   Button,
   Card,
-  ChipEditor,
-  Collapsible,
-  ConfirmDialog,
-  Drawer,
-  Empty,
-  Field,
-  HelpTip,
-  IconButton,
-  IconChip,
   Input,
-  Modal,
   PALETTE,
   PALETTE_NAMES,
   PALETTE_SHADES,
-  PageHeader,
-  Pagination,
   Pill,
-  ProgressBar,
-  SectionTitle,
-  Segmented,
-  Select,
-  SideNav,
-  SideNavButton,
-  Skeleton,
-  Stat,
-  Switch,
-  ChoiceOption,
-  ScrollArrows,
-  useShortcuts,
-  Table,
-  Tabs,
-  Textarea,
-  ToastProvider,
-  Toolbar,
-  inputCls,
   palette,
-  rules,
-  useFormErrors,
-  useTheme,
   useToast,
 } from "../../src";
-import { RichText, RichTextEditor, richTextToPlain } from "../../rich-text";
-import { Block, Frame, Section } from "../common";
+import { Block, Section } from "../common";
 
 const THEME_TOKENS = [
   "background",
@@ -163,10 +90,8 @@ export function TokensSection() {
         </Block>
 
         <Block name="Fixed palette: 15 colors × 10 shades (click = copy var(); the tooltip shows the hex)">
-          {/* code-scroll and not custom-scrollbar (26 Sep 2026): that one is the
-              vertical panels' bar, and here it drew a vertical scrollbar over
-              the last column. The hover is a ring, not a scale: a swatch
-              growing 10% pushed past the edge and cut the column off. */}
+          {/* code-scroll: a horizontal bar only. The hover is a ring, not a
+              scale, so a swatch never grows past the edge. */}
           <div className="w-full overflow-x-auto overflow-y-hidden code-scroll">
             <div className="min-w-[640px] flex flex-col gap-1 p-1">
               <div className="grid gap-1" style={{ gridTemplateColumns: "72px repeat(10, minmax(0, 1fr))" }}>

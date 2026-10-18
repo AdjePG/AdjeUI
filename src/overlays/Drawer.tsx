@@ -1,8 +1,10 @@
 "use client";
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useRef } from "react";
 import { X } from "lucide-react";
 import { IconChip } from "../primitives/IconChip";
+import { IconButton } from "../controls/IconButton";
+import { useEscape } from "../internal/layers";
 
 // Side panel (editors, AI panels). `footer` is the ACTION ZONE: a bar fixed
 // at the bottom, always visible even when the content scrolls. Pass it the
@@ -17,23 +19,21 @@ export function Drawer({
   wide = false,
 }: {
   open: boolean;
+  /** Escape, a click on the backdrop and the X call it. */
   onClose: () => void;
   title: string;
+  /** Shown in an IconChip before the title. */
   icon?: ReactNode;
   children: ReactNode;
   footer?: ReactNode;
+  /** 640px instead of 440px (full width on a phone either way). */
   wide?: boolean;
 }) {
-  useEffect(() => {
-    function onEsc(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    if (open) document.addEventListener("keydown", onEsc);
-    return () => document.removeEventListener("keydown", onEsc);
-  }, [open, onClose]);
+  const ref = useRef<HTMLDivElement>(null);
+  useEscape(onClose, open, [ref]);
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex justify-end" role="dialog" aria-modal="true">
+    <div ref={ref} className="fixed inset-0 z-50 flex justify-end" role="dialog" aria-modal="true">
       <div className="absolute inset-0 bg-black/50 drawer-fade" onClick={onClose} />
       <div
         className={`surface relative h-full w-full ${wide ? "sm:w-[640px]" : "sm:w-[440px]"} max-w-full bg-[var(--secondary)] border-l border-[var(--border)] shadow-2xl flex flex-col drawer-in`}
@@ -43,13 +43,9 @@ export function Drawer({
             {icon && <IconChip>{icon}</IconChip>}
             {title}
           </h3>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-lg hover:bg-[var(--hover)] inline-flex items-center justify-center"
-            aria-label="Close"
-          >
+          <IconButton label="Close" onClick={onClose}>
             <X size={18} />
-          </button>
+          </IconButton>
         </div>
         <div className="flex-1 overflow-y-auto custom-scrollbar p-4">{children}</div>
         {footer && (

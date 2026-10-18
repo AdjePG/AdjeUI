@@ -2,9 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-// Whether a horizontally scrolling box has content hidden on each side
-// (26 Sep 2026). Pulled out of ScrollArrows so anything that scrolls sideways
-// — the arrows, a Table's edge lines — reads it the same way.
+// Whether a horizontally scrolling box has content hidden on each side, read
+// the same way by everything that scrolls sideways (ScrollArrows, Table, Carousel).
 //
 //   const { ref, start, end, measure } = useScrollEdges<HTMLDivElement>();
 //   <div ref={ref} onScroll={measure} className="overflow-x-auto">…</div>

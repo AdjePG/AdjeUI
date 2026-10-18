@@ -1,29 +1,16 @@
 "use client";
 
-import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
-
-// Before paint on the client (no server warning): the clip must be on in the
-// very frame the fold starts, or the content spills out of the box for one.
-const useBeforePaint = typeof window === "undefined" ? useEffect : useLayoutEffect;
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { ChevronUp } from "lucide-react";
 import { Overline } from "../primitives/Overline";
+import { useIsoLayoutEffect } from "../internal/useIsoLayoutEffect";
 
-// Collapsible section (FAQs, hints, advanced options…). It is drawn like a
-// folding panel (26 Sep 2026): the icon, the name as an Overline with an
-// optional line under it saying what is inside, and at the end a chevron that
-// turns over — one arrow travelling to where it is going, not two icons
-// swapping. The whole header is the button; the chevron lights up with it.
-// The content folds with an animation instead of popping in and out.
-//
-// While it moves, the content is clipped (that is what makes the fold); once
-// open it is NOT, so a Select or anything else that opens inside it is never
-// cut off (an overflow-hidden on the box showed two options out of four).
-// Closed, it is hidden as well, so its fields cannot be tabbed into.
-//
-// Open, a rule in the border's colour runs under the header from edge to edge
-// (4 Oct 2026), the same as on Aulora's course structure panel: a long panel
-// otherwise read as one block with no line between its title and its content.
-// It fades with the fold and takes its 1px in both states, so nothing jumps.
+// Folding panel (FAQs, hints, advanced options…): icon, the title as an
+// Overline with an optional summary line, and a chevron that turns over. The
+// whole header is the button. The content is clipped only while it moves, so
+// anything that opens inside an open panel is never cut off; closed, it is
+// hidden, so its fields cannot be tabbed into. A rule under the header fades
+// in with the fold and keeps its 1px in both states, so nothing jumps.
 export function Collapsible({
   title,
   icon,
@@ -40,8 +27,8 @@ export function Collapsible({
   summary?: ReactNode;
   children: ReactNode;
   defaultOpen?: boolean;
-  /** Controlled (4 Oct 2026): for a panel that closes itself — after picking
-   *  something inside, or a click outside. Without it, it keeps its own state. */
+  /** Controlled: for a panel that closes itself (after picking something
+   *  inside, or a click outside). Without it, it keeps its own state. */
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   /** Extra classes on the box (a background, when it sits over content). */
@@ -53,10 +40,10 @@ export function Collapsible({
   const timer = useRef<ReturnType<typeof setTimeout>>();
   useEffect(() => () => clearTimeout(timer.current), []);
 
-  // Whoever opens or closes it — the header, or the owner of a controlled
-  // one — the content is clipped while it moves.
+  // Clipped while it moves, whoever opens or closes it; set before paint, or
+  // the content spills out of the box for one frame.
   const first = useRef(true);
-  useBeforePaint(() => {
+  useIsoLayoutEffect(() => {
     if (first.current) {
       first.current = false;
       return;

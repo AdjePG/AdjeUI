@@ -1,84 +1,16 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
+import { Calendar } from "lucide-react";
 import {
-  BarChart3,
-  Bell,
-  BookOpen,
-  Boxes,
-  Calendar,
-  ChevronsUpDown,
-  Copy,
-  Download,
-  Filter,
-  FormInput,
-  ExternalLink,
-  Grid3X3,
-  Layers,
-  LayoutTemplate,
-  List,
-  LogOut,
-  MousePointerClick,
-  Package,
-  Palette,
-  Pencil,
-  Plus,
-  Rocket,
-  Search,
-  Settings,
-  Sparkles,
-  Table2,
-  Trash2,
-  TrendingDown,
-  TrendingUp,
-  Upload,
-  Wallet,
-} from "lucide-react";
-import {
-  Menu,
-  Popover,
-  SideNavAction,
-  SideNavBrand,
-  SideNavUser,
   Button,
   Card,
   ChipEditor,
-  Collapsible,
-  ConfirmDialog,
-  Drawer,
-  Empty,
   Field,
-  HelpTip,
-  IconButton,
-  IconChip,
   Input,
-  Modal,
-  PALETTE,
-  PALETTE_NAMES,
-  PALETTE_SHADES,
-  PageHeader,
-  Pagination,
-  Pill,
-  ProgressBar,
-  SectionTitle,
-  Segmented,
   Select,
-  SideNav,
-  SideNavButton,
-  Skeleton,
-  Stat,
-  Switch,
-  ChoiceOption,
-  ScrollArrows,
-  useShortcuts,
-  Table,
-  Tabs,
   Textarea,
-  ToastProvider,
-  Toolbar,
   inputCls,
-  palette,
   rules,
   useFormErrors,
-  useTheme,
   useToast,
 } from "../../src";
 import { TEXT_TOOLS, RichText, RichTextEditor, richTextToPlain } from "../../rich-text";
@@ -202,12 +134,12 @@ export function FormsSection() {
             }}
           />
         </Field>
-        <Field label="ChipEditor (tags, max. 5 of 20 characters; Enter or comma adds, Backspace removes)">
+        <Field label="ChipEditor (tags, max. 5 of 20 characters; Enter or comma adds, Backspace removes; the label focuses the input)">
           <ChipEditor values={tags} onChange={setTags} max={5} maxLen={20} placeholder="Add tag…" />
         </Field>
         <Block name="RichTextEditor (adje-shared-ui/rich-text): bounded WYSIWYG, stores HTML · RichText: sanitized viewer">
           <div className="grid lg:grid-cols-2 gap-3 w-full items-start">
-            <Field label="Lesson theory" as="div" right={<span className="text-[11px]">{richTextToPlain(rich).length} characters</span>}>
+            <Field label="Lesson theory" right={<span className="text-[11px]">{richTextToPlain(rich).length} characters</span>}>
               <RichTextEditor value={rich} onChange={setRich} placeholder="Write the theory…" />
             </Field>
             <div className="flex flex-col gap-1 text-sm">
@@ -257,7 +189,7 @@ export function FormsSection() {
           </div>
           <p className="text-[12px] text-muted w-full">Rule: an Input and the Button next to it wear the SAME size. Never a button taller or shorter than its input.</p>
         </Block>
-        <Block name="Loose states: Input invalid / disabled / inputCls on a native element">
+        <Block name="Loose states: Input invalid / disabled / inputCls on a native element (deprecated)">
           <div className="w-40"><Input invalid placeholder="invalid" /></div>
           <div className="w-40"><Input disabled placeholder="disabled" /></div>
           <input className={`${inputCls} w-40`} placeholder="inputCls (native)" />

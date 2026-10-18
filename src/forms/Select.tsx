@@ -1,20 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import { Check, ChevronDown } from "lucide-react";
-import { useFieldInvalid } from "./Field";
+import { useFieldErrorId, useFieldInvalid, useFieldLabelId } from "./Field";
 import { INPUT_SIZES } from "./Input";
 import type { ControlSize } from "../controls/Button";
+import { Popover } from "../overlays/Popover";
 
 // Custom select (same look in every app and OS). The trigger measures
-// --control-h-* according to `size` (sm/md/lg), just like Input and Button.
-// Inside a <Field error="…"> it turns red on its own.
-//
-// Every option is the same template (26 Sep 2026): [icon] label [check]. An
-// option may bring an `icon`; as soon as one does, EVERY row keeps the slot,
-// so the labels line up in one column whether or not a row has its own, and
-// the trigger shows the chosen option's icon beside its label.
-export type SelectOption = { value: string; label: string; icon?: ReactNode };
+// --control-h-* like Input and Button; the list opens in a Popover, so no
+// overflow parent clips it. Inside a <Field error="…"> it turns red on its own.
+// Every option is one template, [icon] label [check]: as soon as one option
+// has an icon, every row keeps the slot so the labels line up.
+export type SelectOption<T extends string = string> = { value: T; label: string; icon?: ReactNode };
 
 /** The icon slot: one fixed box, so every row starts its label at the same x. */
 function OptionIcon({ icon, on }: { icon?: ReactNode; on: boolean }) {
@@ -30,7 +28,7 @@ function OptionIcon({ icon, on }: { icon?: ReactNode; on: boolean }) {
   );
 }
 
-export function Select({
+export function Select<T extends string = string>({
   value,
   onChange,
   options,
@@ -39,70 +37,75 @@ export function Select({
   invalid,
   size = "md",
 }: {
-  value: string;
-  onChange: (v: string) => void;
-  options: SelectOption[];
+  value: T;
+  onChange: (v: T) => void;
+  options: SelectOption<T>[];
+  /** Classes on the wrapper (usually its width). */
   className?: string;
+  /** Shown muted when no option matches `value` (otherwise "—"). */
   placeholder?: string;
+  /** Red border; inside a Field with `error` it is set automatically. */
   invalid?: boolean;
   size?: ControlSize;
 }) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
   const fieldInvalid = useFieldInvalid();
+  const labelId = useFieldLabelId();
+  const errorId = useFieldErrorId();
   const bad = invalid ?? fieldInvalid;
-
-  useEffect(() => {
-    function onDoc(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    }
-    function onEsc(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
-    }
-    document.addEventListener("mousedown", onDoc);
-    document.addEventListener("keydown", onEsc);
-    return () => {
-      document.removeEventListener("mousedown", onDoc);
-      document.removeEventListener("keydown", onEsc);
-    };
-  }, []);
+  const triggerId = useId();
 
   const current = options.find((o) => o.value === value);
   const withIcons = options.some((o) => o.icon != null);
 
   return (
-    <div ref={ref} className={`relative ${className}`}>
-      <button
-        type="button"
-        aria-invalid={bad || undefined}
-        onClick={() => setOpen((o) => !o)}
-        className={`flex w-full items-center justify-between gap-2 border bg-[var(--field-bg,var(--background))] transition ${INPUT_SIZES[size]} ${
-          bad
-            ? "border-[var(--negative)]"
-            : open
-            ? "border-[var(--accent-blue)]"
-            : "border-[var(--border)] hover:border-[var(--accent-blue)]"
-        }`}
-      >
-        <span className="flex min-w-0 items-center gap-2">
-          {withIcons && current && <OptionIcon icon={current.icon} on />}
-          <span className={`truncate ${!current && placeholder ? "text-muted" : ""}`}>{current?.label ?? placeholder ?? "—"}</span>
-        </span>
-        <ChevronDown size={14} className={`text-muted shrink-0 transition-transform duration-150 ${open ? "rotate-180" : ""}`} />
-      </button>
-      {open && (
-        // 4px between options, as in Menu (26 Sep 2026); 18rem tall, so eight
-        // options fit with the gaps before a scrollbar appears.
-        <div className="absolute z-50 mt-1.5 flex w-full min-w-[170px] flex-col gap-1 card p-1 blue-shadow max-h-72 overflow-y-auto custom-scrollbar scroll-no-gutter toast-in">
+    <Popover
+      sheet={false}
+      align="stretch"
+      role="listbox"
+      className={className}
+      // 18rem tall: eight options with their gaps fit before a scrollbar appears.
+      panelClassName="min-w-[170px] [--popover-max-h:18rem]"
+      trigger={({ open, toggle }) => (
+        <button
+          type="button"
+          aria-haspopup="listbox"
+          aria-expanded={open}
+          id={triggerId}
+          // The Field's label, then the chosen value.
+          aria-labelledby={labelId ? `${labelId} ${triggerId}` : undefined}
+          aria-describedby={errorId}
+          aria-invalid={bad || undefined}
+          onClick={toggle}
+          className={`flex w-full items-center justify-between gap-2 border bg-[var(--field-bg,var(--background))] transition ${INPUT_SIZES[size]} ${
+            bad
+              ? "border-[var(--negative)]"
+              : open
+                ? "border-[var(--accent-blue)]"
+                : "border-[var(--border)] hover:border-[var(--accent-blue)]"
+          }`}
+        >
+          <span className="flex min-w-0 items-center gap-2">
+            {withIcons && current && <OptionIcon icon={current.icon} on />}
+            <span className={`truncate ${!current && placeholder ? "text-muted" : ""}`}>{current?.label ?? placeholder ?? "—"}</span>
+          </span>
+          <ChevronDown size={14} className={`text-muted shrink-0 transition-transform duration-150 ${open ? "rotate-180" : ""}`} />
+        </button>
+      )}
+    >
+      {({ close }) => (
+        // 4px between options, as in Menu.
+        <div className="flex flex-col gap-1 p-1">
           {options.map((o) => {
             const on = o.value === value;
             return (
               <button
                 key={o.value}
                 type="button"
+                role="option"
+                aria-selected={on}
                 onClick={() => {
                   onChange(o.value);
-                  setOpen(false);
+                  close();
                 }}
                 className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-sm hover:bg-[var(--hover)] transition ${
                   on ? "font-semibold" : ""
@@ -116,6 +119,6 @@ export function Select({
           })}
         </div>
       )}
-    </div>
+    </Popover>
   );
 }

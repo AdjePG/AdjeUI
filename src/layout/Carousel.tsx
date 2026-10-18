@@ -4,16 +4,12 @@ import { useRef, type CSSProperties, type PointerEvent, type ReactNode } from "r
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useScrollEdges } from "../controls/useScrollEdges";
 
-// A row of anything — cards, figures, pictures — that stays ONE row (11 Oct
-// 2026). While there is room, the items share the width equally; once they
-// reach `itemWidth` they stop shrinking and the row scrolls sideways instead
-// of wrapping or growing them back. No scrollbar: it moves with the finger or
-// the trackpad, by dragging it with the mouse (it stays where you let go), or
-// with a coloured button on the edge that has more, which moves one item
-// along. `bleed` lets the row run out to the page's edge while it scrolls
-// (pass the page's side padding), so the items are cut by the screen, not
-// inside the margin; at rest they still line up with the content. `fade`
-// also fades out the side with more to see.
+// A row of anything (cards, figures, pictures) that stays ONE row. While
+// there is room the items share the width; once they reach `itemWidth` the
+// row scrolls sideways instead of wrapping. No scrollbar: finger, trackpad,
+// mouse drag (it stays where you let go) or a button on the edge that has
+// more, which moves one item along. `bleed` lets the row run out to the
+// page's edge while it scrolls; at rest the items line up with the content.
 //
 //   <Carousel itemWidth={220} label="Figures" bleed="1rem">
 //     <Stat … /> <Stat … /> <Stat … />
@@ -115,7 +111,7 @@ export function Carousel({
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
         onDragStart={(e) => e.preventDefault()}
-        className="relative grid grid-flow-col gap-4 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="no-scrollbar relative grid grid-flow-col gap-4 overflow-x-auto overflow-y-hidden"
         style={
           {
             gridAutoColumns: `minmax(${itemWidth}px, 1fr)`,
@@ -144,10 +140,9 @@ function EdgeButton({ side, show, onClick }: { side: "left" | "right"; show: boo
       aria-hidden={!show}
       aria-label={side === "left" ? "Previous" : "Next"}
       title={side === "left" ? "Previous" : "Next"}
-      className={`blue-shadow absolute top-1/2 z-[2] inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-white transition duration-200 hover:opacity-90 ${
+      className={`bg-app-gradient blue-shadow absolute top-1/2 z-[2] inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-white transition duration-200 hover:opacity-90 ${
         side === "left" ? "left-1" : "right-1"
       } ${show ? "opacity-100" : "pointer-events-none !opacity-0"}`}
-      style={{ background: "var(--app-gradient)" }}
     >
       {side === "left" ? <ChevronLeft size={17} /> : <ChevronRight size={17} />}
     </button>

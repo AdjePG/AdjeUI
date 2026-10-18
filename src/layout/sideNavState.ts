@@ -2,20 +2,19 @@
 
 // Shared SideNav state WITHOUT a provider (useSyncExternalStore):
 //   - open:      panel open on mobile (opened by the PageHeader hamburger)
-//   - collapsed: compact mode on desktop (icons only), remembered in
-//                localStorage
+//   - collapsed: compact mode on desktop (icons only), remembered in localStorage
 //   - mounted:   number of mounted SideNavs (if any, PageHeader draws ☰)
 //   - moving:    the mobile panel is sliding because someone opened or closed
-//                it. The slide (CSS transition) only runs then: crossing the
-//                768px line while resizing used to animate the panel out over
-//                whatever was on screen, a full-screen preview included
-//                (4 Oct 2026).
-import { useEffect, useState, useSyncExternalStore } from "react";
+//                it; the CSS slide only runs then, so crossing 768px while
+//                resizing does not animate the panel over the page.
+import { useSyncExternalStore } from "react";
+import { useMediaQuery } from "../internal/useMediaQuery";
 
 type State = { mounted: number; open: boolean; collapsed: boolean; moving: boolean };
 
 const STORAGE_KEY = "adjeui.sidenav.collapsed";
-const MOBILE_QUERY = "(max-width: 767px)"; // = Tailwind's md breakpoint
+/** = Tailwind's md breakpoint. */
+export const MOBILE_QUERY = "(max-width: 767px)";
 
 let state: State = { mounted: 0, open: false, collapsed: false, moving: false };
 const listeners = new Set<() => void>();
@@ -23,6 +22,13 @@ const listeners = new Set<() => void>();
 function set(next: Partial<State>) {
   state = { ...state, ...next };
   listeners.forEach((l) => l());
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
 }
 
 // The slide lasts 0.22s (theme.css); the flag outlives it a little.
@@ -38,9 +44,7 @@ export const sideNavState = {
   open: () => slide(true),
   close: () => slide(false),
   toggle: () => slide(!state.open),
-  // Shut at once, no slide: leaving the mobile size. The panel being open is
-  // a mobile thing — kept open across a resize, it came back open, backdrop
-  // and all, the next time the window got narrow (4 Oct 2026).
+  /** Shut at once, no slide: leaving the mobile size, so it does not come back open. */
   closeNow: () => {
     clearTimeout(movingTimer);
     set({ open: false, moving: false });
@@ -50,7 +54,7 @@ export const sideNavState = {
     try {
       localStorage.setItem(STORAGE_KEY, v ? "1" : "0");
     } catch {
-      /* no storage */
+      // No storage (private mode, blocked): the choice lasts this visit.
     }
   },
   toggleCollapsed: () => sideNavState.setCollapsed(!state.collapsed),
@@ -61,7 +65,7 @@ export const sideNavState = {
       try {
         collapsed = localStorage.getItem(STORAGE_KEY) === "1";
       } catch {
-        /* no storage */
+        // No storage: expanded.
       }
     }
     set({ mounted: state.mounted + 1, collapsed });
@@ -71,34 +75,28 @@ export const sideNavState = {
 
 const SERVER: State = { mounted: 0, open: false, collapsed: false, moving: false };
 
+/** The whole SideNav state. Prefer the selector hooks, which re-render less. */
 export function useSideNavState(): State {
+  return useSyncExternalStore(subscribe, () => state, () => SERVER);
+}
+
+/** One value of the SideNav state; re-renders only when that value changes. */
+export function useSideNavSelector<T>(select: (s: State) => T): T {
   return useSyncExternalStore(
-    (l) => {
-      listeners.add(l);
-      return () => listeners.delete(l);
-    },
-    () => state,
-    () => SERVER
+    subscribe,
+    () => select(state),
+    () => select(SERVER),
   );
 }
 
-// Are we on mobile (< md)? Client only; on the server it returns false.
+/** Are we on mobile (< md)? False on the server. */
 export function useIsMobile(): boolean {
-  const [mobile, setMobile] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia(MOBILE_QUERY);
-    const update = () => setMobile(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
-  return mobile;
+  return useMediaQuery(MOBILE_QUERY);
 }
 
-// Is the SideNav being shown compact (icons only)? Desktop only: on mobile
-// the sliding panel is always full.
+/** Is the SideNav shown compact (icons only)? Desktop only: on mobile the sliding panel is always full. */
 export function useSideNavCompact(): boolean {
-  const { collapsed } = useSideNavState();
+  const collapsed = useSideNavSelector((s) => s.collapsed);
   const mobile = useIsMobile();
   return collapsed && !mobile;
 }

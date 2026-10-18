@@ -4,16 +4,13 @@ import { ReactNode } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useScrollEdges } from "./useScrollEdges";
 
-// Row that does not fit (13 Sep 2026): instead of a scrollbar —ugly, different
-// on every OS and invisible on Mac until you touch it— two arrows appear at
-// the ends. Each one shows ONLY if there is content left on that side, so as
-// soon as everything fits both disappear and leave no trace.
+// Row that does not fit: instead of a scrollbar (different on every OS and
+// invisible on Mac until touched) an arrow appears at each end that has more
+// content, and both go once everything fits. Tabs and Segmented use it.
 //
-// Wraps any horizontal row:
 //   <ScrollArrows><div className="flex gap-2">...</div></ScrollArrows>
 //
-// Tabs and Segmented use it internally; it also works on its own.
-
+// The arrows' veil fades into `--scroll-veil` (default: the surface it sits on).
 export function ScrollArrows({
   children,
   className = "",
@@ -42,17 +39,15 @@ export function ScrollArrows({
   );
 }
 
-// The arrow (26 Sep 2026): a bare chevron on a gradient veil fading into the
-// background — no circle around it. The round bordered button looked like a
-// control of its own sitting on the row; the veil already says "more this
-// way", and the chevron is what you press.
+// A bare chevron on a veil fading into the background: the veil already says
+// "more this way", a round button would read as a control of its own.
 function Arrow({ side, onClick }: { side: "left" | "right"; onClick: () => void }) {
   const isLeft = side === "left";
   return (
     <div
       className={`pointer-events-none absolute inset-y-0 z-10 flex items-stretch ${isLeft ? "left-0 pr-5" : "right-0 pl-5"}`}
       style={{
-        background: `linear-gradient(to ${isLeft ? "right" : "left"}, var(--card) 45%, transparent)`,
+        background: `linear-gradient(to ${isLeft ? "right" : "left"}, var(--scroll-veil, var(--surface-bg, var(--card))) 45%, transparent)`,
       }}
     >
       <button

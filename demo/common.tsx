@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Overline } from "../src";
 
 // Pieces shared by every section of the demo.
 
@@ -17,7 +18,7 @@ export function Section({ id, title, subtitle, children }: { id: string; title: 
 export function Block({ name, children }: { name: string; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-[11px] font-semibold uppercase tracking-wide text-muted">{name}</span>
+      <Overline>{name}</Overline>
       <div className="flex flex-wrap items-center gap-2">{children}</div>
     </div>
   );

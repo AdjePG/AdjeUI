@@ -1,88 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
-import {
-  BarChart3,
-  Bell,
-  BookOpen,
-  Boxes,
-  Calendar,
-  ChevronsUpDown,
-  Copy,
-  Download,
-  Filter,
-  FormInput,
-  ExternalLink,
-  Grid3X3,
-  Layers,
-  LayoutTemplate,
-  List,
-  LogOut,
-  MousePointerClick,
-  Package,
-  Palette,
-  Pencil,
-  Plus,
-  Rocket,
-  Search,
-  Settings,
-  Sparkles,
-  Table2,
-  Trash2,
-  TrendingDown,
-  TrendingUp,
-  Upload,
-  Wallet,
-} from "lucide-react";
-import {
-  Menu,
-  Popover,
-  SideNavAction,
-  SideNavBrand,
-  SideNavUser,
-  Button,
-  Card,
-  ChipEditor,
-  Collapsible,
-  ConfirmDialog,
-  Drawer,
-  Empty,
-  Field,
-  HelpTip,
-  IconButton,
-  IconChip,
-  Input,
-  Modal,
-  PALETTE,
-  PALETTE_NAMES,
-  PALETTE_SHADES,
-  PageHeader,
-  Pagination,
-  Pill,
-  ProgressBar,
-  SectionTitle,
-  Segmented,
-  Select,
-  SideNav,
-  SideNavButton,
-  Skeleton,
-  Stat,
-  Switch,
-  ChoiceOption,
-  ScrollArrows,
-  useShortcuts,
-  Table,
-  Tabs,
-  Textarea,
-  ToastProvider,
-  Toolbar,
-  inputCls,
-  palette,
-  rules,
-  useFormErrors,
-  useTheme,
-  useToast,
-} from "../../src";
-import { RichText, RichTextEditor, richTextToPlain } from "../../rich-text";
-import { Block, Frame, Section } from "../common";
+import { useState } from "react";
+import { Package, Pencil, Trash2, Wallet } from "lucide-react";
+import { Card, IconButton, Pagination, Pill, ProgressBar, Stat, Table, palette } from "../../src";
+import { Block, Section } from "../common";
 
 // ---------------- data ----------------
 
@@ -99,9 +18,9 @@ export function DataSection() {
             <Stat label="Losses" value={2} tone="negative" icon={<Wallet size={14} />} hint="This month" />
           </div>
         </Block>
-        <Block name="Table (horizontal scroll if it does not fit; th/td without classes)">
+        <Block name="Table (horizontal scroll if it does not fit; th/td without classes; wrapperClassName on the scroll box)">
           <div className="w-full">
-            <Table minWidth={520}>
+            <Table minWidth={520} wrapperClassName="rounded-xl border border-[var(--border)] px-2">
               <thead>
                 <tr>
                   <th>Product</th>

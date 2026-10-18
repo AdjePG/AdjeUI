@@ -1,88 +1,33 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import {
   BarChart3,
   Bell,
   BookOpen,
-  Boxes,
-  Calendar,
   ChevronsUpDown,
-  Copy,
   Download,
-  Filter,
-  FormInput,
-  ExternalLink,
-  Grid3X3,
   Layers,
-  LayoutTemplate,
-  List,
   LogOut,
-  MousePointerClick,
   Package,
-  Palette,
-  Pencil,
   Plus,
-  Rocket,
-  Search,
   Settings,
-  Sparkles,
-  Table2,
-  Trash2,
-  TrendingDown,
-  TrendingUp,
-  Upload,
-  Wallet,
 } from "lucide-react";
 import {
   Menu,
   Popover,
   SideNavAction,
-  SideNavBrand,
   SideNavUser,
   Button,
   Card,
   Carousel,
-  ChipEditor,
   Collapsible,
-  ConfirmDialog,
-  Drawer,
-  Empty,
-  Field,
-  HelpTip,
-  IconButton,
   IconChip,
-  Input,
-  Modal,
-  PALETTE,
-  PALETTE_NAMES,
-  PALETTE_SHADES,
+  Overline,
   PageHeader,
-  Pagination,
-  Pill,
-  ProgressBar,
   SectionTitle,
-  Segmented,
-  Select,
-  SideNav,
-  SideNavButton,
-  Skeleton,
-  Stat,
-  Switch,
-  ChoiceOption,
-  ScrollArrows,
-  useShortcuts,
-  Table,
-  Tabs,
-  Textarea,
-  ToastProvider,
   Toolbar,
-  inputCls,
-  palette,
-  rules,
-  useFormErrors,
   useTheme,
   useToast,
 } from "../../src";
-import { RichText, RichTextEditor, richTextToPlain } from "../../rich-text";
 import { SITES, Block, Frame, Section } from "../common";
 
 // ---------------- layout ----------------
@@ -102,7 +47,7 @@ export function LayoutSection() {
             {/* Pieces for the top and bottom zones, on their own to see them up close */}
             <Frame className="p-3 flex flex-col gap-3 bg-[var(--secondary)]">
               <div>
-                <span className="block text-[9.5px] font-semibold uppercase tracking-widest text-muted px-1 mb-1">top · You are in</span>
+                <Overline as="div" className="px-1 mb-1">top · You are in</Overline>
                 <Popover
                   trigger={({ open, toggle }) => (
                     <button
@@ -114,7 +59,7 @@ export function LayoutSection() {
                       <IconChip><BookOpen size={14} /></IconChip>
                       <span className="flex-1 min-w-0">
                         <span className="block text-[13px] font-bold truncate">{current.name}</span>
-                        <span className="block text-[10px] uppercase tracking-wide text-muted truncate">{current.detail}</span>
+                        <span className="block text-[12px] text-muted truncate">{current.detail}</span>
                       </span>
                       <ChevronsUpDown size={14} className="text-muted shrink-0" />
                     </button>
@@ -130,7 +75,7 @@ export function LayoutSection() {
                 </Popover>
               </div>
               <div className="border-t border-dashed border-[var(--border)] pt-3 flex flex-col gap-1">
-                <span className="block text-[9.5px] font-semibold uppercase tracking-widest text-muted px-1 mb-1">bottom · SideNavAction + SideNavUser</span>
+                <Overline as="div" className="px-1 mb-1">bottom · SideNavAction + SideNavUser</Overline>
                 <SideNavAction icon={<Bell size={17} className="text-muted" />} label="Notifications" badge={3} placement="top">
                   <div className="p-3 text-[13px] text-muted">Any content: notices, filters, help…</div>
                 </SideNavAction>
@@ -149,16 +94,16 @@ export function LayoutSection() {
             </Frame>
             <div className="text-[13px] text-muted leading-relaxed flex flex-col gap-2">
               <p>
-                <b className="text-[var(--foreground)]">top</b>: any node (logo, site switcher, bell). The usual one is <code className="font-mono">SideNavBrand</code> (icon + name linked, same row as the items and faded when collapsed). If the content does not adapt on its own, <code className="font-mono">topCompact</code> gives the reduced version. Compat: <code className="font-mono">logo</code> + <code className="font-mono">logoHref</code>.
+                <b className="text-[var(--foreground)]">top</b>: any node (logo, site switcher, bell). The usual one is <code className="font-mono">SideNavBrand</code> (icon + name linked, same row as the items and faded when collapsed). If the content does not adapt on its own, <code className="font-mono">topCompact</code> gives the reduced version. <code className="font-mono">logo</code> + <code className="font-mono">logoHref</code> are deprecated.
               </p>
               <p>
                 <b className="text-[var(--foreground)]">menu</b>: <code className="font-mono">items</code> with href/label/icon; the active one is set by <code className="font-mono">activePath</code>. It scrolls if it does not fit.
               </p>
               <p>
-                <b className="text-[var(--foreground)]">bottom</b>: anything (the one on this page has notifications + user, and the site switcher lives inside the user menu via <code className="font-mono">groups</code>). Ready-made pieces: <code className="font-mono">SideNavAction</code> (icon + label + badge, direct action or popover: notifications, notices…), <code className="font-mono">SideNavButton</code> and <code className="font-mono">SideNavUser</code> (avatar + name that opens a <code className="font-mono">Menu</code>). All of them adapt to compact mode.
+                <b className="text-[var(--foreground)]">bottom</b>: anything (the one on this page has notifications + user, and the site switcher lives inside the user menu via <code className="font-mono">groups</code>). Ready-made pieces: <code className="font-mono">SideNavAction</code> (icon + label + badge, direct action or popover: notifications, notices…), <code className="font-mono">SideNavUser</code> (avatar + name that opens a <code className="font-mono">Menu</code>). All of them adapt to compact mode.
               </p>
               <p>
-                <b className="text-[var(--foreground)]">Compact</b>: the "Collapse" button in the footer leaves the rail at 72px with icons only (tooltip with the name) and it is remembered in localStorage. <code className="font-mono">topCompact</code>/<code className="font-mono">bottomCompact</code> give the reduced version of the zones if needed; <code className="font-mono">useSideNavCompact()</code> for your own content.
+                <b className="text-[var(--foreground)]">Compact</b>: the "Collapse" button in the footer leaves the rail at 73px with icons only (tooltip with the name) and it is remembered in localStorage. <code className="font-mono">topCompact</code>/<code className="font-mono">bottomCompact</code> give the reduced version of the zones if needed; <code className="font-mono">useSideNavCompact()</code> for your own content.
               </p>
               <p>
                 <b className="text-[var(--foreground)]">Mobile (&lt; 768px)</b>: the SideNav hides to the left and the PageHeader draws ☰ automatically (no provider, via <code className="font-mono">sideNavState</code>). It closes on navigation, with the X, Escape or the backdrop. Narrow this window to see it.

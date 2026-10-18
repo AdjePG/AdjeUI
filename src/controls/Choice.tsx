@@ -2,25 +2,15 @@
 
 import { ReactNode } from "react";
 import { Check } from "lucide-react";
+import { TONE_COLOR } from "../tokens/tone";
 
-// CHOOSING, a single family (13 Sep 2026). There used to be three components
-// for the same thing —PickCard, ChoiceToggle and ChoiceOption— each with its
-// own look: the result was that within one app the chosen option was marked
-// in three different ways. Now there is ONE, ChoiceOption, and the other two
-// are retired.
-//
-// The language is the one that worked best (PickCard's): gradient border +
-// check. And the SHAPE of the mark says how many you can choose:
-//   · round   → only one (what used to be a radio)
-//   · square  → several at once (what used to be a checkbox)
-//
-// The radio no longer has a center dot: on is a filled circle with a check,
-// just like the checkbox. A dot and a check meant the same thing with two
-// different drawings.
+// Choosing, in one family. The SHAPE of the mark says how many you can
+// choose: round = only one, square = several. On, the mark fills (app
+// gradient or tone colour) and shows the check; the row gets a gradient border.
 //
 //   <ChoiceOption checked={a===1} onToggle={...}>Only one</ChoiceOption>
 //   <ChoiceOption multiple checked={...} onToggle={...}>Several</ChoiceOption>
-//   <ChoiceOption checked icon={<Car/>} mark={false}>Card (what PickCard did)</ChoiceOption>
+//   <ChoiceOption checked icon={<Car/>} mark={false}>Card</ChoiceOption>
 //   <ChoiceOption checked tone="positive" align="center" icon={<Up/>}>Income</ChoiceOption>
 
 const SIZES = {
@@ -32,14 +22,12 @@ const SIZES = {
 export type ChoiceSize = keyof typeof SIZES;
 export type ChoiceTone = "accent" | "positive" | "negative";
 
+// "accent" is the app gradient, not a flat colour.
 function colorFor(tone: ChoiceTone): string | undefined {
-  return tone === "positive" ? "var(--positive)" : tone === "negative" ? "var(--negative)" : undefined;
+  return tone === "accent" ? undefined : TONE_COLOR[tone];
 }
 
-// The mark: round if you choose one, square if you can choose several. When on
-// it fills (with the app gradient, or with the tone color) and shows the
-// check. Exported on its own for when you need the mark without the whole row
-// —a table, a custom list— but the normal thing is to use ChoiceOption.
+// Just the mark, for your own rows (a table, a custom list); the normal thing is ChoiceOption.
 export function ChoiceMark({
   checked,
   multiple = false,
@@ -48,6 +36,7 @@ export function ChoiceMark({
   className = "",
 }: {
   checked: boolean;
+  /** true = square (several can be chosen); false = round (only one). */
   multiple?: boolean;
   size?: ChoiceSize;
   tone?: ChoiceTone;
@@ -60,17 +49,8 @@ export function ChoiceMark({
       aria-hidden
       className={`grid shrink-0 place-items-center border-2 transition ${t.mark} ${
         multiple ? t.square : "rounded-full"
-      } ${checked ? "border-transparent text-white" : "border-[var(--border)]"} ${className}`}
-      // backgroundOrigin border-box is REQUIRED here: the 2px border is
-      // transparent and the gradient is painted underneath (clip border-box),
-      // but by default the gradient is SIZED to the padding-box. Result: those
-      // extra 2px repeated the edge color and drew a box inside the fill — the
-      // seam that was visible between the border and the inner color.
-      style={
-        checked
-          ? { backgroundImage: color ? `linear-gradient(${color}, ${color})` : "var(--app-gradient)", backgroundOrigin: "border-box" }
-          : undefined
-      }
+      } ${checked ? `border-transparent text-white ${color ? "" : "bg-app-gradient"}` : "border-[var(--border)]"} ${className}`}
+      style={checked && color ? { background: color } : undefined}
     >
       <Check size={t.check} strokeWidth={3.5} className={`transition-opacity ${checked ? "opacity-100" : "opacity-0"}`} />
     </span>
@@ -113,10 +93,8 @@ export function ChoiceOption({
   const t = SIZES[size];
   const color = colorFor(tone);
 
-  // Chosen: gradient border (or the tone color). Off: normal border.
-  // Hover darkens the BORDER (row and mark) instead of filling the row: in the
-  // dark theme --hover over a card is almost exactly --border, so a filled row
-  // swallowed its own border and the mark's circle (29 Sep 2026).
+  // Hover darkens the BORDER instead of filling the row: in the dark theme
+  // --hover over a card is almost --border, and a filled row swallowed it.
   const frame = checked
     ? color
       ? "border-transparent"
@@ -152,8 +130,7 @@ export function ChoiceOption({
       {icon && <span className="inline-flex shrink-0">{icon}</span>}
       {prefix != null && <span className="w-4 shrink-0 font-mono text-[11px] text-muted">{prefix}</span>}
       <span className={`min-w-0 ${align === "center" ? "" : "flex-1"}`}>{children}</span>
-      {/* Without a mark on the left, the check shows here: so there is always
-          ONE "chosen" signal, never two or none. */}
+      {/* Without a mark on the left the check shows here: always ONE "chosen" signal. */}
       {!mark && checked && <Check size={15} className="ml-auto shrink-0" style={{ color: color ?? "var(--accent-blue)" }} />}
     </button>
   );

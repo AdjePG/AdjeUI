@@ -1,5 +1,5 @@
-// Compatibility: the historical "adje-shared-ui/ui" entry point keeps
-// working, but the implementation now lives in src/ (one component per
-// file, organized by category). Import from here or from plain
-// "adje-shared-ui"; it is the same thing.
+/**
+ * Legacy entry point "adje-shared-ui/ui", the same as the root.
+ * @deprecated Import from "adje-shared-ui".
+ */
 export * from "./src";

@@ -1,10 +1,15 @@
 "use client";
 
-import { ReactNode } from "react";
+import { CSSProperties, ReactNode } from "react";
+import type { LinkLike } from "../internal/link";
+import { TONE_COLOR, type Tone } from "../tokens/tone";
 
-// Square icon-only button (edit, delete, copy, close...), with the same look
-// in every app. `label` is required for accessibility and doubles as the
-// tooltip.
+// Square icon-only button (edit, delete, copy, close...), muted until hover.
+// `label` is required for accessibility and doubles as the tooltip. With
+// `href` it renders a link that looks the same.
+
+const HOVER_TONE: Record<"neutral" | "danger" | "accent", Tone> = { neutral: "neutral", danger: "negative", accent: "accent" };
+
 export function IconButton({
   onClick,
   label,
@@ -13,31 +18,51 @@ export function IconButton({
   size = "md",
   className = "",
   disabled,
+  href,
+  target,
+  LinkComponent,
 }: {
-  onClick: () => void;
+  onClick?: () => void;
+  /** aria-label and tooltip. */
   label: string;
   children: ReactNode;
+  /** Colour on hover. */
   tone?: "neutral" | "danger" | "accent";
+  /** sm = 28px, md = 32px. */
   size?: "sm" | "md";
   className?: string;
   disabled?: boolean;
+  /** Renders a link styled as this button. */
+  href?: string;
+  /** Link target; "_blank" also sets rel="noopener noreferrer". */
+  target?: string;
+  /** The link component for `href` (next/link). Default: "a". */
+  LinkComponent?: LinkLike;
 }) {
   const sizeCls = size === "sm" ? "w-7 h-7 rounded-lg" : "w-8 h-8 rounded-lg";
-  const toneCls =
-    tone === "danger"
-      ? "text-muted hover:text-[var(--negative)]"
-      : tone === "accent"
-      ? "text-muted hover:text-[var(--accent-blue)]"
-      : "text-muted hover:text-[var(--foreground)]";
+  const cls = `inline-flex items-center justify-center shrink-0 text-muted hover:bg-[var(--hover)] hover:text-[var(--icon-hover)] transition disabled:opacity-40 disabled:cursor-not-allowed aria-disabled:opacity-40 aria-disabled:pointer-events-none ${sizeCls} ${className}`;
+  const style = { "--icon-hover": TONE_COLOR[HOVER_TONE[tone]] } as CSSProperties;
+  if (href != null) {
+    const A: LinkLike = LinkComponent ?? "a";
+    return (
+      <A
+        href={href}
+        target={target}
+        rel={target === "_blank" ? "noopener noreferrer" : undefined}
+        onClick={onClick}
+        aria-label={label}
+        title={label}
+        aria-disabled={disabled || undefined}
+        tabIndex={disabled ? -1 : undefined}
+        className={cls}
+        style={style}
+      >
+        {children}
+      </A>
+    );
+  }
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={label}
-      title={label}
-      disabled={disabled}
-      className={`inline-flex items-center justify-center shrink-0 hover:bg-[var(--hover)] transition disabled:opacity-40 disabled:cursor-not-allowed ${sizeCls} ${toneCls} ${className}`}
-    >
+    <button type="button" onClick={onClick} aria-label={label} title={label} disabled={disabled} className={cls} style={style}>
       {children}
     </button>
   );

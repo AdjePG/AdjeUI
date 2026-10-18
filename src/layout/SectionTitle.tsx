@@ -19,8 +19,7 @@ export function SectionTitle({
   right?: ReactNode;
 }) {
   return (
-    // Centred with its actions; from the top only when a subtitle makes it
-    // two lines (14 Oct 2026: a button sat 2px off the title).
+    // Centred with its actions; from the top only when a subtitle makes it two lines.
     <div className={`flex ${subtitle ? "items-start" : "items-center"} justify-between gap-3 mb-3`}>
       <div>
         <h2 className="text-[17px] font-semibold flex items-center gap-2.5">

@@ -1,88 +1,35 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import {
   BarChart3,
-  Bell,
-  BookOpen,
-  Boxes,
-  Calendar,
-  ChevronsUpDown,
   Copy,
   Download,
   Filter,
-  FormInput,
-  ExternalLink,
   Grid3X3,
   Layers,
-  LayoutTemplate,
   List,
-  LogOut,
-  MousePointerClick,
   Package,
-  Palette,
   Pencil,
   Plus,
   Rocket,
-  Search,
-  Settings,
   Sparkles,
-  Table2,
   Trash2,
   TrendingDown,
   TrendingUp,
   Upload,
-  Wallet,
 } from "lucide-react";
 import {
-  Menu,
-  Popover,
-  SideNavAction,
-  SideNavBrand,
-  SideNavUser,
   Button,
   Card,
-  ChipEditor,
-  Collapsible,
-  ConfirmDialog,
-  Drawer,
-  Empty,
-  Field,
-  HelpTip,
   IconButton,
-  IconChip,
-  Input,
-  Modal,
-  PALETTE,
-  PALETTE_NAMES,
-  PALETTE_SHADES,
-  PageHeader,
-  Pagination,
-  Pill,
-  ProgressBar,
-  SectionTitle,
   Segmented,
   Select,
-  SideNav,
-  SideNavButton,
-  Skeleton,
-  Stat,
   Switch,
   ChoiceOption,
   ChoiceMark,
-  ScrollArrows,
-  useShortcuts,
-  Table,
   Tabs,
-  Textarea,
-  ToastProvider,
   Toolbar,
-  inputCls,
-  palette,
-  rules,
-  useFormErrors,
-  useTheme,
   useToast,
 } from "../../src";
-import { RichText, RichTextEditor, richTextToPlain } from "../../rich-text";
 import { Block, Frame, Section } from "../common";
 
 // ---------------- controls ----------------
@@ -112,6 +59,11 @@ export function ControlsSection() {
           <Button disabled>Disabled</Button>
           <Button size="sm"><Plus size={13} /> Small</Button>
           <Button size="lg"><Rocket size={16} /> Large</Button>
+        </Block>
+        <Block name="Button / IconButton with href: a link that looks like the button (LinkComponent for next/link)">
+          <Button href="#controls" variant="outline">Link as a button</Button>
+          <Button href="https://github.com/AdjePG/AdjeUI" target="_blank" variant="ghost">Opens in a new tab</Button>
+          <IconButton href="#controls" label="Link as an icon button"><Copy size={14} /></IconButton>
         </Block>
         <Block name="Button full (takes the full width) / type=submit">
           <div className="w-full max-w-xs">
@@ -262,7 +214,7 @@ export function ControlsSection() {
           <Switch size="lg" checked={on} onChange={setOn} label="Large" />
           <span className="text-[12px] text-muted">sm for dense rows · md by default · lg when it rules the screen</span>
         </Block>
-        <Block name="ChoiceOption: the ONLY component for choosing (replaces PickCard and ChoiceToggle)">
+        <Block name="ChoiceOption: the ONLY component for choosing">
           <span className="text-[12px] text-muted">
             The shape of the mark tells how many you can choose: round = one, square = several. Chosen is marked
             with a gradient border and a tick — and the tick appears once, never twice.
@@ -291,7 +243,7 @@ export function ControlsSection() {
             </div>
           </div>
         </Block>
-        <Block name="mark={false}: card with icon and tick on the right (was PickCard)">
+        <Block name="mark={false}: card with icon and tick on the right">
           <div className="grid w-full gap-2 sm:grid-cols-3">
             <ChoiceOption mark={false} checked={pick === "a"} onToggle={() => setPick("a")} icon={<Sparkles size={15} />}>
               Kharismatics
@@ -304,7 +256,7 @@ export function ControlsSection() {
             </ChoiceOption>
           </div>
         </Block>
-        <Block name="tone + align=center: two options with semantic color (was ChoiceToggle)">
+        <Block name="tone + align=center: two options with semantic color">
           <div className="grid w-72 grid-cols-2 gap-2">
             <ChoiceOption
               mark={false}

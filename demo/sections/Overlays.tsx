@@ -1,88 +1,23 @@
-import { useEffect, useMemo, useState } from "react";
-import {
-  BarChart3,
-  Bell,
-  BookOpen,
-  Boxes,
-  Calendar,
-  ChevronsUpDown,
-  Copy,
-  Download,
-  Filter,
-  FormInput,
-  ExternalLink,
-  Grid3X3,
-  Layers,
-  LayoutTemplate,
-  List,
-  LogOut,
-  MousePointerClick,
-  Package,
-  Palette,
-  Pencil,
-  Plus,
-  Rocket,
-  Search,
-  Settings,
-  Sparkles,
-  Table2,
-  Trash2,
-  TrendingDown,
-  TrendingUp,
-  Upload,
-  Wallet,
-} from "lucide-react";
+import { useMemo, useState } from "react";
+import { Bell, ChevronsUpDown, Copy, Filter, Pencil, Settings, Trash2 } from "lucide-react";
 import {
   Menu,
   Popover,
-  SideNavAction,
-  SideNavBrand,
-  SideNavUser,
   Button,
   Card,
-  ChipEditor,
-  Collapsible,
   ConfirmDialog,
   Drawer,
-  Empty,
   Field,
   HelpTip,
-  IconButton,
-  IconChip,
   Input,
   Modal,
-  PALETTE,
-  PALETTE_NAMES,
-  PALETTE_SHADES,
-  PageHeader,
-  Pagination,
-  Pill,
-  ProgressBar,
-  SectionTitle,
-  Segmented,
-  Select,
-  SideNav,
-  SideNavButton,
   Skeleton,
-  Stat,
-  Switch,
-  ChoiceOption,
-  ScrollArrows,
   useShortcuts,
-  Table,
-  Tabs,
-  Textarea,
-  ToastProvider,
-  Toolbar,
-  inputCls,
-  palette,
   rules,
   useFormErrors,
-  useTheme,
   useToast,
 } from "../../src";
-import { RichText, RichTextEditor, richTextToPlain } from "../../rich-text";
-import { Block, Frame, Section } from "../common";
+import { Block, Section } from "../common";
 
 // ---------------- overlays ----------------
 
@@ -157,13 +92,13 @@ export function OverlaysSection() {
       subtitle="src/overlays — Modal and Drawer with their own action zone (footer), ConfirmDialog, HelpTip and toasts"
     >
       <Card className="flex flex-col gap-4">
-        <Block name="Modal (normal / wide) · Drawer (normal / wide)">
+        <Block name="Modal (size md / lg) · Drawer (normal / wide)">
           <Button onClick={() => openModal(false)}>Open Modal</Button>
-          <Button variant="outline" onClick={() => openModal(true)}>Modal wide</Button>
+          <Button variant="outline" onClick={() => openModal(true)}>Modal lg</Button>
           <Button onClick={() => openDrawer(false)}>Open Drawer</Button>
           <Button variant="outline" onClick={() => openDrawer(true)}>Drawer wide</Button>
         </Block>
-        <Block name="ConfirmDialog (danger / neutral with cancelLabel)">
+        <Block name="ConfirmDialog (danger / neutral with cancelLabel and an async onConfirm: busy button, closes when it resolves)">
           <Button variant="danger" onClick={() => setConfirm(true)}>Delete something…</Button>
           <Button variant="outline" onClick={() => setConfirmSoft(true)}>Publish…</Button>
         </Block>
@@ -226,8 +161,8 @@ export function OverlaysSection() {
       <Modal
         open={modal}
         onClose={() => setModal(false)}
-        title={modalWide ? "Modal wide" : "New design"}
-        wide={modalWide}
+        title={modalWide ? "Modal lg" : "New design"}
+        size={modalWide ? "lg" : "md"}
         footer={
           <>
             <Button variant="ghost" onClick={() => setModal(false)}>Cancel</Button>
@@ -248,7 +183,7 @@ export function OverlaysSection() {
         </Field>
         {modalWide && (
           <p className="text-[13px] text-muted mt-3">
-            The <b>wide</b> variant gives more width for two-column forms or tables.
+            <b>size="lg"</b> gives more width for two-column forms or tables (<b>xl</b> for a page to read inside).
           </p>
         )}
       </Modal>
@@ -288,7 +223,10 @@ export function OverlaysSection() {
       <ConfirmDialog
         open={confirmSoft}
         onClose={() => setConfirmSoft(false)}
-        onConfirm={() => toast("Published.", "success")}
+        onConfirm={async () => {
+          await new Promise((r) => setTimeout(r, 1200));
+          toast("Published.", "success");
+        }}
         title="Publish now?"
         message={<>It will be published to <b>Etsy</b> with the current data.</>}
         confirmLabel="Publish"

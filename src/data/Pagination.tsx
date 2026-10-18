@@ -10,10 +10,13 @@ export function Pagination({
   onPage,
   noun = "results",
 }: {
-  page: number; // 1-indexed
+  /** 1-based. */
+  page: number;
   pageCount: number;
+  /** Number of results, shown at the left. */
   total: number;
   onPage: (p: number) => void;
+  /** "results", "students"… */
   noun?: string;
 }) {
   if (pageCount <= 1) {
@@ -24,6 +27,7 @@ export function Pagination({
       <span>{total} {noun}</span>
       <div className="flex items-center gap-1">
         <button
+          type="button"
           className="p-1.5 rounded-lg hover:bg-[var(--hover)] disabled:opacity-30 disabled:cursor-not-allowed"
           onClick={() => onPage(page - 1)}
           disabled={page <= 1}
@@ -35,6 +39,7 @@ export function Pagination({
           Page <b className="text-[var(--foreground)]">{page}</b> of {pageCount}
         </span>
         <button
+          type="button"
           className="p-1.5 rounded-lg hover:bg-[var(--hover)] disabled:opacity-30 disabled:cursor-not-allowed"
           onClick={() => onPage(page + 1)}
           disabled={page >= pageCount}

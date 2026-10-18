@@ -1,11 +1,13 @@
 "use client";
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useRef } from "react";
 import { X } from "lucide-react";
+import { IconButton } from "../controls/IconButton";
+import { useEscape } from "../internal/layers";
 
-// Centered dialog. `footer` is the ACTION ZONE: pass it the buttons
-// (create/save/cancel) and they're drawn in their own bar separated from the
-// content, the same in every dialog. Don't put them in children.
+// Centered dialog; full screen on a phone. `footer` is the ACTION ZONE: pass
+// it the buttons (create/save/cancel) and they're drawn in their own bar, the
+// same in every dialog. Don't put them in children.
 //
 //   <Modal … footer={<><Button variant="ghost" onClick={onClose}>Cancel</Button>
 //                     <Button onClick={save}>Save</Button></>}>
@@ -21,39 +23,33 @@ export function Modal({
   bare = false,
 }: {
   open: boolean;
+  /** Escape, a click on the backdrop and the X call it. */
   onClose: () => void;
   /** Text, or whatever is needed: a face and a name, a status chip… */
   title: ReactNode;
   children: ReactNode;
+  /** The dialog's buttons (ghost Cancel + primary action). */
   footer?: ReactNode;
+  /** @deprecated Use `size="lg"`. */
   wide?: boolean;
-  /** Width: "md" (the default), "lg" (= wide) or "xl" — a page to read
-   *  inside, such as a document's preview (17 Oct 2026). */
+  /** Width: "md" (default), "lg" or "xl" (a page to read inside, such as a document preview). */
   size?: "md" | "lg" | "xl";
   /** The dialog fits in the window and only its content scrolls, with the
-   *  title (and the footer) staying put. Off by default: the page scrolls
-   *  instead, which a dialog with menus inside needs to keep them unclipped.
-   *  For a long list to pick from (a catalogue of blocks). */
+   *  title and footer staying put. Off by default: the page scrolls instead,
+   *  which keeps menus inside the dialog unclipped. For long lists to pick from. */
   scrollBody?: boolean;
   /** Fits in the window like scrollBody, but the body has no padding and
-   *  does not scroll: the content lays itself out — a search that stays on
-   *  top and a list that scrolls under it (14 Oct 2026). */
+   *  does not scroll: the content lays itself out (a fixed search over a scrolling list). */
   bare?: boolean;
 }) {
-  useEffect(() => {
-    function onEsc(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    if (open) document.addEventListener("keydown", onEsc);
-    return () => document.removeEventListener("keydown", onEsc);
-  }, [open, onClose]);
+  const ref = useRef<HTMLDivElement>(null);
+  useEscape(onClose, open, [ref]);
   if (!open) return null;
   const fit = scrollBody || bare;
   const width = { md: "max-w-lg", lg: "max-w-3xl", xl: "max-w-6xl" }[size ?? (wide ? "lg" : "md")];
-  // On a phone every dialog takes the whole screen (14 Oct 2026): no
-  // margins, no corners, the footer at the bottom.
   return (
     <div
+      ref={ref}
       className={`fixed inset-0 z-50 flex justify-center bg-black/50 p-4 max-sm:p-0 ${fit ? "items-center" : "items-start overflow-y-auto custom-scrollbar"}`}
       onMouseDown={onClose}
       role="dialog"
@@ -65,18 +61,11 @@ export function Modal({
         }`}
         onMouseDown={(e) => e.stopPropagation()}
       >
-        {/* Always a line under the title (13 Oct 2026), as the Drawer has —
-            it was only there when the body scrolled, so two dialogs side by
-            side looked like two different components. */}
         <div className="flex shrink-0 items-center justify-between border-b border-[var(--border)] p-5 pb-4">
           <h3 className="text-lg font-semibold min-w-0">{title}</h3>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-lg hover:bg-[var(--hover)] inline-flex items-center justify-center"
-            aria-label="Close"
-          >
+          <IconButton label="Close" onClick={onClose}>
             <X size={18} />
-          </button>
+          </IconButton>
         </div>
         {bare ? (
           <div className="flex min-h-0 flex-1 flex-col">{children}</div>

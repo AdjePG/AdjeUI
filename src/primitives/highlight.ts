@@ -1,15 +1,7 @@
-// Minimal, dependency-free syntax highlighting (14 Sep 2026).
-//
-// Why hand-rolled instead of highlight.js or prism: those libraries return HTML
-// that has to go through dangerouslySetInnerHTML —exactly what we just locked
-// down in the rich-text editor— and they weigh more than the whole rest of the
-// design system combined. Here we return TOKENS and React renders them, so
-// there is no HTML to inject and nothing can sneak in.
-//
-// The scope is deliberately small: strings, comments, numbers, keywords and
-// function calls. With that a snippet of code reads far better, and whatever
-// it does not recognize stays as plain text — never red or struck through. It
-// does not pretend to be a language parser.
+// Minimal, dependency-free syntax highlighting. It returns TOKENS that React
+// renders (no HTML to inject, unlike highlight.js/prism, which also outweigh
+// the rest of the library). Deliberately small: strings, comments, numbers,
+// keywords and function calls; anything else stays plain text.
 
 export type TokenType = "txt" | "str" | "com" | "num" | "kw" | "fn" | "pun";
 export type Token = { t: TokenType; v: string };
@@ -40,6 +32,19 @@ function keywordsFor(lang?: string): Set<string> {
   // SQL and CSS do not share the vocabulary of the curly-brace languages.
   const base = l === "sql" || l === "css" ? [] : COMMON_KEYWORDS;
   return new Set([...base, ...extra].map((p) => p.toLowerCase()));
+}
+
+// Sticky regexes (matched at lastIndex) read in place instead of copying the
+// rest of the code for every token. Built with RegExp so apps compiled for
+// an ES5 target still accept the "y" flag.
+const NUMBER = new RegExp("0[xXbBoO][0-9a-fA-F_]+|[0-9][0-9_]*(?:\\.[0-9_]+)?(?:[eE][+-]?[0-9]+)?", "y");
+const WORD = new RegExp("[A-Za-z0-9_$@]+", "y");
+
+// Is the next non-blank character an opening parenthesis?
+function callFollows(code: string, from: number): boolean {
+  let j = from;
+  while (j < code.length && /\s/.test(code[j])) j++;
+  return code[j] === "(";
 }
 
 export function tokenize(code: string, lang?: string): Token[] {
@@ -108,7 +113,8 @@ export function tokenize(code: string, lang?: string): Token[] {
 
     // --- numbers ---
     if (/[0-9]/.test(c) && !/[A-Za-z_$]/.test(code[i - 1] ?? "")) {
-      const m = /^(?:0[xXbBoO][0-9a-fA-F_]+|[0-9][0-9_]*(?:\.[0-9_]+)?(?:[eE][+-]?[0-9]+)?)/.exec(code.slice(i));
+      NUMBER.lastIndex = i;
+      const m = NUMBER.exec(code);
       if (m) {
         push("num", m[0]);
         i += m[0].length;
@@ -118,13 +124,13 @@ export function tokenize(code: string, lang?: string): Token[] {
 
     // --- identifiers: keyword, function call or plain text ---
     if (/[A-Za-z_$@]/.test(c)) {
-      const m = /^[A-Za-z0-9_$@]+/.exec(code.slice(i))!;
-      const word = m[0];
-      const rest = code.slice(i + word.length);
+      WORD.lastIndex = i;
+      const word = WORD.exec(code)![0];
+      const end = i + word.length;
       if (keywords.has(word.toLowerCase())) push("kw", word);
-      else if (/^\s*\(/.test(rest)) push("fn", word);
+      else if (callFollows(code, end)) push("fn", word);
       else buffer += word;
-      i += word.length;
+      i = end;
       continue;
     }
 

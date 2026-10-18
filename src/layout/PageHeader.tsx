@@ -1,49 +1,45 @@
 "use client";
 
-import React from "react";
+import { ReactNode } from "react";
 import { Menu } from "lucide-react";
 import { IconChip } from "../primitives/IconChip";
 import { Tabs } from "../controls/Tabs";
-import { sideNavState, useSideNavState } from "./sideNavState";
+import type { SegmentedOption } from "../controls/Segmented";
+import { sideNavState, useSideNavSelector } from "./sideNavState";
 
-// The SINGLE page header, shared by every page of both apps.
+// The SINGLE page header, shared by every page:
 //   row 1:  [☰ mobile only, if there's a SideNav] [chip + title] ..... [actions]
-//   row 2:  [ sub-tabs ]  <- ONLY if there are any, FLUSH with the bottom
-//           edge of the header: the active tab's underline sits right on the
-//           border line (browser/YouTube style).
-export function PageHeader({
+//   row 2:  [ sub-tabs ]  <- only if there are any, flush with the bottom
+//           edge, so the active tab's underline sits on the border line.
+export function PageHeader<T extends string = string>({
   icon,
   title,
   actions,
   tabs,
   menu = true,
 }: {
+  icon: ReactNode;
+  title: ReactNode;
+  /** Normally a Toolbar. */
+  actions?: ReactNode;
+  tabs?: {
+    value: T;
+    onChange: (v: T) => void;
+    options: (SegmentedOption<T> & { label: string })[];
+  };
   /** false = no ☰ on mobile even with a SideNav mounted: for a screen laid
    *  over the app (a full-screen preview), where there is no menu to open. */
   menu?: boolean;
-  icon: React.ReactNode;
-  title: React.ReactNode;
-  actions?: React.ReactNode;
-  tabs?: {
-    value: string;
-    onChange: (v: string) => void;
-    options: { value: string; label: string; icon?: React.ReactNode }[];
-  };
 }) {
-  const { mounted } = useSideNavState();
+  const hasNav = useSideNavSelector((s) => s.mounted > 0);
   return (
-    // The padding goes INSIDE the max-width box, the same way every page lays
-    // its content out. With it on the <header> the box was centred in the
-    // remaining width instead, so the title sat 24px off from the content
-    // underneath it and no screen in the app had a single shared left edge
-    // (20 Sep 2026). The bar itself still spans the full width: the border and
-    // the background live on the <header>.
+    // The padding goes inside the max-width box, the way every page lays its
+    // content out, so the title shares the content's left edge; the border
+    // and background stay on the full-width <header>.
     <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[color-mix(in_srgb,var(--background)_80%,transparent)] backdrop-blur-md">
       <div className="max-w-6xl mx-auto w-full px-4 sm:px-6">
-        {/* Title + actions row. No bottom padding when there are tabs so they
-            sit flush with the edge. */}
         <div className={`flex items-center gap-3 pt-3 ${tabs ? "pb-0" : "pb-3"}`}>
-          {menu && mounted > 0 && (
+          {menu && hasNav && (
             <button
               type="button"
               onClick={() => sideNavState.open()}
@@ -59,9 +55,7 @@ export function PageHeader({
           </h1>
           {actions && <div className="flex-1 min-w-0 flex justify-end">{actions}</div>}
         </div>
-        {tabs && (
-          <Tabs value={tabs.value} onChange={tabs.onChange} options={tabs.options} className="-ml-3 mt-1" />
-        )}
+        {tabs && <Tabs value={tabs.value} onChange={tabs.onChange} options={tabs.options} className="-ml-3 mt-1" />}
       </div>
     </header>
   );

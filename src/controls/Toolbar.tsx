@@ -1,25 +1,29 @@
 "use client";
 
-import { ReactNode, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Check, MoreHorizontal } from "lucide-react";
+import { ReactNode, useCallback, useRef, useState } from "react";
+import { MoreHorizontal } from "lucide-react";
 import { Button, ButtonVariant } from "./Button";
+import { Popover } from "../overlays/Popover";
+import { Menu } from "../overlays/Menu";
+import { useIsoLayoutEffect } from "../internal/useIsoLayoutEffect";
 
 // Action bar that adapts to the available width: it shows the buttons that
-// fit and stores the rest in a "···" menu. That way the header never wraps to
-// two rows or leaves half-visible buttons. Usage: <Toolbar leading={<Select.../>} items={[...]} />.
-//   - leading: fixed control that does NOT collapse (e.g. the year selector).
-//   - pinned:  the always-visible button (e.g. the main "Add" action).
-//   - the rest collapse into the "···" menu in order, left to right.
+// fit and moves the rest, in order, into a "···" menu, so a header never wraps
+// or shows half a button.
+//   <Toolbar leading={<Select…/>} items={[…]} />
 export type ToolbarItem = {
   key: string;
   label: string;
   icon?: ReactNode;
   onClick?: () => void;
+  /** Default "outline". */
   variant?: ButtonVariant;
   disabled?: boolean;
   title?: string;
-  active?: boolean; // toggle-style button (gets a check mark in the menu)
-  pinned?: boolean; // never collapses; anchored at the end
+  /** Toggle-style action: gets a check mark in the menu. */
+  active?: boolean;
+  /** Never collapses; anchored at the end (goes icon-only if even that does not fit). */
+  pinned?: boolean;
 };
 
 const GAP = 8; // = gap-2
@@ -40,6 +44,7 @@ function ToolbarButton({ item, compact }: { item: ToolbarItem; compact?: boolean
 }
 
 function OverflowButton({ active, onClick }: { active?: boolean; onClick?: () => void }) {
+  // Measures --control-h like the Buttons beside it (IconButton is 32px).
   return (
     <button
       type="button"
@@ -60,6 +65,7 @@ export function Toolbar({
   items,
   className = "",
 }: {
+  /** Fixed control at the start that never collapses (a year selector). */
   leading?: ReactNode;
   items: ToolbarItem[];
   className?: string;
@@ -69,10 +75,8 @@ export function Toolbar({
 
   const rowRef = useRef<HTMLDivElement>(null);
   const measureRef = useRef<HTMLDivElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
   const [visibleCount, setVisibleCount] = useState(nonPinned.length);
   const [pinnedCompact, setPinnedCompact] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
 
   const recompute = useCallback(() => {
     const row = rowRef.current;
@@ -93,8 +97,8 @@ export function Toolbar({
     const itemW = itemEls.map((el) => w(el) + GAP);
     const total = itemW.reduce((a, b) => a + b, 0);
 
-    // If the pinned button with its label does not fit even with everything
-    // else in the "···", it goes icon-only. That way the page TITLE is never clipped.
+    // The pinned button goes icon-only if its label does not fit even with
+    // everything else in the "···": the page title is never clipped.
     const compact = leadW + (nonPinned.length ? overflowW : 0) + pinFullW > avail;
     const pinW = compact ? pinIconW : pinFullW;
     setPinnedCompact(compact);
@@ -116,7 +120,7 @@ export function Toolbar({
     setVisibleCount(k);
   }, [nonPinned.length]);
 
-  useLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     recompute();
     const row = rowRef.current;
     if (!row) return;
@@ -124,22 +128,6 @@ export function Toolbar({
     ro.observe(row);
     return () => ro.disconnect();
   }, [recompute, items.length]);
-
-  useEffect(() => {
-    if (!menuOpen) return;
-    function onDoc(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
-    }
-    function onEsc(e: KeyboardEvent) {
-      if (e.key === "Escape") setMenuOpen(false);
-    }
-    document.addEventListener("mousedown", onDoc);
-    document.addEventListener("keydown", onEsc);
-    return () => {
-      document.removeEventListener("mousedown", onDoc);
-      document.removeEventListener("keydown", onEsc);
-    };
-  }, [menuOpen]);
 
   const shown = nonPinned.slice(0, visibleCount);
   const overflowed = nonPinned.slice(visibleCount);
@@ -180,29 +168,26 @@ export function Toolbar({
         <ToolbarButton key={it.key} item={it} />
       ))}
       {overflowed.length > 0 && (
-        <div className="relative shrink-0" ref={menuRef}>
-          <OverflowButton active={menuOpen} onClick={() => setMenuOpen((o) => !o)} />
-          {menuOpen && (
-            <div className="absolute right-0 z-50 mt-1.5 w-56 card p-1 blue-shadow toast-in">
-              {overflowed.map((it) => (
-                <button
-                  key={it.key}
-                  type="button"
-                  disabled={it.disabled}
-                  onClick={() => {
-                    setMenuOpen(false);
-                    it.onClick?.();
-                  }}
-                  className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition hover:bg-[var(--hover)] disabled:opacity-40"
-                >
-                  {it.icon && <span className="inline-flex shrink-0 text-muted">{it.icon}</span>}
-                  <span className="flex-1">{it.label}</span>
-                  {it.active && <Check size={14} className="shrink-0 text-[var(--accent-blue)]" />}
-                </button>
-              ))}
-            </div>
+        <Popover
+          align="end"
+          width={224}
+          className="shrink-0"
+          trigger={({ open, toggle }) => <OverflowButton active={open} onClick={toggle} />}
+        >
+          {({ close }) => (
+            <Menu
+              items={overflowed.map((it) => ({
+                key: it.key,
+                label: it.label,
+                icon: it.icon,
+                onClick: it.onClick,
+                disabled: it.disabled,
+                active: it.active,
+              }))}
+              onPick={close}
+            />
           )}
-        </div>
+        </Popover>
       )}
       {pinned.map((it) => (
         <ToolbarButton key={it.key} item={it} compact={pinnedCompact} />
