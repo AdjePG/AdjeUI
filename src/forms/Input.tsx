@@ -57,7 +57,7 @@ export const Input = forwardRef<
 
 // Text area with the same skin as Input, free height (min-h + resize), or
 // `grow`: it gets taller with each line (CSS field-sizing, no script) up to
-// about ten lines, then scrolls with the app's scrollbar.
+// half the screen's height, then scrolls with the app's scrollbar.
 export const Textarea = forwardRef<
   HTMLTextAreaElement,
   TextareaHTMLAttributes<HTMLTextAreaElement> & {
@@ -68,7 +68,7 @@ export const Textarea = forwardRef<
   }
 >(function Textarea({ className = "", invalid, grow = false, id, "aria-describedby": describedBy, ...props }, ref) {
   const { bad, ...field } = useFieldProps(id, invalid, describedBy);
-  const height = grow ? "[field-sizing:content] max-h-60 resize-none overflow-y-auto custom-scrollbar scroll-no-gutter" : "resize-y";
+  const height = grow ? "[field-sizing:content] max-h-[50dvh] resize-none overflow-y-auto custom-scrollbar scroll-no-gutter" : "resize-y";
   return (
     <textarea
       {...props}

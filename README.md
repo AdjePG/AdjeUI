@@ -226,6 +226,11 @@ affects all of them.
 
 ## Changelog
 
+### 4.6.1
+
+- `Textarea grow` grows up to half the screen's height (it stopped at
+  240 px, with room left in the dialog).
+
 ### 4.6.0
 
 - **New:** `Textarea grow`: it gets taller with each line (CSS `field-sizing:
