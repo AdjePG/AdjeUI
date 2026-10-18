@@ -226,6 +226,12 @@ affects all of them.
 
 ## Changelog
 
+### 4.5.1
+
+- **Fix:** a square `Avatar` (and the `+N` chip of a square `AvatarStack`)
+  rounds its corner with its size (md 8 px · lg 12 px · xl 16 px…) instead of
+  8 px at every size, so a big logo no longer looks like a sharp tile.
+
 ### 4.5.0 (no breaking changes)
 
 - **New:** `Avatar` (image or initials on the app gradient or a `color`; sizes

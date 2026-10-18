@@ -17,6 +17,19 @@ const SIZES: Record<AvatarSize, string> = {
   "3xl": "w-24 h-24 text-3xl",
 };
 
+// A square's corner grows with it, so a big logo does not look like a sharp tile.
+const SQUARE: Record<AvatarSize, string> = {
+  xs: "rounded-md",
+  sm: "rounded-md",
+  md: "rounded-lg",
+  lg: "rounded-xl",
+  xl: "rounded-2xl",
+  "2xl": "rounded-2xl",
+  "3xl": "rounded-3xl",
+};
+
+const shapeOf = (shape: "circle" | "square", size: AvatarSize) => (shape === "circle" ? "rounded-full" : SQUARE[size]);
+
 /** "Ada Lovelace" → "AL"; "Ada" → "A". */
 export function initials(name: string): string {
   return name
@@ -44,7 +57,7 @@ export type AvatarProps = {
 
 export function Avatar({ name, src, color, size = "md", shape = "circle", decorative = false, className = "" }: AvatarProps) {
   const [broken, setBroken] = useState<string | null>(null);
-  const base = `${SIZES[size]} ${shape === "circle" ? "rounded-full" : "rounded-lg"} shrink-0 ${className}`;
+  const base = `${SIZES[size]} ${shapeOf(shape, size)} shrink-0 ${className}`;
   if (src && broken !== src) {
     return <img src={src} alt={decorative ? "" : name} onError={() => setBroken(src)} className={`${base} object-cover bg-[var(--hover)]`} />;
   }
@@ -98,7 +111,7 @@ export function AvatarStack({
             .slice(max)
             .map((it) => it.name)
             .join(", ")}
-          className={`${SIZES[size]} ${shape === "circle" ? "rounded-full" : "rounded-lg"} ${ring} -ml-2 inline-flex shrink-0 items-center justify-center bg-[color-mix(in_srgb,var(--foreground)_10%,var(--card))] font-semibold text-[var(--foreground)]`}
+          className={`${SIZES[size]} ${shapeOf(shape, size)} ${ring} -ml-2 inline-flex shrink-0 items-center justify-center bg-[color-mix(in_srgb,var(--foreground)_10%,var(--card))] font-semibold text-[var(--foreground)]`}
         >
           +{rest}
         </span>
