@@ -50,7 +50,7 @@ export function Modal({
   return (
     <div
       ref={ref}
-      className={`fixed inset-0 z-50 flex justify-center bg-black/50 p-4 max-sm:p-0 ${fit ? "items-center" : "items-start overflow-y-auto custom-scrollbar"}`}
+      className={`fixed inset-0 z-50 flex justify-center bg-black/50 p-4 max-sm:p-0 ${fit ? "items-center" : "items-start overflow-y-auto custom-scrollbar scroll-no-gutter"}`}
       onMouseDown={onClose}
       role="dialog"
       aria-modal="true"

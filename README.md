@@ -226,6 +226,14 @@ affects all of them.
 
 ## Changelog
 
+### 4.6.0
+
+- **New:** `Textarea grow`: it gets taller with each line (CSS `field-sizing:
+  content`, no script) up to about ten lines, then scrolls with
+  `custom-scrollbar`. Without `grow` it keeps the resize handle.
+- **Fix:** `Modal`'s backdrop keeps no scrollbar gutter, so on a phone the
+  full-screen dialog reaches the right edge (it left a 14 px strip).
+
 ### 4.5.1
 
 - **Fix:** a square `Avatar` (and the `+N` chip of a square `AvatarStack`)
