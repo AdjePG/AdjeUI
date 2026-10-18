@@ -55,26 +55,21 @@ export const Input = forwardRef<
   return <input {...props} {...field} ref={ref} className={`${inputBase} ${INPUT_SIZES[size]} ${bad ? invalidCls : ""} ${className}`} />;
 });
 
-// Text area with the same skin as Input, free height (min-h + resize), or
-// `grow`: it gets taller with each line (CSS field-sizing, no script) up to
-// half the screen's height, then scrolls with the app's scrollbar.
+// Text area with the same skin as Input, free height (min-h + resize).
 export const Textarea = forwardRef<
   HTMLTextAreaElement,
   TextareaHTMLAttributes<HTMLTextAreaElement> & {
     /** Red border; inside a Field with `error` it is set automatically. */
     invalid?: boolean;
-    /** Grows with its content instead of the resize handle, then scrolls. */
-    grow?: boolean;
   }
->(function Textarea({ className = "", invalid, grow = false, id, "aria-describedby": describedBy, ...props }, ref) {
+>(function Textarea({ className = "", invalid, id, "aria-describedby": describedBy, ...props }, ref) {
   const { bad, ...field } = useFieldProps(id, invalid, describedBy);
-  const height = grow ? "[field-sizing:content] max-h-[50dvh] resize-none overflow-y-auto custom-scrollbar scroll-no-gutter" : "resize-y";
   return (
     <textarea
       {...props}
       {...field}
       ref={ref}
-      className={`${inputBase} rounded-xl px-3 py-2 text-sm min-h-[64px] leading-relaxed ${height} ${bad ? invalidCls : ""} ${className}`}
+      className={`${inputBase} rounded-xl px-3 py-2 text-sm min-h-[64px] resize-y leading-relaxed ${bad ? invalidCls : ""} ${className}`}
     />
   );
 });
