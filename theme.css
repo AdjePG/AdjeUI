@@ -113,11 +113,14 @@ body {
   color: transparent;
 }
 
-/* :where() (17 Oct 2026): no weight of its own, so a component's utilities
-   always win over it. This file loads after Tailwind's utilities and, with
-   the same weight, .card won: a modal full screen on a phone kept its round
-   corners and its border (max-sm:rounded-none and max-sm:border-0 lost). */
-:where(.card) {
+/* The weight of one element (18 Oct 2026): `html :where(.card)`. Less than
+   any utility, so a component's utilities win over it — this file loads
+   after them and, as `.card`, it won: a modal full screen on a phone kept its
+   round corners and border. More than Tailwind's base rules for elements,
+   which it follows: with no weight at all (`:where(.card)`, 17 Oct) a
+   <button class="card"> — the toasts — lost its background to
+   `button { background-color: transparent }`. */
+html :where(.card) {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 16px;
