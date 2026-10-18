@@ -50,7 +50,9 @@ export function Modal({
   return (
     <div
       ref={ref}
-      className={`fixed inset-0 z-50 flex justify-center bg-black/50 p-4 max-sm:p-0 ${fit ? "items-center" : "items-start overflow-y-auto custom-scrollbar scroll-no-gutter"}`}
+      // Always able to scroll: a window lower than the dialog's minimum
+      // scrolls the backdrop instead of squeezing the dialog.
+      className="custom-scrollbar scroll-no-gutter fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 max-sm:p-0"
       // A press on the backdrop's own scrollbar (right of its content box) is
       // not a click outside.
       onMouseDown={(e) => {
@@ -62,7 +64,8 @@ export function Modal({
     >
       <div
         className={`card w-full ${width} blue-shadow flex flex-col max-sm:max-w-none max-sm:rounded-none max-sm:border-0 ${
-          fit ? "max-h-[calc(100dvh-4rem)] my-4 max-sm:my-0 max-sm:h-dvh max-sm:max-h-none" : "my-8 max-sm:my-0 max-sm:min-h-dvh"
+          // Fitting: centred, as tall as the window allows but never under 18rem.
+          fit ? "my-auto max-h-[max(18rem,calc(100dvh-2rem))] max-sm:h-[max(18rem,100dvh)] max-sm:max-h-none" : "my-8 max-sm:my-0 max-sm:min-h-dvh"
         }`}
         onMouseDown={(e) => e.stopPropagation()}
       >

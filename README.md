@@ -226,6 +226,12 @@ affects all of them.
 
 ## Changelog
 
+### 4.6.4
+
+- **Fix:** a `Modal` with `scrollBody` or `bare` never gets shorter than
+  18rem: in a lower window the backdrop scrolls instead of the content
+  spilling out of a squeezed dialog.
+
 ### 4.6.3
 
 - **Fix:** pressing a `Modal`'s scrollbar (a long dialog scrolls on its
