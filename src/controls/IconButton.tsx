@@ -21,6 +21,7 @@ export function IconButton({
   href,
   target,
   LinkComponent,
+  dot = false,
 }: {
   onClick?: () => void;
   /** aria-label and tooltip. */
@@ -38,10 +39,18 @@ export function IconButton({
   target?: string;
   /** The link component for `href` (next/link). Default: "a". */
   LinkComponent?: LinkLike;
+  /** An accent dot on the corner: what it opens is not at its defaults (filters on). */
+  dot?: boolean;
 }) {
   const sizeCls = size === "sm" ? "w-7 h-7 rounded-lg" : "w-8 h-8 rounded-lg";
-  const cls = `inline-flex items-center justify-center shrink-0 text-muted hover:bg-[var(--hover)] hover:text-[var(--icon-hover)] transition disabled:opacity-40 disabled:cursor-not-allowed aria-disabled:opacity-40 aria-disabled:pointer-events-none ${sizeCls} ${className}`;
+  const cls = `relative inline-flex items-center justify-center shrink-0 text-muted hover:bg-[var(--hover)] hover:text-[var(--icon-hover)] transition disabled:opacity-40 disabled:cursor-not-allowed aria-disabled:opacity-40 aria-disabled:pointer-events-none ${sizeCls} ${className}`;
   const style = { "--icon-hover": TONE_COLOR[HOVER_TONE[tone]] } as CSSProperties;
+  const body = (
+    <>
+      {children}
+      {dot && <span aria-hidden className="absolute right-0.5 top-0.5 h-2 w-2 rounded-full bg-[var(--accent-blue)]" />}
+    </>
+  );
   if (href != null) {
     const A: LinkLike = LinkComponent ?? "a";
     return (
@@ -57,13 +66,13 @@ export function IconButton({
         className={cls}
         style={style}
       >
-        {children}
+        {body}
       </A>
     );
   }
   return (
     <button type="button" onClick={onClick} aria-label={label} title={label} disabled={disabled} className={cls} style={style}>
-      {children}
+      {body}
     </button>
   );
 }

@@ -12,6 +12,7 @@ import {
   Plus,
   Rocket,
   Sparkles,
+  SlidersHorizontal,
   Trash2,
   TrendingDown,
   TrendingUp,
@@ -72,12 +73,13 @@ export function ControlsSection() {
             </Button>
           </div>
         </Block>
-        <Block name="IconButton: tone (neutral, accent, danger) × size (sm, md) + disabled">
+        <Block name="IconButton: tone (neutral, accent, danger) × size (sm, md) + disabled + dot">
           <IconButton label="Edit" onClick={() => {}}><Pencil size={14} /></IconButton>
           <IconButton label="Copy" tone="accent" onClick={() => {}}><Copy size={14} /></IconButton>
           <IconButton label="Delete" tone="danger" onClick={() => {}}><Trash2 size={14} /></IconButton>
           <IconButton label="Small" size="sm" onClick={() => {}}><Pencil size={13} /></IconButton>
           <IconButton label="Disabled" disabled onClick={() => {}}><Trash2 size={14} /></IconButton>
+          <IconButton label="Filters (with a dot)" dot onClick={() => {}}><SlidersHorizontal size={14} /></IconButton>
         </Block>
         <Block name="Segmented: with text / icons only (title as tooltip)">
           <Segmented

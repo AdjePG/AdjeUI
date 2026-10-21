@@ -227,6 +227,11 @@ affects all of them.
 
 ## Changelog
 
+### 4.8.0
+
+- **New:** `IconButton dot`: an accent dot on the corner, for a button whose
+  panel is not at its defaults (a "Filters" button with filters on).
+
 ### 4.7.0
 
 - **New:** `SideNavUser popoverWidth` (px): a panel wider than the rail, in
