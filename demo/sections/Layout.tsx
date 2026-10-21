@@ -90,15 +90,6 @@ export function LayoutSection() {
                     { label: "Sign out", icon: <LogOut size={16} />, danger: true, onClick: () => toast("Signed out (demo).", "info") },
                   ]}
                 />
-                <SideNavUser name="Wide panel" subtitle="popoverWidth={320}" groups={[]} popoverWidth={320}>
-                  {({ close }) => (
-                    <Menu
-                      title="Switch site"
-                      onPick={close}
-                      items={SITES.map((s) => ({ key: s.id, label: s.name, hint: s.detail, onClick: () => toast(`${s.name} picked (demo).`, "info") }))}
-                    />
-                  )}
-                </SideNavUser>
               </div>
             </Frame>
             <div className="text-[13px] text-muted leading-relaxed flex flex-col gap-2">

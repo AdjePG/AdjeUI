@@ -174,8 +174,7 @@ re-exports but are **deprecated**; import from plain `adje-shared-ui`.
 - **Three-zone navigation.** `SideNav` has `top` (usually `SideNavBrand`:
   icon + app name; or anything else: site switcher, notices), the menu (`items`) and `bottom` (anything;
   usually `SideNavUser`: avatar + name that opens a `Menu` with theme,
-  settings, sign out; `popoverWidth` widens its panel for rich content such as a
-  space switcher, and a function child gets `close`) and `SideNavAction` (icon + label + badge, with an action or a
+  settings, sign out) and `SideNavAction` (icon + label + badge, with an action or a
   popover: notifications, notices…). On desktop it is the 232px rail of the
   `.app-shell` layout, collapsible to icons only (73px) with the "Collapse" button (remembered
   in localStorage; `topCompact`/`bottomCompact` for the zones,
@@ -227,6 +226,11 @@ affects all of them.
 
 ## Changelog
 
+### 4.8.1
+
+- `SideNavUser popoverWidth` and function children (4.7.0) removed again:
+  no app uses them. `SideNavUser` is back to the rail-wide panel.
+
 ### 4.8.0
 
 - **New:** `IconButton dot`: an accent dot on the corner, for a button whose
@@ -234,11 +238,7 @@ affects all of them.
 
 ### 4.7.0
 
-- **New:** `SideNavUser popoverWidth` (px): a panel wider than the rail, in
-  the full and the compact rail alike, opening above the row and kept inside
-  the window (a bottom sheet on a phone, as every Popover).
-- **New:** `SideNavUser` children may be a function `({ close }) => …`, like
-  `SideNavAction`, so a pick inside custom content closes the menu.
+- `SideNavUser popoverWidth` and function children (removed in 4.8.1).
 
 ### 4.6.4
 

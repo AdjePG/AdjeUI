@@ -365,8 +365,6 @@ function NameBlock({ name, subtitle }: { name: string; subtitle?: ReactNode }) {
 //   <SideNavUser name="Adrià Pulido" subtitle="adria@mail.com" items={[…]} />
 // With `groups` the menu is split into titled blocks:
 //   <SideNavUser name="…" groups={[{ title: "You are in", items: sites }, { title: "Account", items }]} />
-// A wider panel for rich content, which gets `close`:
-//   <SideNavUser name="…" groups={[]} popoverWidth={320}>{({ close }) => <Switcher onPick={close} />}</SideNavUser>
 export function SideNavUser({
   name,
   subtitle,
@@ -374,7 +372,6 @@ export function SideNavUser({
   items = [],
   menuTitle,
   groups,
-  popoverWidth,
   children,
 }: {
   name: string;
@@ -386,10 +383,8 @@ export function SideNavUser({
   menuTitle?: ReactNode;
   /** Menu in titled blocks. */
   groups?: { title?: ReactNode; items: MenuItem[] }[];
-  /** Panel width (px), full and compact alike; nothing → the rail's width (240 when compact). It opens above the row, kept inside the window. */
-  popoverWidth?: number;
-  /** Extra content at the end of the menu; a function gets `close`. */
-  children?: ReactNode | ((p: { close: () => void }) => ReactNode);
+  /** Extra content at the end of the menu. */
+  children?: ReactNode;
 }) {
   const compact = useSideNavCompact();
   const blocks = groups ?? [{ title: menuTitle, items }];
@@ -403,8 +398,8 @@ export function SideNavUser({
   return (
     <Popover
       placement="top"
-      align={compact || popoverWidth ? "start" : "stretch"}
-      width={popoverWidth ?? (compact ? 240 : undefined)}
+      align={compact ? "start" : "stretch"}
+      width={compact ? 240 : undefined}
       trigger={({ open, toggle }) => (
         <RailRow
           onClick={toggle}
@@ -437,7 +432,7 @@ export function SideNavUser({
               <Menu title={g.title} items={g.items} onPick={close} />
             </div>
           ))}
-          {typeof children === "function" ? children({ close }) : children}
+          {children}
         </>
       )}
     </Popover>
