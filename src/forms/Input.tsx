@@ -66,15 +66,12 @@ export const PasswordInput = forwardRef<HTMLInputElement, Omit<InputProps, "type
   return (
     <span className="relative block w-full">
       <Input {...props} ref={ref} type={shown ? "text" : "password"} className={`pr-10 ${className}`} />
-      <IconButton
-        label={shown ? "Hide password" : "Show password"}
-        size="sm"
-        onClick={() => setShown((s) => !s)}
-        disabled={props.disabled}
-        className="absolute right-1 top-1/2 -translate-y-1/2"
-      >
-        {shown ? <EyeOff size={15} /> : <Eye size={15} />}
-      </IconButton>
+      {/* Placed by its own box: IconButton is `relative` itself, which would beat an `absolute` passed to it. */}
+      <span className="absolute right-1 top-1/2 flex -translate-y-1/2">
+        <IconButton label={shown ? "Hide password" : "Show password"} size="sm" onClick={() => setShown((s) => !s)} disabled={props.disabled}>
+          {shown ? <EyeOff size={15} /> : <Eye size={15} />}
+        </IconButton>
+      </span>
     </span>
   );
 });

@@ -226,6 +226,10 @@ affects all of them.
 
 ## Changelog
 
+### 4.10.1
+
+- `PasswordInput`: the eye sits inside the field (it showed under it).
+
 ### 4.10.0
 
 - **New:** `PasswordInput` (forms): an Input for passwords with an eye at its end that
