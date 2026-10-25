@@ -2,6 +2,7 @@
 
 import { ReactNode } from "react";
 import type { LinkLike } from "../internal/link";
+import { Spinner } from "../primitives/Spinner";
 
 // Standard button. The HEIGHT is fixed per size (--control-h-* tokens from
 // theme.css) so no button is ever taller than another one or than an input.
@@ -64,7 +65,7 @@ export function Button({
   const cls = `${BASE} ${SIZES[size]} ${VARIANTS[variant]} ${full ? "w-full" : ""} ${className}`;
   const content = (
     <>
-      {loading && <span className="inline-block w-4 h-4 rounded-full border-2 border-current border-r-transparent animate-spin" />}
+      {loading && <Spinner label={null} />}
       {children}
     </>
   );

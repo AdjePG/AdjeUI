@@ -1,5 +1,5 @@
 import { Package, Search, Sparkles } from "lucide-react";
-import { Avatar, AvatarStack, Card, CodeBlock, Empty, IconChip, Pill, Skeleton, palette } from "../../src";
+import { Avatar, AvatarStack, Card, CodeBlock, Empty, IconChip, Pill, Skeleton, Spinner, palette } from "../../src";
 import { Block, Frame, Section } from "../common";
 
 // ---------------- primitives ----------------
@@ -40,6 +40,11 @@ export function PrimitivesSection() {
           <Skeleton className="w-9 h-9 rounded-full" />
           <Skeleton className="h-9 w-44" />
           <Skeleton className="h-16 w-full" />
+        </Block>
+        <Block name="Spinner (size in px; takes the text colour)">
+          <Spinner className="text-muted" />
+          <Spinner size={20} className="text-muted" />
+          <Spinner size={28} className="text-[var(--accent-blue)]" />
         </Block>
         <Block name="Empty (with and without icon)">
           <Frame className="flex-1">

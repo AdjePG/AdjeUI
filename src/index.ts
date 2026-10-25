@@ -1,5 +1,5 @@
 // AdjeUI main barrel. One component (or tight family) per file, by category:
-//   primitives/  surfaces and basic pieces (Card, Pill, Overline, IconChip, Avatar, Empty, Skeleton, CodeBlock)
+//   primitives/  surfaces and basic pieces (Card, Pill, Overline, IconChip, Avatar, Empty, Skeleton, Spinner, CodeBlock)
 //   controls/    buttons and toggles (Button, IconButton, Segmented, Tabs, Switch, ChoiceOption, ScrollArrows, Toolbar)
 //   forms/       Field, Input, Textarea, Select, ChipEditor, validation
 //   overlays/    layers (Modal, Drawer, ConfirmDialog, HelpTip, Toast, Popover, Menu, useShortcuts)
@@ -17,6 +17,7 @@ export { Overline, overlineCls } from "./primitives/Overline";
 export { Avatar, AvatarStack, initials, type AvatarProps, type AvatarSize } from "./primitives/Avatar";
 export { Empty } from "./primitives/Empty";
 export { Skeleton } from "./primitives/Skeleton";
+export { Spinner } from "./primitives/Spinner";
 export { CodeBlock } from "./primitives/CodeBlock";
 export { tokenize, splitLines, type Token, type TokenType } from "./primitives/highlight";
 

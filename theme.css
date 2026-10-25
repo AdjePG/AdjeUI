@@ -295,6 +295,16 @@ html :where(.card) {
 }
 
 /* Skeleton (loading placeholder) */
+/* Spinner: a busy circle. With less motion asked for it turns slowly rather than stopping, so it still says "loading". */
+@keyframes spinner-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.spinner {
+  animation: spinner-turn 0.8s linear infinite;
+}
+
 @keyframes skeleton-shimmer {
   from {
     background-position: 200% 0;
@@ -360,6 +370,9 @@ html :where(.card) {
   .skeleton,
   .sidenav-backdrop {
     animation: none;
+  }
+  .spinner {
+    animation-duration: 2.4s;
   }
 }
 

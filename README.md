@@ -11,7 +11,7 @@ One component per file, grouped by category in `src/`:
 
 | Folder | Components |
 |---|---|
-| `src/primitives` | Card, IconChip, Pill, Overline + `overlineCls`, Avatar/AvatarStack + `initials`, Empty, Skeleton, CodeBlock, `tokenize`/`splitLines` (the code highlighter, also for your own code rendering) |
+| `src/primitives` | Card, IconChip, Pill, Overline + `overlineCls`, Avatar/AvatarStack + `initials`, Empty, Skeleton, Spinner, CodeBlock, `tokenize`/`splitLines` (the code highlighter, also for your own code rendering) |
 | `src/controls` | Button, IconButton (both also render links with `href`), Segmented, Tabs, Switch, ChoiceOption/ChoiceMark, Toolbar, ScrollArrows, `useScrollEdges` |
 | `src/forms` | Field (+ `useFieldInvalid`, `useFieldControlId`, `useFieldLabelId` for your own controls), Input, Textarea, Select, ChipEditor, `useFormErrors` + `rules` (validation); RichTextEditor/RichText (separate entrypoint `adje-shared-ui/rich-text`) |
 | `src/overlays` | Modal, Drawer, ConfirmDialog, HelpTip, ToastProvider/useToast, Popover, Menu, `useShortcuts` (+ `formatShortcut`, `useIsMac`) |
@@ -225,6 +225,12 @@ And in its configuration:
 affects all of them.
 
 ## Changelog
+
+### 4.9.0
+
+- **New:** `Spinner` (primitives): a busy circle in the current text colour, `size` in px,
+  `label` for screen readers (null when the context already says it). With reduced motion
+  it turns slowly instead of stopping. `Button loading` now uses it.
 
 ### 4.8.1
 
