@@ -13,7 +13,7 @@ One component per file, grouped by category in `src/`:
 |---|---|
 | `src/primitives` | Card, IconChip, Pill, Overline + `overlineCls`, Avatar/AvatarStack + `initials`, Empty, Skeleton, Spinner, CodeBlock, `tokenize`/`splitLines` (the code highlighter, also for your own code rendering) |
 | `src/controls` | Button, IconButton (both also render links with `href`), Segmented, Tabs, Switch, ChoiceOption/ChoiceMark, Toolbar, ScrollArrows, `useScrollEdges` |
-| `src/forms` | Field (+ `useFieldInvalid`, `useFieldControlId`, `useFieldLabelId` for your own controls), Input, Textarea, Select, ChipEditor, `useFormErrors` + `rules` (validation); RichTextEditor/RichText (separate entrypoint `adje-shared-ui/rich-text`) |
+| `src/forms` | Field (+ `useFieldInvalid`, `useFieldControlId`, `useFieldLabelId` for your own controls), Input, PasswordInput, Textarea, Select, ChipEditor, `useFormErrors` + `rules` (validation); RichTextEditor/RichText (separate entrypoint `adje-shared-ui/rich-text`) |
 | `src/overlays` | Modal, Drawer, ConfirmDialog, HelpTip, ToastProvider/useToast, Popover, Menu, `useShortcuts` (+ `formatShortcut`, `useIsMac`) |
 | `src/data` | Stat, ProgressBar, Pagination, Table |
 | `src/layout` | PageHeader, SectionTitle, Collapsible, Carousel, SideNav + SideNavBrand/SideNavAction/SideNavUser, `sideNavState` + `useSideNavCompact`/`useIsMobile`, OverlayScrollbar, `useTheme` |
@@ -225,6 +225,11 @@ And in its configuration:
 affects all of them.
 
 ## Changelog
+
+### 4.10.0
+
+- **New:** `PasswordInput` (forms): an Input for passwords with an eye at its end that
+  shows what is typed and hides it again. Every Input prop but `type`; forwards its ref.
 
 ### 4.9.0
 

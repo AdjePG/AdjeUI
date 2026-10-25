@@ -1,7 +1,7 @@
 // AdjeUI main barrel. One component (or tight family) per file, by category:
 //   primitives/  surfaces and basic pieces (Card, Pill, Overline, IconChip, Avatar, Empty, Skeleton, Spinner, CodeBlock)
 //   controls/    buttons and toggles (Button, IconButton, Segmented, Tabs, Switch, ChoiceOption, ScrollArrows, Toolbar)
-//   forms/       Field, Input, Textarea, Select, ChipEditor, validation
+//   forms/       Field, Input, PasswordInput, Textarea, Select, ChipEditor, validation
 //   overlays/    layers (Modal, Drawer, ConfirmDialog, HelpTip, Toast, Popover, Menu, useShortcuts)
 //   data/        Stat, ProgressBar, Pagination, Table
 //   layout/      PageHeader, SectionTitle, Collapsible, Carousel, SideNav family, OverlayScrollbar, useTheme
@@ -34,7 +34,7 @@ export { Toolbar, type ToolbarItem } from "./controls/Toolbar";
 
 // forms
 export { Field, useFieldInvalid, useFieldControlId, useFieldLabelId } from "./forms/Field";
-export { Input, Textarea, inputCls, INPUT_SIZES } from "./forms/Input";
+export { Input, PasswordInput, Textarea, inputCls, INPUT_SIZES } from "./forms/Input";
 export { Select, type SelectOption } from "./forms/Select";
 export { ChipEditor } from "./forms/ChipEditor";
 export { useFormErrors, rules, type RuleResult } from "./forms/validation";

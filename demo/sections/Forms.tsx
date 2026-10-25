@@ -6,6 +6,7 @@ import {
   ChipEditor,
   Field,
   Input,
+  PasswordInput,
   Select,
   Textarea,
   inputCls,
@@ -93,6 +94,9 @@ export function FormsSection() {
                 clearError("slug");
               }}
             />
+          </Field>
+          <Field label="Password (PasswordInput: the eye shows it)">
+            <PasswordInput placeholder="Your password" />
           </Field>
           <Field label="Price (positive)" required error={errors.price} right={<span className="text-[11px]">EUR</span>}>
             <Input

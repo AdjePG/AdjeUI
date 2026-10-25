@@ -1,7 +1,9 @@
 "use client";
 
-import { forwardRef, InputHTMLAttributes, TextareaHTMLAttributes } from "react";
+import { forwardRef, InputHTMLAttributes, TextareaHTMLAttributes, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { useFieldControlId, useFieldErrorId, useFieldInvalid } from "./Field";
+import { IconButton } from "../controls/IconButton";
 import type { ControlSize } from "../controls/Button";
 
 // Shared skin of the fields (border, background, focus), without size. The
@@ -53,6 +55,28 @@ export const Input = forwardRef<
 >(function Input({ className = "", invalid, size = "md", id, "aria-describedby": describedBy, ...props }, ref) {
   const { bad, ...field } = useFieldProps(id, invalid, describedBy);
   return <input {...props} {...field} ref={ref} className={`${inputBase} ${INPUT_SIZES[size]} ${bad ? invalidCls : ""} ${className}`} />;
+});
+
+type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "size"> & { invalid?: boolean; size?: ControlSize };
+
+// A password Input with an eye at its end: it shows what is typed, and hides it
+// again. Every Input prop but `type`; forwards its ref.
+export const PasswordInput = forwardRef<HTMLInputElement, Omit<InputProps, "type">>(function PasswordInput({ className = "", ...props }, ref) {
+  const [shown, setShown] = useState(false);
+  return (
+    <span className="relative block w-full">
+      <Input {...props} ref={ref} type={shown ? "text" : "password"} className={`pr-10 ${className}`} />
+      <IconButton
+        label={shown ? "Hide password" : "Show password"}
+        size="sm"
+        onClick={() => setShown((s) => !s)}
+        disabled={props.disabled}
+        className="absolute right-1 top-1/2 -translate-y-1/2"
+      >
+        {shown ? <EyeOff size={15} /> : <Eye size={15} />}
+      </IconButton>
+    </span>
+  );
 });
 
 // Text area with the same skin as Input, free height (min-h + resize).
