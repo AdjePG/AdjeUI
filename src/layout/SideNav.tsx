@@ -14,7 +14,7 @@
 // draws when a SideNav is mounted; closed on navigation, X, Escape or backdrop.
 //
 //   <SideNav
-//     top={<SideNavBrand icon={<IconChip…/>} href="/">Aulora</SideNavBrand>}
+//     top={<SideNavBrand icon={<IconChip…/>} href="/">Solaula</SideNavBrand>}
 //     items={[{ href, label, icon }]}
 //     activePath={usePathname()}
 //     LinkComponent={Link}                       // next/link
@@ -216,7 +216,7 @@ export function SideNav({
 // App brand for the top zone: icon (usually an IconChip) + name, linked to
 // the home page; the name fades out when compact.
 //   <SideNavBrand icon={<IconChip size="lg"><Sparkles size={16} /></IconChip>} href="/panel" LinkComponent={Link}>
-//     Aulora
+//     Solaula
 //   </SideNavBrand>
 export function SideNavBrand({
   icon,

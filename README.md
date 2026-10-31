@@ -2,7 +2,7 @@
 
 Installable package (via a git dependency, no need to publish it to npm) with
 the components and styles shared by the Adje apps: **MisFinanzas**,
-**Adje Store**, **Aulora** and whatever comes next. Web only (React/Next);
+**Adje Store**, **Solaula** and whatever comes next. Web only (React/Next);
 the old Flutter version was retired.
 
 ## Organization
