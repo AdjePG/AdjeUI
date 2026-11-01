@@ -85,7 +85,7 @@ export function Menu({
                 </kbd>
               )}
             </span>
-            {it.active && <Check size={14} className="mt-0.5 shrink-0 text-[var(--accent-blue)]" />}
+            {it.active && <Check size={14} className="mt-0.5 shrink-0 text-[var(--foreground)]" />}
           </button>
         );
       })}

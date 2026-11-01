@@ -113,7 +113,7 @@ export function Select<T extends string = string>({
               >
                 {withIcons && <OptionIcon icon={o.icon} on={on} />}
                 <span className="min-w-0 flex-1 truncate">{o.label}</span>
-                {on && <Check size={14} className="text-[var(--accent-blue)] shrink-0" />}
+                {on && <Check size={14} className="text-[var(--foreground)] shrink-0" />}
               </button>
             );
           })}
