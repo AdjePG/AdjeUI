@@ -1,11 +1,13 @@
 "use client";
 
 import { ReactNode, useRef } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { IconButton } from "../controls/IconButton";
 import { useEscape } from "../internal/layers";
 
-// Centered dialog; full screen on a phone. `footer` is the ACTION ZONE: pass
+// Centered dialog; full screen on a phone. Drawn on the page's body (as Popover), so a dialog opened from
+// inside a Drawer or any other layer always sits above it. `footer` is the ACTION ZONE: pass
 // it the buttons (create/save/cancel) and they're drawn in their own bar, the
 // same in every dialog. Don't put them in children.
 //
@@ -44,10 +46,10 @@ export function Modal({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   useEscape(onClose, open, [ref]);
-  if (!open) return null;
+  if (!open || typeof document === "undefined") return null;
   const fit = scrollBody || bare;
   const width = { md: "max-w-lg", lg: "max-w-3xl", xl: "max-w-6xl" }[size ?? (wide ? "lg" : "md")];
-  return (
+  return createPortal(
     <div
       ref={ref}
       // Always able to scroll: a window lower than the dialog's minimum
@@ -90,6 +92,7 @@ export function Modal({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
