@@ -21,7 +21,7 @@ function sampleDays(): CalendarDay[] {
     </span>
   );
   return [
-    { date: day(2), content: lines("8 h", "2 shifts"), color: free, tooltip: (<><CalendarTipRow color={free} label="Morning shift" value="08:00" /><CalendarTipRow color={free} label="Evening shift" value="16:00" /></>) },
+    { date: day(2), content: lines("8 h", "2 shifts"), color: free, tooltip: (<><CalendarTipRow color={free} icon={<Package size={14} />} label="Morning shift" detail="Ana, Luis" value="08:00" /><CalendarTipRow color={free} icon={<Package size={14} />} label="Evening shift" detail="Marta" value="16:00" /></>) },
     { date: day(3), content: lines("6 h", "1 shift"), color: free },
     { date: day(4), content: <b>4 h</b>, badges: [upkeep], tooltip: <CalendarTipRow color={upkeep.color} label="Maintenance" value="2 h" /> },
     { date: day(8), content: <span className="text-xs text-muted">Closed</span>, color: full, badges: [holiday] },

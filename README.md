@@ -226,6 +226,13 @@ affects all of them.
 
 ## Changelog
 
+### 4.15.0
+
+- `Calendar`'s tooltip opens with the day as a leaf of a desk calendar (its number on the
+  gradient, the weekday and the month beside it) over a hairline.
+- `CalendarTipRow`: `icon` (on a wash of `color`, instead of the dot) and `detail` (a second,
+  muted line under the label).
+
 ### 4.14.0
 
 - **New:** `CalendarTipRow` (data), a line of a day's tooltip: a gradient dot in a badge's

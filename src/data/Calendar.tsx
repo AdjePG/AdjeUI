@@ -4,7 +4,6 @@ import { useState, type CSSProperties, type MouseEvent, type ReactNode } from "r
 import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { IconButton } from "../controls/IconButton";
-import { Overline } from "../primitives/Overline";
 
 // A month, Monday first, always six weeks (42 cells) so moving between months
 // never moves what is under it. The neighbouring months' days are dimmed and
@@ -53,13 +52,28 @@ export function calendarKey(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-/** A line of a day's tooltip: a dot in the badge's colour (when given), what it is, and a short value at the end ("23:59"). */
-export function CalendarTipRow({ color, label, value }: { color?: string; label: ReactNode; value?: ReactNode }) {
+/**
+ * A line of a day's tooltip: its picture (an `icon` on a wash of `color`, or a dot in it), what it is with an
+ * optional second line (`detail`), and a short value at the end ("23:59").
+ */
+export function CalendarTipRow({ color, icon, label, detail, value }: { color?: string; icon?: ReactNode; label: ReactNode; detail?: ReactNode; value?: ReactNode }) {
   return (
-    <div className="flex items-center gap-2">
-      {color && <span className="calendar__badge shrink-0" style={{ "--calendar-badge": color } as CSSProperties} />}
-      <span className="min-w-0 max-w-56 truncate">{label}</span>
-      {value != null && <span className="ml-auto pl-3 tabular-nums text-muted">{value}</span>}
+    <div className="flex items-center gap-2.5">
+      {icon ? (
+        <span
+          className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
+          style={{ background: `color-mix(in srgb, ${color ?? "var(--accent-blue)"} 18%, transparent)`, color: color ?? "var(--accent-blue)" }}
+        >
+          {icon}
+        </span>
+      ) : (
+        color && <span className="calendar__badge shrink-0" style={{ "--calendar-badge": color } as CSSProperties} />
+      )}
+      <span className="flex min-w-0 max-w-56 flex-col">
+        <span className="truncate font-semibold">{label}</span>
+        {detail != null && <span className="truncate text-xs text-muted">{detail}</span>}
+      </span>
+      {value != null && <span className="ml-auto pl-4 text-xs font-semibold tabular-nums text-muted">{value}</span>}
     </div>
   );
 }
@@ -221,11 +235,18 @@ export function Calendar({
         tipCell &&
         createPortal(
           <div
-            className="pointer-events-none fixed z-[80] flex w-max min-w-40 max-w-[300px] flex-col gap-1.5 whitespace-nowrap rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 py-2.5 text-[13px] text-[var(--foreground)] shadow-lg"
+            className="pointer-events-none fixed z-[80] flex w-max min-w-52 max-w-[320px] flex-col gap-2.5 whitespace-nowrap rounded-2xl border border-[var(--border)] bg-[var(--card)] p-3 text-[13px] text-[var(--foreground)] shadow-xl"
             style={{ left: hover.x, top: hover.y, transform: `translate(${flip ? "calc(-100% - 14px)" : "14px"}, 14px)` }}
           >
-            <Overline>{tipCell.d.toLocaleDateString(locale, { weekday: "short", day: "numeric", month: "short" })}</Overline>
-            <div className="flex flex-col gap-1">{tipCell.day?.tooltip}</div>
+            {/* The day, as a leaf of a desk calendar: its number on the gradient, the weekday and the month beside it. */}
+            <div className="flex items-center gap-2.5 border-b border-[var(--border)] pb-2.5">
+              <span className="bg-app-gradient inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-base font-bold text-white">{tipCell.d.getDate()}</span>
+              <span className="flex flex-col leading-tight">
+                <span className="font-semibold first-letter:uppercase">{tipCell.d.toLocaleDateString(locale, { weekday: "long" })}</span>
+                <span className="text-xs text-muted first-letter:uppercase">{tipCell.d.toLocaleDateString(locale, { month: "long", year: "numeric" })}</span>
+              </span>
+            </div>
+            <div className="flex flex-col gap-2">{tipCell.day?.tooltip}</div>
           </div>,
           document.body,
         )}
