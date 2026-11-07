@@ -3,18 +3,19 @@
 import { useState, type ReactNode } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { IconButton } from "../controls/IconButton";
-import { Overline, overlineCls } from "../primitives/Overline";
+import { overlineCls } from "../primitives/Overline";
 
 // A month, Monday first, always six weeks tall so moving between months never
-// moves what is under it; the neighbouring months' days are greyed. A day can
-// carry a colour (its cell is tinted with it), up to three short lines (a
-// value, a detail in the app's colour and a status) and badges, small dots
-// whose label shows on hover. Today wears a ring in the gradient's lighter
-// colour, the selected day one in the app's colour. The legend under it
-// explains the colours (swatches) and the badges (dots).
+// moves what is under it; the neighbouring months' days are greyed. Each cell
+// is a template: its number (bold, centred) on top, whatever the caller puts
+// in `content` in the middle, and badges (small dots whose label shows on
+// hover) along the bottom. A day can also carry a colour that tints its cell.
+// Today wears a ring in the gradient's lighter colour, the selected day one in
+// the app's colour. The legend under it explains the colours (swatches) and
+// the badges (dots).
 //
 //   <Calendar
-//     days={[{ date: "2026-11-02", value: "8 h", detail: "2 shifts", status: "Full", color: palette("blue", 500) }]}
+//     days={[{ date: "2026-11-02", content: "8 h", color: palette("blue", 500), badges: [{ color: palette("orange", 600), label: "Holiday" }] }]}
 //     selected={day} onSelect={setDay}
 //     legend={[{ label: "Available", color: palette("blue", 500) }, { label: "Holiday", color: palette("orange", 600), kind: "dot" }]}
 //   />
@@ -24,12 +25,8 @@ export type CalendarBadge = { color: string; label: string };
 export type CalendarDay = {
   /** The day, as "YYYY-MM-DD" (local; see `calendarKey`). */
   date: string;
-  /** The day's main figure: "8 h", "2". */
-  value?: ReactNode;
-  /** A second line in the app's colour: "2 shifts". Hidden on narrow screens. */
-  detail?: ReactNode;
-  /** A small uppercase word: "Full", "Closed". Hidden on narrow screens. */
-  status?: ReactNode;
+  /** What goes in the middle of the cell, centred: "8 h", a count, two short lines… */
+  content?: ReactNode;
   /** Tints the cell (at `fill` %). */
   color?: string;
   badges?: CalendarBadge[];
@@ -123,22 +120,16 @@ export function Calendar({
           const ring = key === selected ? "ring-2 ring-inset ring-[var(--accent-blue)]" : key === todayKey ? "ring-2 ring-inset ring-[var(--accent-pink)]" : "";
           const body = (
             <>
-              <span className={`text-xs tabular-nums ${outside ? "text-muted opacity-60" : key === todayKey ? "font-bold" : ""}`}>{d.getDate()}</span>
-              <span className="flex flex-1 flex-col items-center justify-center self-stretch text-center leading-tight">
-                {day?.value != null && <span className="text-sm font-semibold">{day.value}</span>}
-                {day?.detail != null && <span className="hidden text-xs text-[var(--accent-blue)] sm:block">{day.detail}</span>}
-                {day?.status != null && <Overline className="hidden sm:block">{day.status}</Overline>}
-                {!!day?.badges?.length && (
-                  <span className="mt-1 flex gap-1">
-                    {day.badges.map((b, i) => (
-                      <span key={i} title={b.label} className="h-1.5 w-1.5 rounded-full" style={{ background: b.color }} />
-                    ))}
-                  </span>
-                )}
+              <span className={`text-xs font-bold tabular-nums ${outside ? "text-muted opacity-60" : ""}`}>{d.getDate()}</span>
+              <span className="flex flex-1 items-center justify-center text-center text-sm leading-tight">{day?.content}</span>
+              <span className="flex h-1.5 gap-1">
+                {day?.badges?.map((b, i) => (
+                  <span key={i} title={b.label} className="h-1.5 w-1.5 rounded-full" style={{ background: b.color }} />
+                ))}
               </span>
             </>
           );
-          const look = `flex min-h-14 flex-col items-start rounded-xl p-1.5 sm:min-h-20 ${outside ? "opacity-70" : ""} ${ring}`;
+          const look = `flex min-h-12 flex-col items-center rounded-lg px-1 py-1 sm:min-h-14 ${outside ? "opacity-70" : ""} ${ring}`;
           const tint = day?.color ? { background: `color-mix(in srgb, ${day.color} ${fill}%, transparent)` } : undefined;
           const label = d.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long", year: "numeric" });
           return onSelect ? (
@@ -151,7 +142,7 @@ export function Calendar({
                 onSelect(key);
                 if (outside) go(firstOfMonth(d));
               }}
-              className={`${look} text-left transition ${tint ? "hover:brightness-110" : "hover:bg-[var(--hover)]"}`}
+              className={`${look} transition ${tint ? "hover:brightness-110" : "hover:bg-[var(--hover)]"}`}
               style={tint}
             >
               {body}

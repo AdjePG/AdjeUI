@@ -226,6 +226,13 @@ affects all of them.
 
 ## Changelog
 
+### 4.12.0
+
+- `Calendar`: each cell is a template: the day's number bold and centred on top, `content`
+  (anything) centred in the middle and the badges along the bottom; shorter cells.
+  `content` replaces `value`, `detail` and `status` (4.11.0, a day old; Solaula was the only
+  one using them).
+
 ### 4.11.0
 
 - **New:** `Calendar` (data): a month, Monday first and always six weeks tall, with arrows to

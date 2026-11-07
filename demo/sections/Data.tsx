@@ -13,14 +13,21 @@ function sampleDays(): CalendarDay[] {
   const full = palette("red", 500);
   const holiday = { color: palette("orange", 600), label: "Holiday" };
   const upkeep = { color: palette("purple", 500), label: "Maintenance" };
+  // Whatever the app puts in the middle: one figure, or two short lines.
+  const lines = (top: string, bottom: string) => (
+    <span className="flex flex-col">
+      <b>{top}</b>
+      <span className="text-xs text-muted">{bottom}</span>
+    </span>
+  );
   return [
-    { date: day(2), value: "8 h", detail: "2 shifts", status: "Full", color: free },
-    { date: day(3), value: "6 h", detail: "1 shift", color: free },
-    { date: day(4), value: "4 h", badges: [upkeep] },
-    { date: day(8), status: "Closed", color: full, badges: [holiday] },
-    { date: day(12), value: "2 h", status: "Short", color: free },
-    { date: day(15), value: "7 h", color: palette("amber", 400), badges: [upkeep, holiday] },
-    { date: day(22), value: "8 h", detail: "2 shifts", color: palette("teal", 600) },
+    { date: day(2), content: lines("8 h", "2 shifts"), color: free },
+    { date: day(3), content: lines("6 h", "1 shift"), color: free },
+    { date: day(4), content: <b>4 h</b>, badges: [upkeep] },
+    { date: day(8), content: <span className="text-xs text-muted">Closed</span>, color: full, badges: [holiday] },
+    { date: day(12), content: <b>2 h</b>, color: free },
+    { date: day(15), content: <b>7 h</b>, color: palette("amber", 400), badges: [upkeep, holiday] },
+    { date: day(22), content: lines("8 h", "2 shifts"), color: palette("teal", 600) },
   ];
 }
 
@@ -96,7 +103,7 @@ export function DataSection() {
             </div>
           </div>
         </Block>
-        <Block name="Calendar: days (value, detail, status, color, badges), selected + onSelect, legend (swatch / dot), fill">
+        <Block name="Calendar: days (content in the middle, color, badges along the bottom), selected + onSelect, legend (swatch / dot), fill">
           <div className="w-full max-w-3xl">
             <Calendar
               days={sampleDays()}
