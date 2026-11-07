@@ -26,7 +26,7 @@ If Adje Store ever needs charts, they will move here as an optional module.
 
 `src/index.ts` exports everything **except rich text**: `RichTextEditor`
 (WYSIWYG with Tiptap: bold, italic, underline, heading, lists, quote, link),
-`RichText` (sanitized viewer with DOMPurify), `sanitizeRichText`,
+`RichText` (sanitized viewer with DOMPurify), `sanitizeRichText`, `maxLengthExtension`,
 `richTextToPlain` and `isRichTextEmpty` are imported from `adje-shared-ui/rich-text`.
 They are kept apart because they drag in Tiptap and DOMPurify: only the app that
 uses them installs them (`npm i @tiptap/react @tiptap/starter-kit @tiptap/extension-placeholder
@@ -225,6 +225,11 @@ And in its configuration:
 affects all of them.
 
 ## Changelog
+
+### 4.18.0
+
+- **New (rich-text):** `maxLengthExtension(getMax)`, the limit `RichTextEditor` uses, for an
+  app's own Tiptap editors: past it typing is refused and a paste puts in what fits.
 
 ### 4.17.3
 

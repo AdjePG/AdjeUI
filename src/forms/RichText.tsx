@@ -32,6 +32,39 @@ const ALLOWED_TAGS = ["p", "br", "strong", "em", "u", "s", "h2", "h3", "ul", "ol
 // vbscript: and friends.
 const SAFE_URI = /^(?:https?:\/\/|mailto:|tel:|\/|#)/i;
 
+/**
+ * A Tiptap extension that keeps a document's text within `getMax()` characters (formatting does not count): a
+ * change that would leave more is refused, one that shortens it or a value set from outside always goes through,
+ * and a paste that does not fit pastes what does, as a plain text field cuts it. For any Tiptap editor of an app.
+ */
+export function maxLengthExtension(getMax: () => number | undefined) {
+  return Extension.create({
+    name: "maxLength",
+    addProseMirrorPlugins: () => [
+      new Plugin({
+        props: {
+          handlePaste: (view, _event, slice) => {
+            const max = getMax();
+            if (!max) return false;
+            const { state } = view;
+            const text = slice.content.textBetween(0, slice.content.size, " ");
+            const room = max - (state.doc.textContent.length - state.doc.textBetween(state.selection.from, state.selection.to).length);
+            if (text.length <= room) return false;
+            if (room > 0) view.dispatch(state.tr.insertText(text.slice(0, room)).scrollIntoView());
+            return true;
+          },
+        },
+        filterTransaction: (tr, state) => {
+          const max = getMax();
+          if (!max || !tr.docChanged || tr.getMeta("preventUpdate")) return true;
+          const next = tr.doc.textContent.length;
+          return next <= max || next <= state.doc.textContent.length;
+        },
+      }),
+    ],
+  });
+}
+
 /** The longest link it takes, as the address fields of the apps (2000). */
 const LINK_MAX = 2000;
 const PROTOCOLS = ["http", "https", "mailto", "tel"];
@@ -421,33 +454,7 @@ export function RichTextEditor({
           horizontalRule: false,
         }),
         Placeholder.configure({ placeholder: () => placeholderRef.current }),
-        // A change that would leave more text than maxLength is refused; one that shortens it, or a value set from
-        // outside, always goes through. A paste that does not fit pastes what does, as a plain text field cuts it.
-        Extension.create({
-          name: "maxLength",
-          addProseMirrorPlugins: () => [
-            new Plugin({
-              props: {
-                handlePaste: (view, _event, slice) => {
-                  const max = maxRef.current;
-                  if (!max) return false;
-                  const { state } = view;
-                  const text = slice.content.textBetween(0, slice.content.size, " ");
-                  const room = max - (state.doc.textContent.length - state.doc.textBetween(state.selection.from, state.selection.to).length);
-                  if (text.length <= room) return false;
-                  if (room > 0) view.dispatch(state.tr.insertText(text.slice(0, room)).scrollIntoView());
-                  return true;
-                },
-              },
-              filterTransaction: (tr, state) => {
-                const max = maxRef.current;
-                if (!max || !tr.docChanged || tr.getMeta("preventUpdate")) return true;
-                const next = tr.doc.textContent.length;
-                return next <= max || next <= state.doc.textContent.length;
-              },
-            }),
-          ],
-        }),
+        maxLengthExtension(() => maxRef.current),
       ];
     },
     [key, placeholderRef, maxRef],
