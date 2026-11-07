@@ -160,7 +160,9 @@ export function Calendar({
     return { d, key, inMonth, day: inMonth ? byDate.get(key) : undefined };
   });
   const tipCell = hover ? cells.find((c) => c.key === hover.key && c.day?.tooltip != null) : undefined;
-  const flip = hover ? hover.x > window.innerWidth - 300 : false;
+  // Near the window's right or bottom edge it opens to the other side of the pointer.
+  const flipX = hover ? hover.x > window.innerWidth - 320 : false;
+  const flipY = hover ? hover.y > window.innerHeight - 220 : false;
   // 1 Jan 2024 was a Monday.
   const weekdays = Array.from({ length: 7 }, (_, i) => new Date(2024, 0, 1 + i).toLocaleDateString(locale, { weekday: "short" }).replace(".", ""));
 
@@ -236,7 +238,7 @@ export function Calendar({
         createPortal(
           <div
             className="pointer-events-none fixed z-[80] flex w-max min-w-52 max-w-[320px] flex-col gap-2.5 whitespace-nowrap rounded-2xl border border-[var(--border)] bg-[var(--card)] p-3 text-[13px] text-[var(--foreground)] shadow-xl"
-            style={{ left: hover.x, top: hover.y, transform: `translate(${flip ? "calc(-100% - 14px)" : "14px"}, 14px)` }}
+            style={{ left: hover.x, top: hover.y, transform: `translate(${flipX ? "calc(-100% - 14px)" : "14px"}, ${flipY ? "calc(-100% - 14px)" : "14px"})` }}
           >
             {/* The day, as a leaf of a desk calendar: its number on the gradient, the weekday and the month beside it. */}
             <div className="flex items-center gap-2.5 border-b border-[var(--border)] pb-2.5">

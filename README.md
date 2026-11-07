@@ -226,6 +226,10 @@ affects all of them.
 
 ## Changelog
 
+### 4.15.1
+
+- `Calendar`: near the bottom of the window the tooltip opens above the pointer.
+
 ### 4.15.0
 
 - `Calendar`'s tooltip opens with the day as a leaf of a desk calendar (its number on the
