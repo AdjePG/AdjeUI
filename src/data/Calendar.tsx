@@ -1,35 +1,42 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { IconButton } from "../controls/IconButton";
-import { overlineCls } from "../primitives/Overline";
 
-// A month, Monday first, always six weeks tall so moving between months never
-// moves what is under it; the neighbouring months' days are greyed. Each cell
-// is a template: its number (bold, centred) on top, whatever the caller puts
-// in `content` in the middle, and badges (small dots whose label shows on
-// hover) along the bottom. A day can also carry a colour that tints its cell.
-// Today wears a ring in the gradient's lighter colour, the selected day one in
-// the app's colour. The legend under it explains the colours (swatches) and
-// the badges (dots).
+// A month, Monday first, always six weeks (42 cells) so moving between months
+// never moves what is under it. The neighbouring months' days are dimmed and
+// carry no data. Each cell is a template: its number (bold, centred) on top,
+// whatever the caller puts in `content` in the middle, and badges (small dots)
+// along the bottom. A day can be filled with one colour or with stacked bands,
+// and can have a `tooltip`: a card that follows the pointer with the date on
+// top, as a chart's does. Today wears a ring in the gradient's lighter colour,
+// the selected day one in the app's colour. An optional legend explains the
+// colours (swatches) and the badges (dots). It sizes its type by its own width
+// (styles in theme.css, `.calendar`), so it works narrow too.
 //
 //   <Calendar
-//     days={[{ date: "2026-11-02", content: "8 h", color: palette("blue", 500), badges: [{ color: palette("orange", 600), label: "Holiday" }] }]}
+//     days={[{ date: "2026-11-02", content: "8 h", color: palette("blue", 500), tooltip: "2 shifts" }]}
 //     selected={day} onSelect={setDay}
-//     legend={[{ label: "Available", color: palette("blue", 500) }, { label: "Holiday", color: palette("orange", 600), kind: "dot" }]}
 //   />
 
 export type CalendarBadge = { color: string; label: string };
+
+/** A slice of a day's fill, from the top; without `percent` the bands share what is left. "transparent" leaves it empty. */
+export type CalendarBand = { color: string; percent?: number };
 
 export type CalendarDay = {
   /** The day, as "YYYY-MM-DD" (local; see `calendarKey`). */
   date: string;
   /** What goes in the middle of the cell, centred: "8 h", a count, two short lines… */
   content?: ReactNode;
-  /** Tints the cell (at `fill` %). */
+  /** Fills the cell (at `fill` %). */
   color?: string;
+  /** Fills the cell with stacked bands instead of one colour. */
+  bands?: CalendarBand[];
   badges?: CalendarBadge[];
+  /** Shown under the date in a card that follows the pointer over the day. */
+  tooltip?: ReactNode;
 };
 
 export type CalendarLegendItem = {
@@ -46,6 +53,24 @@ export function calendarKey(d: Date): string {
 
 const firstOfMonth = (d: Date) => new Date(d.getFullYear(), d.getMonth(), 1);
 
+const tint = (color: string, fill: number) => (color === "transparent" ? "transparent" : `color-mix(in srgb, transparent, ${color} ${fill}%)`);
+
+function bandsFill(bands: CalendarBand[], fill: number): string {
+  const claimed = bands.reduce((n, b) => n + Math.max(0, b.percent ?? 0), 0);
+  const unsized = bands.filter((b) => b.percent == null).length;
+  const spare = Math.max(0, 100 - claimed);
+  const scale = claimed > 100 ? 100 / claimed : 1;
+  let at = 0;
+  const stops = bands.map((b) => {
+    const share = b.percent != null ? Math.max(0, b.percent) * scale : unsized && spare ? spare / unsized : 100 / bands.length;
+    const end = Math.min(100, at + share);
+    const stop = `${tint(b.color, fill)} ${at.toFixed(2)}% ${end.toFixed(2)}%`;
+    at = end;
+    return stop;
+  });
+  return `linear-gradient(to bottom, ${stops.join(", ")})`;
+}
+
 export function Calendar({
   days = [],
   month,
@@ -55,7 +80,9 @@ export function Calendar({
   onSelect,
   today = new Date(),
   legend,
-  fill = 45,
+  fill = 50,
+  loading = false,
+  showNavigation = true,
   locale = "en-GB",
   className = "",
 }: {
@@ -73,9 +100,13 @@ export function Calendar({
   /** Which day is today (ringed). */
   today?: Date;
   legend?: CalendarLegendItem[];
-  /** How strongly a day's colour tints its cell, in %. */
+  /** How strongly a day's colour fills its cell, in %. */
   fill?: number;
-  /** For the month's name and the weekdays. */
+  /** Dimmed and not clickable while the month's days load; the cells stay where they are. */
+  loading?: boolean;
+  /** The arrows to the previous and next month. */
+  showNavigation?: boolean;
+  /** For the month's name, the weekdays and the tooltip's date. */
   locale?: string;
   className?: string;
 }) {
@@ -83,90 +114,126 @@ export function Calendar({
   const shown = firstOfMonth(month ?? own);
   const byDate = new Map(days.map((d) => [d.date, d]));
   const todayKey = calendarKey(today);
+  const box = useRef<HTMLDivElement>(null);
+  const [hover, setHover] = useState<{ key: string; x: number; y: number } | null>(null);
 
   function go(first: Date) {
     if (month == null) setOwn(first);
     onMonthChange?.(first);
   }
 
+  // The tooltip follows the pointer, where the eye is.
+  function track(e: MouseEvent, key: string) {
+    const r = box.current?.getBoundingClientRect();
+    if (r) setHover({ key, x: e.clientX - r.left, y: e.clientY - r.top });
+  }
+
   // Six weeks from the Monday on or before the 1st.
   const start = new Date(shown.getFullYear(), shown.getMonth(), 1 - ((shown.getDay() + 6) % 7));
-  const cells = Array.from({ length: 42 }, (_, i) => new Date(start.getFullYear(), start.getMonth(), start.getDate() + i));
+  const cells = Array.from({ length: 42 }, (_, i) => {
+    const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+    const key = calendarKey(d);
+    const inMonth = d.getMonth() === shown.getMonth();
+    return { d, key, inMonth, day: inMonth ? byDate.get(key) : undefined };
+  });
+  const hasContent = cells.some((c) => c.day?.content != null);
+  const tipCell = hover ? cells.find((c) => c.key === hover.key && c.day?.tooltip != null) : undefined;
+  const flip = hover ? hover.x > (box.current?.clientWidth ?? 0) - 200 : false;
   // 1 Jan 2024 was a Monday.
-  const weekdays = Array.from({ length: 7 }, (_, i) => new Date(2024, 0, 1 + i).toLocaleDateString(locale, { weekday: "short" }));
+  const weekdays = Array.from({ length: 7 }, (_, i) => new Date(2024, 0, 1 + i).toLocaleDateString(locale, { weekday: "short" }).replace(".", ""));
 
   return (
-    <div className={`flex flex-col gap-3 ${className}`}>
-      <div className="flex items-center justify-between gap-2">
-        <IconButton label="Previous month" onClick={() => go(new Date(shown.getFullYear(), shown.getMonth() - 1, 1))}>
-          <ChevronLeft size={16} />
-        </IconButton>
-        <div className="text-base font-bold first-letter:uppercase">{shown.toLocaleDateString(locale, { month: "long", year: "numeric" })}</div>
-        <IconButton label="Next month" onClick={() => go(new Date(shown.getFullYear(), shown.getMonth() + 1, 1))}>
-          <ChevronRight size={16} />
-        </IconButton>
+    <div ref={box} className={`calendar relative ${loading ? "is-loading" : ""} ${className}`}>
+      <div className="calendar__header">
+        {showNavigation && (
+          <IconButton label="Previous month" onClick={() => go(new Date(shown.getFullYear(), shown.getMonth() - 1, 1))}>
+            <ChevronLeft size={16} />
+          </IconButton>
+        )}
+        <span className="calendar__title">{shown.toLocaleDateString(locale, { month: "long", year: "numeric" })}</span>
+        {showNavigation && (
+          <IconButton label="Next month" onClick={() => go(new Date(shown.getFullYear(), shown.getMonth() + 1, 1))}>
+            <ChevronRight size={16} />
+          </IconButton>
+        )}
       </div>
 
-      <div className="grid grid-cols-7 gap-1">
+      <div className="calendar__weekdays">
         {weekdays.map((w) => (
-          <div key={w} className={`${overlineCls} text-muted text-center`}>
-            {w.replace(".", "")}
+          <div key={w} className="calendar__weekday">
+            <span className="calendar__weekday-full">{w}</span>
+            <span className="calendar__weekday-letter">{w.charAt(0)}</span>
           </div>
         ))}
-        {cells.map((d) => {
-          const key = calendarKey(d);
-          const day = byDate.get(key);
-          const outside = d.getMonth() !== shown.getMonth();
-          const ring = key === selected ? "ring-2 ring-inset ring-[var(--accent-blue)]" : key === todayKey ? "ring-2 ring-inset ring-[var(--accent-pink)]" : "";
+      </div>
+
+      <div className={`calendar__grid ${hasContent ? "has-day-content" : ""}`} onMouseLeave={() => setHover(null)}>
+        {cells.map(({ d, key, inMonth, day }) => {
+          const background = day?.bands?.length ? bandsFill(day.bands, fill) : day?.color ? tint(day.color, fill) : null;
+          const props = {
+            className: `calendar__cell ${inMonth ? "" : "is-other-month"} ${key === todayKey ? "is-today" : ""} ${key === selected ? "is-selected" : ""}`,
+            "data-filled": background ? "" : undefined,
+            style: background ? ({ "--calendar-fill": background } as CSSProperties) : undefined,
+            "aria-label": d.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long", year: "numeric" }),
+            onMouseMove: (e: MouseEvent) => track(e, key),
+          };
           const body = (
             <>
-              <span className={`text-xs font-bold tabular-nums ${outside ? "text-muted opacity-60" : ""}`}>{d.getDate()}</span>
-              <span className="flex flex-1 items-center justify-center text-center text-sm leading-tight">{day?.content}</span>
-              <span className="flex h-1.5 gap-1">
-                {day?.badges?.map((b, i) => (
-                  <span key={i} title={b.label} className="h-1.5 w-1.5 rounded-full" style={{ background: b.color }} />
-                ))}
-              </span>
+              <span className="calendar__day">{d.getDate()}</span>
+              {hasContent && <span className="calendar__content">{day?.content}</span>}
+              {!!day?.badges?.length && (
+                <span className="calendar__badges">
+                  {day.badges.map((b, i) => (
+                    <span key={i} title={b.label} aria-label={b.label} className="calendar__badge" style={{ background: b.color }} />
+                  ))}
+                </span>
+              )}
             </>
           );
-          const look = `flex min-h-12 flex-col items-center rounded-lg px-1 py-1 sm:min-h-14 ${outside ? "opacity-70" : ""} ${ring}`;
-          const tint = day?.color ? { background: `color-mix(in srgb, ${day.color} ${fill}%, transparent)` } : undefined;
-          const label = d.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long", year: "numeric" });
           return onSelect ? (
             <button
               key={key}
               type="button"
-              aria-label={label}
               aria-pressed={key === selected}
               onClick={() => {
                 onSelect(key);
-                if (outside) go(firstOfMonth(d));
+                if (!inMonth) go(firstOfMonth(d));
               }}
-              className={`${look} transition ${tint ? "hover:brightness-110" : "hover:bg-[var(--hover)]"}`}
-              style={tint}
+              {...props}
             >
               {body}
             </button>
           ) : (
-            <div key={key} aria-label={label} className={look} style={tint}>
+            <div key={key} {...props}>
               {body}
             </div>
           );
         })}
       </div>
 
-      {!!legend?.length && (
-        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-muted">
-          {legend.map((l) => (
-            <span key={l.label} className="flex items-center gap-1.5">
-              <span
-                className={l.kind === "dot" ? "h-2 w-2 rounded-full" : "h-3 w-3 rounded-[4px]"}
-                style={{ background: l.kind === "dot" ? l.color : `color-mix(in srgb, ${l.color} ${fill}%, transparent)` }}
-              />
-              {l.label}
-            </span>
-          ))}
+      {hover && tipCell && (
+        <div
+          // w-max + nowrap: near the edge an absolute box shrinks to what is left of its container.
+          className="pointer-events-none absolute z-10 w-max min-w-32 max-w-[280px] whitespace-nowrap rounded-lg border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-xs shadow-lg"
+          style={{ left: hover.x, top: hover.y, transform: `translate(${flip ? "calc(-100% - 14px)" : "14px"}, 14px)` }}
+        >
+          <div className="font-semibold first-letter:uppercase">{tipCell.d.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long" })}</div>
+          {tipCell.day?.tooltip}
         </div>
+      )}
+
+      {!!legend?.length && (
+        <ul className="calendar__legend">
+          {legend.map((l) => (
+            <li key={l.label} className="calendar__legend-item">
+              <span
+                className={l.kind === "dot" ? "calendar__legend-dot" : "calendar__legend-swatch"}
+                style={{ background: l.kind === "dot" ? l.color : tint(l.color, fill) }}
+              />
+              <span className="calendar__legend-label">{l.label}</span>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );

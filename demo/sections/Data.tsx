@@ -5,7 +5,17 @@ import { Block, Section } from "../common";
 
 // ---------------- data ----------------
 
-// A month of the calendar demo around today: colours, lines, badges and a closed day.
+// A line of a day's tooltip, as a chart's: the name muted, the value at the end.
+function TipRow({ name, value }: { name: string; value: string }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className="text-muted">{name}</span>
+      <span className="ml-auto pl-2 tabular-nums">{value}</span>
+    </div>
+  );
+}
+
+// A month of the calendar demo around today: colours, bands, lines, badges, tooltips and a closed day.
 function sampleDays(): CalendarDay[] {
   const now = new Date();
   const day = (d: number) => calendarKey(new Date(now.getFullYear(), now.getMonth(), d));
@@ -21,11 +31,11 @@ function sampleDays(): CalendarDay[] {
     </span>
   );
   return [
-    { date: day(2), content: lines("8 h", "2 shifts"), color: free },
+    { date: day(2), content: lines("8 h", "2 shifts"), color: free, tooltip: <TipRow name="Morning" value="4 h" /> },
     { date: day(3), content: lines("6 h", "1 shift"), color: free },
-    { date: day(4), content: <b>4 h</b>, badges: [upkeep] },
+    { date: day(4), content: <b>4 h</b>, badges: [upkeep], tooltip: <TipRow name="Maintenance" value="2 h" /> },
     { date: day(8), content: <span className="text-xs text-muted">Closed</span>, color: full, badges: [holiday] },
-    { date: day(12), content: <b>2 h</b>, color: free },
+    { date: day(12), content: <b>2 h</b>, bands: [{ color: free }, { color: full, percent: 30 }], tooltip: <TipRow name="Booked" value="30%" /> },
     { date: day(15), content: <b>7 h</b>, color: palette("amber", 400), badges: [upkeep, holiday] },
     { date: day(22), content: lines("8 h", "2 shifts"), color: palette("teal", 600) },
   ];
@@ -103,7 +113,7 @@ export function DataSection() {
             </div>
           </div>
         </Block>
-        <Block name="Calendar: days (content in the middle, color, badges along the bottom), selected + onSelect, legend (swatch / dot), fill">
+        <Block name="Calendar: days (content in the middle, color or bands, badges along the bottom, tooltip), selected + onSelect, legend (swatch / dot), fill, loading, showNavigation">
           <div className="w-full max-w-3xl">
             <Calendar
               days={sampleDays()}

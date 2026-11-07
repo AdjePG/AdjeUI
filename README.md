@@ -226,6 +226,18 @@ affects all of them.
 
 ## Changelog
 
+### 4.13.0
+
+- `Calendar` follows the Boyum calendar it is based on: its styles live in `theme.css`
+  (`.calendar`) and size the type by the calendar's own width (container queries; under
+  15 rem the weekdays shrink to a letter). Small corners, 1 px between cells, a wash on
+  hover, the fill drawn under today's and the selected ring. The neighbouring months'
+  days carry no data.
+- **New on `CalendarDay`:** `bands` (the fill as stacked bands, with or without `percent`)
+  and `tooltip` (a card that follows the pointer with the date on top, as a chart's).
+- **New props:** `loading` (dimmed, not clickable) and `showNavigation`. `fill` is 50 by
+  default (was 45). `CalendarBand` is exported.
+
 ### 4.12.0
 
 - `Calendar`: each cell is a template: the day's number bold and centred on top, `content`
