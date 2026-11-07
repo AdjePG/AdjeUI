@@ -1,6 +1,6 @@
 {
   "name": "adje-shared-ui",
-  "version": "4.17.1",
+  "version": "4.17.2",
   "private": true,
   "description": "AdjeUI: design system shared by the Adje apps. React components organized by category in src/, base theme in theme.css and demo in demo/.",
   "exports": {
@@ -13,6 +13,7 @@
   },
   "scripts": {
     "demo": "vite demo",
+    "test": "node --test --disable-warning=MODULE_TYPELESS_PACKAGE_JSON \"tests/**/*.test.ts\"",
     "demo:build": "vite build demo",
     "typecheck": "tsc --noEmit"
   },

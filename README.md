@@ -226,6 +226,12 @@ affects all of them.
 
 ## Changelog
 
+### 4.17.2
+
+- Tests: `npm test` runs `tests/*.test.ts` with Node's own runner (no dependencies). The first
+  cover the calendar's arithmetic, now in `src/data/calendarDays.ts` (`calendarKey`, the six
+  weeks of a month, a day's fill). No change for apps.
+
 ### 4.17.1
 
 - `RichTextEditor`: a paste that does not fit in `maxLength` pastes what fits (as plain

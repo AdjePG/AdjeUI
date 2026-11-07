@@ -4,6 +4,7 @@ import { useState, type CSSProperties, type MouseEvent, type ReactNode } from "r
 import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { IconButton } from "../controls/IconButton";
+import { bandsFill, calendarKey, firstOfMonth, monthGrid, tint, type CalendarBand } from "./calendarDays";
 
 // A month, Monday first, always six weeks (42 cells) so moving between months
 // never moves what is under it. The neighbouring months' days are dimmed and
@@ -22,9 +23,6 @@ import { IconButton } from "../controls/IconButton";
 //   />
 
 export type CalendarBadge = { color: string; label: string };
-
-/** A slice of a day's fill, from the top; without `percent` the bands share what is left. "transparent" leaves it empty. */
-export type CalendarBand = { color: string; percent?: number };
 
 export type CalendarDay = {
   /** The day, as "YYYY-MM-DD" (local; see `calendarKey`). */
@@ -46,11 +44,6 @@ export type CalendarLegendItem = {
   /** "swatch" (a cell's colour, the default) or "dot" (a badge). */
   kind?: "swatch" | "dot";
 };
-
-/** A local day as "YYYY-MM-DD", the key a CalendarDay is found by. */
-export function calendarKey(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
 
 /**
  * A line of a day's tooltip: its picture (an `icon` on a wash of `color`, or a dot in it), what it is with an
@@ -76,26 +69,6 @@ export function CalendarTipRow({ color, icon, label, detail, value }: { color?: 
       {value != null && <span className="ml-auto pl-4 text-xs font-semibold tabular-nums text-muted">{value}</span>}
     </div>
   );
-}
-
-const firstOfMonth = (d: Date) => new Date(d.getFullYear(), d.getMonth(), 1);
-
-const tint = (color: string, fill: number) => (color === "transparent" ? "transparent" : `color-mix(in srgb, transparent, ${color} ${fill}%)`);
-
-function bandsFill(bands: CalendarBand[], fill: number): string {
-  const claimed = bands.reduce((n, b) => n + Math.max(0, b.percent ?? 0), 0);
-  const unsized = bands.filter((b) => b.percent == null).length;
-  const spare = Math.max(0, 100 - claimed);
-  const scale = claimed > 100 ? 100 / claimed : 1;
-  let at = 0;
-  const stops = bands.map((b) => {
-    const share = b.percent != null ? Math.max(0, b.percent) * scale : unsized && spare ? spare / unsized : 100 / bands.length;
-    const end = Math.min(100, at + share);
-    const stop = `${tint(b.color, fill)} ${at.toFixed(2)}% ${end.toFixed(2)}%`;
-    at = end;
-    return stop;
-  });
-  return `linear-gradient(to bottom, ${stops.join(", ")})`;
 }
 
 export function Calendar({
@@ -151,10 +124,7 @@ export function Calendar({
   // The tooltip follows the pointer, where the eye is; it is drawn on the body, so no card clips it.
   const track = (e: MouseEvent, key: string) => setHover({ key, x: e.clientX, y: e.clientY });
 
-  // Six weeks from the Monday on or before the 1st.
-  const start = new Date(shown.getFullYear(), shown.getMonth(), 1 - ((shown.getDay() + 6) % 7));
-  const cells = Array.from({ length: 42 }, (_, i) => {
-    const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+  const cells = monthGrid(shown).map((d) => {
     const key = calendarKey(d);
     const inMonth = d.getMonth() === shown.getMonth();
     return { d, key, inMonth, day: inMonth ? byDate.get(key) : undefined };

@@ -62,7 +62,8 @@ export { Stat } from "./data/Stat";
 export { ProgressBar } from "./data/ProgressBar";
 export { Pagination } from "./data/Pagination";
 export { Table } from "./data/Table";
-export { Calendar, CalendarTipRow, calendarKey, type CalendarDay, type CalendarBadge, type CalendarBand, type CalendarLegendItem } from "./data/Calendar";
+export { Calendar, CalendarTipRow, type CalendarDay, type CalendarBadge, type CalendarLegendItem } from "./data/Calendar";
+export { calendarKey, type CalendarBand } from "./data/calendarDays";
 
 // layout
 export { Carousel } from "./layout/Carousel";
