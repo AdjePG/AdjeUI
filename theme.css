@@ -562,6 +562,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
    covers the ring and the text sits above both. */
 .calendar {
   container-type: inline-size;
+  min-width: 18rem;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -613,12 +614,10 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     display: inline;
   }
 }
+/* Every cell is the same three rows: the day on top, the content in the middle, the badges at the bottom. */
 .calendar__grid {
-  grid-auto-rows: minmax(2.25rem, 1fr);
+  grid-auto-rows: minmax(3.5rem, 1fr);
   gap: 0.25rem;
-}
-.calendar__grid.has-day-content {
-  grid-auto-rows: minmax(3.25rem, 1fr);
 }
 .calendar__cell {
   --calendar-hover: color-mix(in srgb, transparent, var(--foreground) 10%);
@@ -626,10 +625,9 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: 0.125rem;
   min-width: 0;
-  padding: 0.125rem;
+  padding: 0.25rem 0.125rem;
   border: none;
   border-radius: 0.625rem;
   background: transparent;
@@ -639,12 +637,6 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 }
 button.calendar__cell {
   cursor: pointer;
-}
-.has-day-content .calendar__cell {
-  justify-content: flex-start;
-  gap: 0.0625rem;
-  padding-block: 0.1875rem;
-  line-height: 1;
 }
 .calendar__cell[data-filled]::after {
   content: "";
@@ -669,10 +661,10 @@ button.calendar__cell {
 .calendar__cell.is-selected::before {
   border: 2px solid var(--accent-blue);
 }
-button.calendar__cell:hover {
+.calendar__cell:hover {
   background: var(--calendar-hover);
 }
-button.calendar__cell[data-filled]:hover::after {
+.calendar__cell[data-filled]:hover::after {
   background: linear-gradient(var(--calendar-hover), var(--calendar-hover)), var(--calendar-fill);
 }
 .calendar__day,
@@ -713,7 +705,7 @@ button.calendar__cell[data-filled]:hover::after {
   justify-content: center;
   gap: 0.1875rem;
   width: 100%;
-  margin-block-start: 0.125rem;
+  min-height: 0.625rem;
 }
 /* A badge (and its legend dot) is a small sphere: its colour lit from the top left, as Solaula's. */
 .calendar__badge,
@@ -728,6 +720,7 @@ button.calendar__cell[data-filled]:hover::after {
 @container (min-width: 23rem) {
   .calendar__badges {
     gap: 0.25rem;
+    min-height: 0.75rem;
   }
   .calendar__badge {
     width: 0.75rem;

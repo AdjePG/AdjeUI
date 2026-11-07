@@ -226,6 +226,13 @@ affects all of them.
 
 ## Changelog
 
+### 4.13.2
+
+- `Calendar`: every cell is the same three rows (the day on top, the content in the middle,
+  the badges at the bottom), at least 3.5 rem tall, and the calendar is never narrower than
+  18 rem. Every cell lights up on hover, clickable or not, and the tooltip is drawn on the
+  body, so a card around the calendar no longer clips it.
+
 ### 4.13.1
 
 - `Calendar` in the house style: rounder cells (10 px) with 4 px between them, and the

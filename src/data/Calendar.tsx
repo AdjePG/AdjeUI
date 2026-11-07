@@ -1,19 +1,20 @@
 "use client";
 
-import { useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
+import { useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { IconButton } from "../controls/IconButton";
 
 // A month, Monday first, always six weeks (42 cells) so moving between months
 // never moves what is under it. The neighbouring months' days are dimmed and
-// carry no data. Each cell is a template: its number (bold, centred) on top,
-// whatever the caller puts in `content` in the middle, and badges (small dots)
-// along the bottom. A day can be filled with one colour or with stacked bands,
+// carry no data. Every cell is the same template: its number (bold, centred)
+// on top, whatever the caller puts in `content` in the middle, and badges
+// (small dots) along the bottom. A day can be filled with one colour or with stacked bands,
 // and can have a `tooltip`: a card that follows the pointer with the date on
 // top, as a chart's does. Today wears a ring in the gradient's lighter colour,
 // the selected day one in the app's colour. An optional legend explains the
 // colours (swatches) and the badges (dots). It sizes its type by its own width
-// (styles in theme.css, `.calendar`), so it works narrow too.
+// (styles in theme.css, `.calendar`) and is never narrower than 18 rem.
 //
 //   <Calendar
 //     days={[{ date: "2026-11-02", content: "8 h", color: palette("blue", 500), tooltip: "2 shifts" }]}
@@ -114,7 +115,6 @@ export function Calendar({
   const shown = firstOfMonth(month ?? own);
   const byDate = new Map(days.map((d) => [d.date, d]));
   const todayKey = calendarKey(today);
-  const box = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState<{ key: string; x: number; y: number } | null>(null);
 
   function go(first: Date) {
@@ -122,11 +122,8 @@ export function Calendar({
     onMonthChange?.(first);
   }
 
-  // The tooltip follows the pointer, where the eye is.
-  function track(e: MouseEvent, key: string) {
-    const r = box.current?.getBoundingClientRect();
-    if (r) setHover({ key, x: e.clientX - r.left, y: e.clientY - r.top });
-  }
+  // The tooltip follows the pointer, where the eye is; it is drawn on the body, so no card clips it.
+  const track = (e: MouseEvent, key: string) => setHover({ key, x: e.clientX, y: e.clientY });
 
   // Six weeks from the Monday on or before the 1st.
   const start = new Date(shown.getFullYear(), shown.getMonth(), 1 - ((shown.getDay() + 6) % 7));
@@ -136,14 +133,13 @@ export function Calendar({
     const inMonth = d.getMonth() === shown.getMonth();
     return { d, key, inMonth, day: inMonth ? byDate.get(key) : undefined };
   });
-  const hasContent = cells.some((c) => c.day?.content != null);
   const tipCell = hover ? cells.find((c) => c.key === hover.key && c.day?.tooltip != null) : undefined;
-  const flip = hover ? hover.x > (box.current?.clientWidth ?? 0) - 200 : false;
+  const flip = hover ? hover.x > window.innerWidth - 300 : false;
   // 1 Jan 2024 was a Monday.
   const weekdays = Array.from({ length: 7 }, (_, i) => new Date(2024, 0, 1 + i).toLocaleDateString(locale, { weekday: "short" }).replace(".", ""));
 
   return (
-    <div ref={box} className={`calendar relative ${loading ? "is-loading" : ""} ${className}`}>
+    <div className={`calendar ${loading ? "is-loading" : ""} ${className}`}>
       <div className="calendar__header">
         {showNavigation && (
           <IconButton label="Previous month" onClick={() => go(new Date(shown.getFullYear(), shown.getMonth() - 1, 1))}>
@@ -167,7 +163,7 @@ export function Calendar({
         ))}
       </div>
 
-      <div className={`calendar__grid ${hasContent ? "has-day-content" : ""}`} onMouseLeave={() => setHover(null)}>
+      <div className="calendar__grid" onMouseLeave={() => setHover(null)}>
         {cells.map(({ d, key, inMonth, day }) => {
           const background = day?.bands?.length ? bandsFill(day.bands, fill) : day?.color ? tint(day.color, fill) : null;
           const props = {
@@ -180,14 +176,12 @@ export function Calendar({
           const body = (
             <>
               <span className="calendar__day">{d.getDate()}</span>
-              {hasContent && <span className="calendar__content">{day?.content}</span>}
-              {!!day?.badges?.length && (
-                <span className="calendar__badges">
-                  {day.badges.map((b, i) => (
-                    <span key={i} title={b.label} aria-label={b.label} className="calendar__badge" style={{ "--calendar-badge": b.color } as CSSProperties} />
-                  ))}
-                </span>
-              )}
+              <span className="calendar__content">{day?.content}</span>
+              <span className="calendar__badges">
+                {day?.badges?.map((b, i) => (
+                  <span key={i} title={b.label} aria-label={b.label} className="calendar__badge" style={{ "--calendar-badge": b.color } as CSSProperties} />
+                ))}
+              </span>
             </>
           );
           return onSelect ? (
@@ -211,16 +205,18 @@ export function Calendar({
         })}
       </div>
 
-      {hover && tipCell && (
-        <div
-          // w-max + nowrap: near the edge an absolute box shrinks to what is left of its container.
-          className="pointer-events-none absolute z-10 w-max min-w-32 max-w-[280px] whitespace-nowrap rounded-lg border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-xs shadow-lg"
-          style={{ left: hover.x, top: hover.y, transform: `translate(${flip ? "calc(-100% - 14px)" : "14px"}, 14px)` }}
-        >
-          <div className="font-semibold first-letter:uppercase">{tipCell.d.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long" })}</div>
-          {tipCell.day?.tooltip}
-        </div>
-      )}
+      {hover &&
+        tipCell &&
+        createPortal(
+          <div
+            className="pointer-events-none fixed z-[80] w-max min-w-32 max-w-[280px] whitespace-nowrap rounded-lg border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-xs text-[var(--foreground)] shadow-lg"
+            style={{ left: hover.x, top: hover.y, transform: `translate(${flip ? "calc(-100% - 14px)" : "14px"}, 14px)` }}
+          >
+            <div className="font-semibold first-letter:uppercase">{tipCell.d.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long" })}</div>
+            {tipCell.day?.tooltip}
+          </div>,
+          document.body,
+        )}
 
       {!!legend?.length && (
         <ul className="calendar__legend">
