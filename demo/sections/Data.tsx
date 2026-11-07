@@ -26,7 +26,20 @@ function sampleDays(): CalendarDay[] {
     { date: day(4), content: <b>4 h</b>, badges: [upkeep], tooltip: <CalendarTipRow color={upkeep.color} label="Maintenance" value="2 h" /> },
     { date: day(8), content: <span className="text-xs text-muted">Closed</span>, color: full, badges: [holiday] },
     { date: day(12), content: <b>2 h</b>, bands: [{ color: free }, { color: full, percent: 30 }], tooltip: <CalendarTipRow color={full} label="Booked" value="30%" /> },
-    { date: day(15), content: <b>7 h</b>, color: palette("amber", 400), badges: [upkeep, holiday] },
+    {
+      date: day(15),
+      content: <b>7 h</b>,
+      color: palette("amber", 400),
+      badges: [upkeep, holiday],
+      // Any component goes in a tooltip: here a title, a bar and a line.
+      tooltip: (
+        <div className="flex w-52 flex-col gap-1.5">
+          <span className="font-semibold">Capacity</span>
+          <ProgressBar value={7} max={8} />
+          <span className="text-xs text-muted">7 of 8 hours booked · maintenance and a holiday</span>
+        </div>
+      ),
+    },
     { date: day(22), content: lines("8 h", "2 shifts"), color: palette("teal", 600) },
   ];
 }

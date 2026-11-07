@@ -226,6 +226,12 @@ affects all of them.
 
 ## Changelog
 
+### 4.16.0
+
+- `Calendar`'s tooltip is only a card: it holds exactly what `tooltip` gives it, any
+  component (CalendarTipRow lines, a bar, a list…), and wraps long text within 320 px.
+  The date header of 4.15.0 is gone; the cell under the pointer already says the day.
+
 ### 4.15.1
 
 - `Calendar`: near the bottom of the window the tooltip opens above the pointer.

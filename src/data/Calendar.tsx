@@ -9,9 +9,9 @@ import { IconButton } from "../controls/IconButton";
 // never moves what is under it. The neighbouring months' days are dimmed and
 // carry no data. Every cell is the same template: its number (bold, centred)
 // on top, whatever the caller puts in `content` in the middle, and badges
-// (small dots) along the bottom. A day can be filled with one colour or with stacked bands,
-// and can have a `tooltip`: a card that follows the pointer with the date on
-// top, as a chart's does. Today wears a ring in the gradient's lighter colour,
+// (small dots) along the bottom. A day can be filled with one colour or with
+// stacked bands, and can have a `tooltip`: a card that follows the pointer, as
+// a chart's does, holding whatever the caller puts in it. Today wears a ring in the gradient's lighter colour,
 // the selected day one in the app's colour. An optional legend explains the
 // colours (swatches) and the badges (dots). It sizes its type by its own width
 // (styles in theme.css, `.calendar`) and is never narrower than 18 rem.
@@ -36,7 +36,7 @@ export type CalendarDay = {
   /** Fills the cell with stacked bands instead of one colour. */
   bands?: CalendarBand[];
   badges?: CalendarBadge[];
-  /** Shown under the date in a card that follows the pointer over the day: CalendarTipRow lines. */
+  /** What a card that follows the pointer over the day shows: anything (CalendarTipRow lines, a chart, a list…). */
   tooltip?: ReactNode;
 };
 
@@ -237,18 +237,10 @@ export function Calendar({
         tipCell &&
         createPortal(
           <div
-            className="pointer-events-none fixed z-[80] flex w-max min-w-52 max-w-[320px] flex-col gap-2.5 whitespace-nowrap rounded-2xl border border-[var(--border)] bg-[var(--card)] p-3 text-[13px] text-[var(--foreground)] shadow-xl"
+            className="pointer-events-none fixed z-[80] flex w-max max-w-[320px] flex-col gap-2 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-3 text-[13px] text-[var(--foreground)] shadow-xl"
             style={{ left: hover.x, top: hover.y, transform: `translate(${flipX ? "calc(-100% - 14px)" : "14px"}, ${flipY ? "calc(-100% - 14px)" : "14px"})` }}
           >
-            {/* The day, as a leaf of a desk calendar: its number on the gradient, the weekday and the month beside it. */}
-            <div className="flex items-center gap-2.5 border-b border-[var(--border)] pb-2.5">
-              <span className="bg-app-gradient inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-base font-bold text-white">{tipCell.d.getDate()}</span>
-              <span className="flex flex-col leading-tight">
-                <span className="font-semibold first-letter:uppercase">{tipCell.d.toLocaleDateString(locale, { weekday: "long" })}</span>
-                <span className="text-xs text-muted first-letter:uppercase">{tipCell.d.toLocaleDateString(locale, { month: "long", year: "numeric" })}</span>
-              </span>
-            </div>
-            <div className="flex flex-col gap-2">{tipCell.day?.tooltip}</div>
+            {tipCell.day?.tooltip}
           </div>,
           document.body,
         )}
