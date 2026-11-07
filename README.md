@@ -226,6 +226,11 @@ affects all of them.
 
 ## Changelog
 
+### 4.17.3
+
+- `RichTextEditor`: a link longer than 2000 characters is refused with the reason, the same
+  cap as the apps' address fields.
+
 ### 4.17.2
 
 - Tests: `npm test` runs `tests/*.test.ts` with Node's own runner (no dependencies). The first

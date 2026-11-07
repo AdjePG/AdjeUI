@@ -31,6 +31,9 @@ const ALLOWED_TAGS = ["p", "br", "strong", "em", "u", "s", "h2", "h3", "ul", "ol
 // Protocols a link may carry. Everything else is out: javascript:, data:,
 // vbscript: and friends.
 const SAFE_URI = /^(?:https?:\/\/|mailto:|tel:|\/|#)/i;
+
+/** The longest link it takes, as the address fields of the apps (2000). */
+const LINK_MAX = 2000;
 const PROTOCOLS = ["http", "https", "mailto", "tel"];
 
 // Elements that go away WITH their content: removing the tag is not enough. If
@@ -231,6 +234,11 @@ function Toolbar({ editor, floating = false, has }: { editor: Editor; floating?:
     const clean = hasProtocol ? typed : `https://${typed}`;
     if (!SAFE_URI.test(clean)) {
       window.alert("That link cannot be used. Only http, https, mailto: and tel: addresses are allowed.");
+      return;
+    }
+    // The same cap as any address field: past it, it is not a link anyone typed.
+    if (clean.length > LINK_MAX) {
+      window.alert(`That link is too long: ${LINK_MAX} characters at most.`);
       return;
     }
     editor.chain().focus().extendMarkRange("link").setLink({ href: clean, target: "_blank", rel: "noopener noreferrer" }).run();
