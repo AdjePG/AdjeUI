@@ -15,7 +15,7 @@ One component per file, grouped by category in `src/`:
 | `src/controls` | Button, IconButton (both also render links with `href`), Segmented, Tabs, Switch, ChoiceOption/ChoiceMark, Toolbar, ScrollArrows, `useScrollEdges` |
 | `src/forms` | Field (+ `useFieldInvalid`, `useFieldControlId`, `useFieldLabelId` for your own controls), Input, PasswordInput, Textarea, Select, ChipEditor, `useFormErrors` + `rules` (validation); RichTextEditor/RichText (separate entrypoint `adje-shared-ui/rich-text`) |
 | `src/overlays` | Modal, Drawer, ConfirmDialog, HelpTip, ToastProvider/useToast, Popover, Menu, `useShortcuts` (+ `formatShortcut`, `useIsMac`) |
-| `src/data` | Stat, ProgressBar, Pagination, Table |
+| `src/data` | Stat, ProgressBar, Pagination, Table, Calendar (+ `calendarKey`) |
 | `src/layout` | PageHeader, SectionTitle, Collapsible, Carousel, SideNav + SideNavBrand/SideNavAction/SideNavUser, `sideNavState` + `useSideNavCompact`/`useIsMobile`, OverlayScrollbar, `useTheme` |
 | `src/tokens` | `palette(name, shade)`, `paletteHex`, `PALETTE`, `PALETTE_NAMES`, `PALETTE_SHADES` (fixed palette of 15 colors × 10 shades); `Tone` + `TONE_COLOR` (the colour of each meaning) |
 | `src/internal` | Private helpers shared by the components, not exported: `useEscape`/`useDismiss` (layer stack), `useMediaQuery`, `useIsoLayoutEffect`, `useLatest`, `ToggleIconButton` |
@@ -225,6 +225,16 @@ And in its configuration:
 affects all of them.
 
 ## Changelog
+
+### 4.11.0
+
+- **New:** `Calendar` (data): a month, Monday first and always six weeks tall, with arrows to
+  move between months. Each day can be tinted with a colour (`fill` %) and carry a value, a
+  detail in the app's colour, a status and badges (dots whose label shows on hover). Today
+  is ringed in the gradient's lighter colour, the selected day in the app's colour;
+  `onSelect` makes the days clickable (the neighbouring months' too). `legend` explains the
+  colours (swatches) and the badges (dots). `calendarKey(date)` gives the "YYYY-MM-DD" a day
+  is keyed by.
 
 ### 4.10.1
 

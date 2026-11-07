@@ -3,7 +3,7 @@
 //   controls/    buttons and toggles (Button, IconButton, Segmented, Tabs, Switch, ChoiceOption, ScrollArrows, Toolbar)
 //   forms/       Field, Input, PasswordInput, Textarea, Select, ChipEditor, validation
 //   overlays/    layers (Modal, Drawer, ConfirmDialog, HelpTip, Toast, Popover, Menu, useShortcuts)
-//   data/        Stat, ProgressBar, Pagination, Table
+//   data/        Stat, ProgressBar, Pagination, Table, Calendar
 //   layout/      PageHeader, SectionTitle, Collapsible, Carousel, SideNav family, OverlayScrollbar, useTheme
 //   tokens/      fixed palette (15 colours x 10 shades) and tone colours
 //   internal/    private helpers, not exported
@@ -62,6 +62,7 @@ export { Stat } from "./data/Stat";
 export { ProgressBar } from "./data/ProgressBar";
 export { Pagination } from "./data/Pagination";
 export { Table } from "./data/Table";
+export { Calendar, calendarKey, type CalendarDay, type CalendarBadge, type CalendarLegendItem } from "./data/Calendar";
 
 // layout
 export { Carousel } from "./layout/Carousel";

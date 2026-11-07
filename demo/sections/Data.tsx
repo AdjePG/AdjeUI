@@ -1,12 +1,32 @@
 import { useState } from "react";
 import { Package, Pencil, Trash2, Wallet } from "lucide-react";
-import { Card, IconButton, Pagination, Pill, ProgressBar, Stat, Table, palette } from "../../src";
+import { Calendar, Card, IconButton, Pagination, Pill, ProgressBar, Stat, Table, calendarKey, palette, type CalendarDay } from "../../src";
 import { Block, Section } from "../common";
 
 // ---------------- data ----------------
 
+// A month of the calendar demo around today: colours, lines, badges and a closed day.
+function sampleDays(): CalendarDay[] {
+  const now = new Date();
+  const day = (d: number) => calendarKey(new Date(now.getFullYear(), now.getMonth(), d));
+  const free = palette("blue", 500);
+  const full = palette("red", 500);
+  const holiday = { color: palette("orange", 600), label: "Holiday" };
+  const upkeep = { color: palette("purple", 500), label: "Maintenance" };
+  return [
+    { date: day(2), value: "8 h", detail: "2 shifts", status: "Full", color: free },
+    { date: day(3), value: "6 h", detail: "1 shift", color: free },
+    { date: day(4), value: "4 h", badges: [upkeep] },
+    { date: day(8), status: "Closed", color: full, badges: [holiday] },
+    { date: day(12), value: "2 h", status: "Short", color: free },
+    { date: day(15), value: "7 h", color: palette("amber", 400), badges: [upkeep, holiday] },
+    { date: day(22), value: "8 h", detail: "2 shifts", color: palette("teal", 600) },
+  ];
+}
+
 export function DataSection() {
   const [page, setPage] = useState(1);
+  const [day, setDay] = useState<string | null>(null);
   return (
     <Section id="data" title="Data" subtitle="src/data — indicators, table, progress and pagination">
       <Card className="flex flex-col gap-4">
@@ -74,6 +94,22 @@ export function DataSection() {
               <div className="flex-1"><ProgressBar value={3} max={8} /></div>
               <span className="text-[12px] text-muted shrink-0">3 of 8 (max)</span>
             </div>
+          </div>
+        </Block>
+        <Block name="Calendar: days (value, detail, status, color, badges), selected + onSelect, legend (swatch / dot), fill">
+          <div className="w-full max-w-3xl">
+            <Calendar
+              days={sampleDays()}
+              selected={day}
+              onSelect={setDay}
+              legend={[
+                { label: "Available", color: palette("blue", 500) },
+                { label: "Fully booked", color: palette("red", 500) },
+                { label: "Holiday", color: palette("orange", 600), kind: "dot" },
+                { label: "Maintenance", color: palette("purple", 500), kind: "dot" },
+              ]}
+            />
+            <p className="mt-2 text-[12px] text-muted">onSelect: {day ?? "—"}</p>
           </div>
         </Block>
         <Block name="Pagination (page, pageCount, total, noun)">
