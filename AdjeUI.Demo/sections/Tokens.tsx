@@ -8,7 +8,7 @@ import {
   Pill,
   palette,
   useToast,
-} from "../../src";
+} from "../../AdjeUI.LibraryCore/src";
 import { Block, Section } from "../common";
 
 const THEME_TOKENS = [

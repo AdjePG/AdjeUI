@@ -6,7 +6,7 @@ import path from "path";
 const p = (rel: string) => path.join(__dirname, rel).replace(/\\/g, "/");
 
 export default {
-  content: [p("./**/*.{ts,tsx,html}"), p("../src/**/*.{ts,tsx}")],
+  content: [p("./**/*.{ts,tsx,html}"), p("../AdjeUI.LibraryCore/src/**/*.{ts,tsx}")],
   theme: { extend: {} },
   plugins: [],
 } satisfies Config;

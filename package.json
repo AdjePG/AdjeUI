@@ -1,20 +1,25 @@
 {
   "name": "adje-shared-ui",
-  "version": "4.18.0",
+  "version": "1.0.0",
   "private": true,
-  "description": "AdjeUI: design system shared by the Adje apps. React components organized by category in src/, base theme in theme.css and demo in demo/.",
+  "description": "AdjeUI: design system shared by the Adje apps. The library (components in src/ by category, theme.css) lives in AdjeUI.LibraryCore/, the live demo in AdjeUI.Demo/.",
+  "main": "./AdjeUI.LibraryCore/src/index.ts",
+  "types": "./AdjeUI.LibraryCore/src/index.ts",
+  "files": [
+    "AdjeUI.LibraryCore"
+  ],
   "exports": {
-    ".": "./src/index.ts",
-    "./ui": "./ui.tsx",
-    "./toast": "./toast.tsx",
-    "./PageHeader": "./PageHeader.tsx",
-    "./rich-text": "./rich-text.ts",
-    "./theme.css": "./theme.css"
+    ".": "./AdjeUI.LibraryCore/src/index.ts",
+    "./ui": "./AdjeUI.LibraryCore/ui.tsx",
+    "./toast": "./AdjeUI.LibraryCore/toast.tsx",
+    "./PageHeader": "./AdjeUI.LibraryCore/PageHeader.tsx",
+    "./rich-text": "./AdjeUI.LibraryCore/rich-text.ts",
+    "./theme.css": "./AdjeUI.LibraryCore/theme.css"
   },
   "scripts": {
-    "demo": "vite demo",
-    "test": "node --test --disable-warning=MODULE_TYPELESS_PACKAGE_JSON \"tests/**/*.test.ts\"",
-    "demo:build": "vite build demo",
+    "demo": "vite AdjeUI.Demo",
+    "test": "node --test --disable-warning=MODULE_TYPELESS_PACKAGE_JSON \"AdjeUI.LibraryCore/tests/**/*.test.ts\"",
+    "demo:build": "vite build AdjeUI.Demo",
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {

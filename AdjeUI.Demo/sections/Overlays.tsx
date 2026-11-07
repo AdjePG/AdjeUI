@@ -16,7 +16,7 @@ import {
   rules,
   useFormErrors,
   useToast,
-} from "../../src";
+} from "../../AdjeUI.LibraryCore/src";
 import { Block, Section } from "../common";
 
 // ---------------- overlays ----------------

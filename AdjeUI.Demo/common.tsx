@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Overline } from "../src";
+import { Overline } from "../AdjeUI.LibraryCore/src";
 
 // Pieces shared by every section of the demo.
 

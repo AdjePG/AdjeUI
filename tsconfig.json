@@ -12,5 +12,5 @@
     "isolatedModules": true,
     "types": ["node"]
   },
-  "include": ["src", "demo", "ui.tsx", "toast.tsx", "PageHeader.tsx"]
+  "include": ["AdjeUI.LibraryCore/src", "AdjeUI.Demo", "AdjeUI.LibraryCore/ui.tsx", "AdjeUI.LibraryCore/toast.tsx", "AdjeUI.LibraryCore/PageHeader.tsx"]
 }

@@ -3,7 +3,20 @@
 Installable package (via a git dependency, no need to publish it to npm) with
 the components and styles shared by the Adje apps: **MisFinanzas**,
 **Adje Store**, **Solaula** and whatever comes next. Web only (React/Next);
-the old Flutter version was retired.
+the old Flutter version was retired. Current version: **1.0.0**.
+
+## Repository layout
+
+```
+AdjeUI/
+├─ package.json          the package (stays at the root: npm git dependencies read it here)
+├─ AdjeUI.LibraryCore/   the library: src/, theme.css, rich-text.ts, legacy entry points, tests/
+└─ AdjeUI.Demo/          the live demo (port 4400)
+```
+
+`package.json` maps every public import (`adje-shared-ui`, `/rich-text`, `/theme.css`
+and the legacy `/ui`, `/toast`, `/PageHeader`) into `AdjeUI.LibraryCore/`, and its
+`files` installs only that folder. Paths below are relative to `AdjeUI.LibraryCore/`.
 
 ## Organization
 
@@ -195,8 +208,13 @@ npm install
 npm run demo   # http://localhost:4400
 ```
 
-`demo/` is a page with every component live, by category: use it to see what
+`AdjeUI.Demo/` is a page with every component live, by category: use it to see what
 exists before creating something new, and add any new component there.
+
+```bash
+npm test             # AdjeUI.LibraryCore/tests, Node's own runner
+npx tsc --noEmit     # checks the library and the demo
+```
 
 ## How each app consumes it
 
@@ -225,6 +243,21 @@ And in its configuration:
 affects all of them.
 
 ## Changelog
+
+### 1.0.0
+
+- **The numbering restarts at 1.0.0.** Same code and API as 4.18.0: nothing renamed,
+  nothing removed, the apps keep working as they are (they install from `main`).
+- **New repository layout:** the library moved to `AdjeUI.LibraryCore/` (`src/`,
+  `theme.css`, `rich-text.ts`, `ui.tsx`, `toast.tsx`, `PageHeader.tsx`, `tests/`) and
+  the demo to `AdjeUI.Demo/`. `package.json` stays at the root and its `exports`
+  (plus new `main`/`types`/`files`) point into `AdjeUI.LibraryCore/`, so every import
+  path resolves as before. `npm run demo` and `npm test` are unchanged.
+- Apps whose Tailwind `content` glob is `./node_modules/adje-shared-ui/**/*.{ts,tsx}`
+  need no change; a glob that names `adje-shared-ui/src/` must become
+  `adje-shared-ui/AdjeUI.LibraryCore/src/`.
+
+## Before 1.0.0 (old numbering)
 
 ### 4.18.0
 
@@ -441,7 +474,7 @@ affects all of them.
   `adje-shared-ui/ui`, `/toast`, `/PageHeader` → `adje-shared-ui`; tokens
   `--primary`, `--tertiary` (used by no component).
 
-## Breaking changes in 4.0.0
+## Breaking changes in 4.0.0 (old numbering)
 
 The whole codebase (comments, identifiers, default UI strings) moved from
 Spanish to English. Public renames:

@@ -13,8 +13,8 @@ import {
   rules,
   useFormErrors,
   useToast,
-} from "../../src";
-import { TEXT_TOOLS, RichText, RichTextEditor, richTextToPlain } from "../../rich-text";
+} from "../../AdjeUI.LibraryCore/src";
+import { TEXT_TOOLS, RichText, RichTextEditor, richTextToPlain } from "../../AdjeUI.LibraryCore/rich-text";
 import { Block, Frame, Section } from "../common";
 
 // ---------------- forms ----------------

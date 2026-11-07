@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Package, Pencil, Trash2, Wallet } from "lucide-react";
-import { Calendar, CalendarTipRow, Card, IconButton, Pagination, Pill, ProgressBar, Stat, Table, calendarKey, palette, type CalendarDay } from "../../src";
+import { Calendar, CalendarTipRow, Card, IconButton, Pagination, Pill, ProgressBar, Stat, Table, calendarKey, palette, type CalendarDay } from "../../AdjeUI.LibraryCore/src";
 import { Block, Section } from "../common";
 
 // ---------------- data ----------------

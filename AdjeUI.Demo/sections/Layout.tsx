@@ -27,7 +27,7 @@ import {
   Toolbar,
   useTheme,
   useToast,
-} from "../../src";
+} from "../../AdjeUI.LibraryCore/src";
 import { SITES, Block, Frame, Section } from "../common";
 
 // ---------------- layout ----------------

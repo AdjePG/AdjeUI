@@ -26,7 +26,7 @@ import {
   palette,
   useTheme,
   useToast,
-} from "../src";
+} from "../AdjeUI.LibraryCore/src";
 import { SITES } from "./common";
 import { TokensSection } from "./sections/Tokens";
 import { PrimitivesSection } from "./sections/Primitives";

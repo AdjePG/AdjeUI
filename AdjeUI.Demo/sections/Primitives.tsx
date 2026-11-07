@@ -1,5 +1,5 @@
 import { Package, Search, Sparkles } from "lucide-react";
-import { Avatar, AvatarStack, Card, CodeBlock, Empty, IconChip, Pill, Skeleton, Spinner, palette } from "../../src";
+import { Avatar, AvatarStack, Card, CodeBlock, Empty, IconChip, Pill, Skeleton, Spinner, palette } from "../../AdjeUI.LibraryCore/src";
 import { Block, Frame, Section } from "../common";
 
 // ---------------- primitives ----------------

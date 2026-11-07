@@ -30,7 +30,7 @@ import {
   Tabs,
   Toolbar,
   useToast,
-} from "../../src";
+} from "../../AdjeUI.LibraryCore/src";
 import { Block, Frame, Section } from "../common";
 
 // ---------------- controls ----------------
