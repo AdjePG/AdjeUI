@@ -49,11 +49,14 @@ export function PageHeader<T extends string = string>({
               <Menu size={20} />
             </button>
           )}
-          <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2.5 shrink-0">
+          {/* A long title is cut with "…" (whole on hover) and gives way before the actions do. */}
+          <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2.5 min-w-0 [flex:0_10_auto]">
             <IconChip size="lg">{icon}</IconChip>
-            {title}
+            <span className="min-w-0 truncate" title={typeof title === "string" ? title : undefined}>
+              {title}
+            </span>
           </h1>
-          {actions && <div className="flex-1 min-w-0 flex justify-end">{actions}</div>}
+          {actions && <div className="min-w-0 flex justify-end [flex:1_1_auto]">{actions}</div>}
         </div>
         {tabs && <Tabs value={tabs.value} onChange={tabs.onChange} options={tabs.options} className="-ml-3 mt-1" />}
       </div>

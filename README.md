@@ -226,6 +226,11 @@ affects all of them.
 
 ## Changelog
 
+### 4.16.1
+
+- `PageHeader`: a long title is cut with "…" (the whole of it on hover) instead of running
+  off the page, and it gives way before the actions do.
+
 ### 4.16.0
 
 - `Calendar`'s tooltip is only a card: it holds exactly what `tooltip` gives it, any
