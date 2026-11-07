@@ -184,7 +184,7 @@ export function Calendar({
               {!!day?.badges?.length && (
                 <span className="calendar__badges">
                   {day.badges.map((b, i) => (
-                    <span key={i} title={b.label} aria-label={b.label} className="calendar__badge" style={{ background: b.color }} />
+                    <span key={i} title={b.label} aria-label={b.label} className="calendar__badge" style={{ "--calendar-badge": b.color } as CSSProperties} />
                   ))}
                 </span>
               )}
@@ -228,7 +228,7 @@ export function Calendar({
             <li key={l.label} className="calendar__legend-item">
               <span
                 className={l.kind === "dot" ? "calendar__legend-dot" : "calendar__legend-swatch"}
-                style={{ background: l.kind === "dot" ? l.color : tint(l.color, fill) }}
+                style={l.kind === "dot" ? ({ "--calendar-badge": l.color } as CSSProperties) : { background: tint(l.color, fill) }}
               />
               <span className="calendar__legend-label">{l.label}</span>
             </li>

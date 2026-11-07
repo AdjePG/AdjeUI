@@ -226,6 +226,11 @@ affects all of them.
 
 ## Changelog
 
+### 4.13.1
+
+- `Calendar` in the house style: rounder cells (10 px) with 4 px between them, and the
+  badges as small gradient spheres, a little bigger (10 px, 12 px when wide).
+
 ### 4.13.0
 
 - `Calendar` gets its final look: its styles live in `theme.css`
