@@ -414,11 +414,23 @@ export function RichTextEditor({
         }),
         Placeholder.configure({ placeholder: () => placeholderRef.current }),
         // A change that would leave more text than maxLength is refused; one that shortens it, or a value set from
-        // outside, always goes through.
+        // outside, always goes through. A paste that does not fit pastes what does, as a plain text field cuts it.
         Extension.create({
           name: "maxLength",
           addProseMirrorPlugins: () => [
             new Plugin({
+              props: {
+                handlePaste: (view, _event, slice) => {
+                  const max = maxRef.current;
+                  if (!max) return false;
+                  const { state } = view;
+                  const text = slice.content.textBetween(0, slice.content.size, " ");
+                  const room = max - (state.doc.textContent.length - state.doc.textBetween(state.selection.from, state.selection.to).length);
+                  if (text.length <= room) return false;
+                  if (room > 0) view.dispatch(state.tr.insertText(text.slice(0, room)).scrollIntoView());
+                  return true;
+                },
+              },
               filterTransaction: (tr, state) => {
                 const max = maxRef.current;
                 if (!max || !tr.docChanged || tr.getMeta("preventUpdate")) return true;

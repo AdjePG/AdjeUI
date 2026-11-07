@@ -226,6 +226,11 @@ affects all of them.
 
 ## Changelog
 
+### 4.17.1
+
+- `RichTextEditor`: a paste that does not fit in `maxLength` pastes what fits (as plain
+  text), the way an input cuts it, instead of pasting nothing.
+
 ### 4.17.0
 
 - `RichTextEditor` (rich-text): `maxLength`, the most characters of text it takes (formatting
