@@ -228,7 +228,7 @@ affects all of them.
 
 ### 4.13.0
 
-- `Calendar` follows the Boyum calendar it is based on: its styles live in `theme.css`
+- `Calendar` gets its final look: its styles live in `theme.css`
   (`.calendar`) and size the type by the calendar's own width (container queries; under
   15 rem the weekdays shrink to a letter). Small corners, 1 px between cells, a wash on
   hover, the fill drawn under today's and the selected ring. The neighbouring months'
