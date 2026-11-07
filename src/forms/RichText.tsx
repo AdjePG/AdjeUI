@@ -14,7 +14,8 @@
 //   </Field>
 //   <RichText html={html} />              // what the reader sees, already sanitized
 import { useEffect, useMemo, useRef, useState } from "react";
-import { EditorContent, useEditor, useEditorState, type Editor } from "@tiptap/react";
+import { EditorContent, Extension, useEditor, useEditorState, type Editor } from "@tiptap/react";
+import { Plugin } from "@tiptap/pm/state";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import DOMPurify from "dompurify";
@@ -313,6 +314,7 @@ export function RichTextEditor({
   className = "",
   variant = "box",
   tools = TEXT_TOOLS,
+  maxLength,
 }: {
   /** HTML ("" = empty). */
   value: string;
@@ -336,6 +338,8 @@ export function RichTextEditor({
    * HTML that carries it. By default, everything.
    */
   tools?: TextTool[];
+  /** The most characters of text it takes (formatting does not count); typing or pasting past it is refused. */
+  maxLength?: number;
 }) {
   const fieldInvalid = useFieldInvalid();
   const bad = invalid ?? fieldInvalid;
@@ -358,6 +362,7 @@ export function RichTextEditor({
   // Read by the editor when it needs them, so changing them does not rebuild it.
   const placeholderRef = useLatest(placeholder);
   const classRef = useLatest(`rich-text rich-text-editor outline-none ${plain ? "py-1" : "px-3 py-2.5"}`);
+  const maxRef = useLatest(maxLength);
 
   // Sanitizing the whole document is the costly part of a keystroke: it runs
   // once typing pauses, and at once on blur and on unmount.
@@ -408,9 +413,24 @@ export function RichTextEditor({
           horizontalRule: false,
         }),
         Placeholder.configure({ placeholder: () => placeholderRef.current }),
+        // A change that would leave more text than maxLength is refused; one that shortens it, or a value set from
+        // outside, always goes through.
+        Extension.create({
+          name: "maxLength",
+          addProseMirrorPlugins: () => [
+            new Plugin({
+              filterTransaction: (tr, state) => {
+                const max = maxRef.current;
+                if (!max || !tr.docChanged || tr.getMeta("preventUpdate")) return true;
+                const next = tr.doc.textContent.length;
+                return next <= max || next <= state.doc.textContent.length;
+              },
+            }),
+          ],
+        }),
       ];
     },
-    [key, placeholderRef],
+    [key, placeholderRef, maxRef],
   );
 
   const editor = useEditor(
@@ -420,7 +440,8 @@ export function RichTextEditor({
       extensions,
       content: value,
       editorProps: {
-        attributes: () => ({ class: classRef.current }),
+        // data-maxlength: the app can say why a keystroke was refused, as it does for a field's maxLength.
+        attributes: () => ({ class: classRef.current, ...(maxRef.current ? { "data-maxlength": String(maxRef.current) } : {}) }),
         // Barrier 2: pasted HTML is sanitized before ProseMirror reads it.
         transformPastedHTML: (html) => sanitizeRichText(html),
         // Text wrapped at 80 columns (a .md file) would glue the words at each

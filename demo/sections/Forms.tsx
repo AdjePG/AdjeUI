@@ -143,8 +143,8 @@ export function FormsSection() {
         </Field>
         <Block name="RichTextEditor (adje-shared-ui/rich-text): bounded WYSIWYG, stores HTML · RichText: sanitized viewer">
           <div className="grid lg:grid-cols-2 gap-3 w-full items-start">
-            <Field label="Lesson theory" right={<span className="text-[11px]">{richTextToPlain(rich).length} characters</span>}>
-              <RichTextEditor value={rich} onChange={setRich} placeholder="Write the theory…" />
+            <Field label="Lesson theory (maxLength 500)" right={<span className="text-[11px]">{richTextToPlain(rich).length} / 500</span>}>
+              <RichTextEditor value={rich} onChange={setRich} placeholder="Write the theory…" maxLength={500} />
             </Field>
             <div className="flex flex-col gap-1 text-sm">
               <span className="text-muted">This is how the reader sees it (RichText)</span>

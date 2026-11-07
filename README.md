@@ -226,6 +226,13 @@ affects all of them.
 
 ## Changelog
 
+### 4.17.0
+
+- `RichTextEditor` (rich-text): `maxLength`, the most characters of text it takes (formatting
+  does not count). Typing or pasting past it is refused; shortening, or a value set from
+  outside, always goes through. The editable element carries `data-maxlength`, so an app
+  can say why a keystroke did nothing, as it does for an input's `maxLength`.
+
 ### 4.16.1
 
 - `PageHeader`: a long title is cut with "…" (the whole of it on hover) instead of running
