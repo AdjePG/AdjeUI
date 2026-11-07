@@ -15,7 +15,7 @@ One component per file, grouped by category in `src/`:
 | `src/controls` | Button, IconButton (both also render links with `href`), Segmented, Tabs, Switch, ChoiceOption/ChoiceMark, Toolbar, ScrollArrows, `useScrollEdges` |
 | `src/forms` | Field (+ `useFieldInvalid`, `useFieldControlId`, `useFieldLabelId` for your own controls), Input, PasswordInput, Textarea, Select, ChipEditor, `useFormErrors` + `rules` (validation); RichTextEditor/RichText (separate entrypoint `adje-shared-ui/rich-text`) |
 | `src/overlays` | Modal, Drawer, ConfirmDialog, HelpTip, ToastProvider/useToast, Popover, Menu, `useShortcuts` (+ `formatShortcut`, `useIsMac`) |
-| `src/data` | Stat, ProgressBar, Pagination, Table, Calendar (+ `calendarKey`) |
+| `src/data` | Stat, ProgressBar, Pagination, Table, Calendar (+ `CalendarTipRow`, `calendarKey`) |
 | `src/layout` | PageHeader, SectionTitle, Collapsible, Carousel, SideNav + SideNavBrand/SideNavAction/SideNavUser, `sideNavState` + `useSideNavCompact`/`useIsMobile`, OverlayScrollbar, `useTheme` |
 | `src/tokens` | `palette(name, shade)`, `paletteHex`, `PALETTE`, `PALETTE_NAMES`, `PALETTE_SHADES` (fixed palette of 15 colors × 10 shades); `Tone` + `TONE_COLOR` (the colour of each meaning) |
 | `src/internal` | Private helpers shared by the components, not exported: `useEscape`/`useDismiss` (layer stack), `useMediaQuery`, `useIsoLayoutEffect`, `useLatest`, `ToggleIconButton` |
@@ -225,6 +225,12 @@ And in its configuration:
 affects all of them.
 
 ## Changelog
+
+### 4.14.0
+
+- **New:** `CalendarTipRow` (data), a line of a day's tooltip: a gradient dot in a badge's
+  colour, what it is and a short value at the end ("23:59").
+- `Calendar`'s tooltip: the date small and muted on top, more padding, rounder.
 
 ### 4.13.2
 

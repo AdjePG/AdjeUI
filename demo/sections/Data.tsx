@@ -1,19 +1,9 @@
 import { useState } from "react";
 import { Package, Pencil, Trash2, Wallet } from "lucide-react";
-import { Calendar, Card, IconButton, Pagination, Pill, ProgressBar, Stat, Table, calendarKey, palette, type CalendarDay } from "../../src";
+import { Calendar, CalendarTipRow, Card, IconButton, Pagination, Pill, ProgressBar, Stat, Table, calendarKey, palette, type CalendarDay } from "../../src";
 import { Block, Section } from "../common";
 
 // ---------------- data ----------------
-
-// A line of a day's tooltip, as a chart's: the name muted, the value at the end.
-function TipRow({ name, value }: { name: string; value: string }) {
-  return (
-    <div className="flex items-center gap-1.5">
-      <span className="text-muted">{name}</span>
-      <span className="ml-auto pl-2 tabular-nums">{value}</span>
-    </div>
-  );
-}
 
 // A month of the calendar demo around today: colours, bands, lines, badges, tooltips and a closed day.
 function sampleDays(): CalendarDay[] {
@@ -31,11 +21,11 @@ function sampleDays(): CalendarDay[] {
     </span>
   );
   return [
-    { date: day(2), content: lines("8 h", "2 shifts"), color: free, tooltip: <TipRow name="Morning" value="4 h" /> },
+    { date: day(2), content: lines("8 h", "2 shifts"), color: free, tooltip: (<><CalendarTipRow color={free} label="Morning shift" value="08:00" /><CalendarTipRow color={free} label="Evening shift" value="16:00" /></>) },
     { date: day(3), content: lines("6 h", "1 shift"), color: free },
-    { date: day(4), content: <b>4 h</b>, badges: [upkeep], tooltip: <TipRow name="Maintenance" value="2 h" /> },
+    { date: day(4), content: <b>4 h</b>, badges: [upkeep], tooltip: <CalendarTipRow color={upkeep.color} label="Maintenance" value="2 h" /> },
     { date: day(8), content: <span className="text-xs text-muted">Closed</span>, color: full, badges: [holiday] },
-    { date: day(12), content: <b>2 h</b>, bands: [{ color: free }, { color: full, percent: 30 }], tooltip: <TipRow name="Booked" value="30%" /> },
+    { date: day(12), content: <b>2 h</b>, bands: [{ color: free }, { color: full, percent: 30 }], tooltip: <CalendarTipRow color={full} label="Booked" value="30%" /> },
     { date: day(15), content: <b>7 h</b>, color: palette("amber", 400), badges: [upkeep, holiday] },
     { date: day(22), content: lines("8 h", "2 shifts"), color: palette("teal", 600) },
   ];

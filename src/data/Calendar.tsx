@@ -4,6 +4,7 @@ import { useState, type CSSProperties, type MouseEvent, type ReactNode } from "r
 import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { IconButton } from "../controls/IconButton";
+import { Overline } from "../primitives/Overline";
 
 // A month, Monday first, always six weeks (42 cells) so moving between months
 // never moves what is under it. The neighbouring months' days are dimmed and
@@ -36,7 +37,7 @@ export type CalendarDay = {
   /** Fills the cell with stacked bands instead of one colour. */
   bands?: CalendarBand[];
   badges?: CalendarBadge[];
-  /** Shown under the date in a card that follows the pointer over the day. */
+  /** Shown under the date in a card that follows the pointer over the day: CalendarTipRow lines. */
   tooltip?: ReactNode;
 };
 
@@ -50,6 +51,17 @@ export type CalendarLegendItem = {
 /** A local day as "YYYY-MM-DD", the key a CalendarDay is found by. */
 export function calendarKey(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+/** A line of a day's tooltip: a dot in the badge's colour (when given), what it is, and a short value at the end ("23:59"). */
+export function CalendarTipRow({ color, label, value }: { color?: string; label: ReactNode; value?: ReactNode }) {
+  return (
+    <div className="flex items-center gap-2">
+      {color && <span className="calendar__badge shrink-0" style={{ "--calendar-badge": color } as CSSProperties} />}
+      <span className="min-w-0 max-w-56 truncate">{label}</span>
+      {value != null && <span className="ml-auto pl-3 tabular-nums text-muted">{value}</span>}
+    </div>
+  );
 }
 
 const firstOfMonth = (d: Date) => new Date(d.getFullYear(), d.getMonth(), 1);
@@ -209,11 +221,11 @@ export function Calendar({
         tipCell &&
         createPortal(
           <div
-            className="pointer-events-none fixed z-[80] w-max min-w-32 max-w-[280px] whitespace-nowrap rounded-lg border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-xs text-[var(--foreground)] shadow-lg"
+            className="pointer-events-none fixed z-[80] flex w-max min-w-40 max-w-[300px] flex-col gap-1.5 whitespace-nowrap rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 py-2.5 text-[13px] text-[var(--foreground)] shadow-lg"
             style={{ left: hover.x, top: hover.y, transform: `translate(${flip ? "calc(-100% - 14px)" : "14px"}, 14px)` }}
           >
-            <div className="font-semibold first-letter:uppercase">{tipCell.d.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long" })}</div>
-            {tipCell.day?.tooltip}
+            <Overline>{tipCell.d.toLocaleDateString(locale, { weekday: "short", day: "numeric", month: "short" })}</Overline>
+            <div className="flex flex-col gap-1">{tipCell.day?.tooltip}</div>
           </div>,
           document.body,
         )}
