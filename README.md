@@ -3,7 +3,7 @@
 Installable package (via a git dependency, no need to publish it to npm) with
 the components and styles shared by the Adje apps: **MisFinanzas**,
 **Adje Store**, **Solaula** and whatever comes next. Web only (React/Next);
-the old Flutter version was retired. Current version: **1.0.2**.
+the old Flutter version was retired. Current version: **1.0.3**.
 
 ## Repository layout
 
@@ -243,6 +243,11 @@ And in its configuration:
 affects all of them.
 
 ## Changelog
+
+### 1.0.3
+
+- **`AvatarStack` keeps the first face on top:** each face lies over the next one and
+  the "+N" chip lowest, so the one listed first (a class's main teacher) is never covered.
 
 ### 1.0.2
 

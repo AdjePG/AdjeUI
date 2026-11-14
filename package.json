@@ -1,6 +1,6 @@
 {
   "name": "adje-shared-ui",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": true,
   "description": "AdjeUI: design system shared by the Adje apps. The library (components in src/ by category, theme.css) lives in AdjeUI.LibraryCore/, the live demo in AdjeUI.Demo/.",
   "main": "./AdjeUI.LibraryCore/src/index.ts",
