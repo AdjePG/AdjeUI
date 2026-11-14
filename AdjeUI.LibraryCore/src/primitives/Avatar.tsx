@@ -30,13 +30,14 @@ const SQUARE: Record<AvatarSize, string> = {
 
 const shapeOf = (shape: "circle" | "square", size: AvatarSize) => (shape === "circle" ? "rounded-full" : SQUARE[size]);
 
-/** "Ada Lovelace" → "AL"; "Ada" → "A". */
+// Built with RegExp: some consumer apps compile this source with a target below ES6, which rejects a /u literal.
+const WORD = new RegExp("[\\p{L}\\p{N}]+", "gu");
+
+/** "Ada Lovelace" → "AL"; "Ada" → "A". Punctuation is not a word: "French · Evening" → "FE". */
 export function initials(name: string): string {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
+  return (name.match(WORD) ?? [])
     .slice(0, 2)
-    .map((p) => p[0]!.toUpperCase())
+    .map((word) => word[0]!.toUpperCase())
     .join("");
 }
 
