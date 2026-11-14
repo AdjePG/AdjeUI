@@ -3,7 +3,7 @@
 Installable package (via a git dependency, no need to publish it to npm) with
 the components and styles shared by the Adje apps: **MisFinanzas**,
 **Adje Store**, **Solaula** and whatever comes next. Web only (React/Next);
-the old Flutter version was retired. Current version: **1.0.1**.
+the old Flutter version was retired. Current version: **1.0.2**.
 
 ## Repository layout
 
@@ -243,6 +243,11 @@ And in its configuration:
 affects all of them.
 
 ## Changelog
+
+### 1.0.2
+
+- **`SectionTitle` takes a `tag`:** a node beside the title, such as a count `Pill`
+  ("Students 14"), in place of writing the count into the title text.
 
 ### 1.0.1
 

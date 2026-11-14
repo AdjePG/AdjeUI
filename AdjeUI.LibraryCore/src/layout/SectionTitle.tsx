@@ -4,17 +4,20 @@ import { ReactNode } from "react";
 import { IconChip } from "../primitives/IconChip";
 import { HelpTip } from "../overlays/HelpTip";
 
-// Section title inside a Card: chip + title + subtitle + actions.
+// Section title inside a Card: chip + title (+ a tag after it, such as a count Pill) + subtitle + actions.
 export function SectionTitle({
   icon,
   title,
   subtitle,
+  tag,
   help,
   right,
 }: {
   icon?: ReactNode;
   title: string;
   subtitle?: string;
+  /** Beside the title: a count Pill ("Students 14"), a status. */
+  tag?: ReactNode;
   help?: ReactNode;
   right?: ReactNode;
 }) {
@@ -25,6 +28,7 @@ export function SectionTitle({
         <h2 className="text-[17px] font-semibold flex items-center gap-2.5">
           {icon && <IconChip>{icon}</IconChip>}
           {title}
+          {tag}
           {help && <HelpTip>{help}</HelpTip>}
         </h2>
         {subtitle && <p className="text-[13px] text-muted mt-0.5">{subtitle}</p>}
