@@ -3,7 +3,7 @@
 Installable package (via a git dependency, no need to publish it to npm) with
 the components and styles shared by the Adje apps: **MisFinanzas**,
 **Adje Store**, **Solaula** and whatever comes next. Web only (React/Next);
-the old Flutter version was retired. Current version: **1.0.3**.
+the old Flutter version was retired. Current version: **1.0.4**.
 
 ## Repository layout
 
@@ -243,6 +243,12 @@ And in its configuration:
 affects all of them.
 
 ## Changelog
+
+### 1.0.4
+
+- **One focus style for every control** (`theme.css`): a 2px accent outline, inside the
+  control and only from the keyboard, in place of each browser's own (a click left a
+  black outline the side nav or a card could cut).
 
 ### 1.0.3
 

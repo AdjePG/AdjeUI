@@ -66,6 +66,18 @@
   color-scheme: dark;
 }
 
+/* Focus: only from the keyboard (a click leaves no outline), in the accent colour,
+   drawn inside the control so a parent that clips (a card, the side nav) never cuts
+   it, and following the control's own corners. :where() keeps it at no specificity,
+   so a control with a focus of its own (a field's accent border, a ring) keeps it. */
+:where(:focus:not(:focus-visible)) {
+  outline: none;
+}
+:where(:focus-visible) {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: -2px;
+}
+
 * {
   box-sizing: border-box;
 }
