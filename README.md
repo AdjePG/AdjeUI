@@ -269,9 +269,9 @@ Since then, without a new number:
   draws it just outside its icon. On the app gradient (a primary `Button`, the chosen
   `Segmented` option) it is white, a step further in; `Segmented`'s first and last buttons
   take the frame's corners so their outline is not cut.
-- **A `Drawer` shows its content all at once:** `loading` (the owner's data) and `useDrawerPending`
-  (a part inside with its own) put a spinner in its place until everything is there, so a panel is
-  never seen filling in. The content is mounted meanwhile, hidden, so each part keeps loading.
+- **A `Drawer` opens with its content whole:** while `loading` (the owner's data) or a part inside
+  with its own (`useDrawerPending`) still loads, the panel is mounted but not shown, and it slides in
+  once everything is there. Never a spinner nor a panel filling in; load the data ahead and it opens at once.
 - **`SideNav` on a phone:** opening the panel moves the focus into it (the current item) and closing
   it moves it back.
 
