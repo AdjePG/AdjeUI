@@ -77,6 +77,11 @@
   outline: 2px solid var(--accent-blue);
   outline-offset: -2px;
 }
+/* On the app gradient (a primary button, the chosen option) the accent would not show: white, a step in. */
+:where(.bg-app-gradient:focus-visible) {
+  outline-color: #fff;
+  outline-offset: -4px;
+}
 
 * {
   box-sizing: border-box;

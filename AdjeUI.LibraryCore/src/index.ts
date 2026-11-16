@@ -41,7 +41,7 @@ export { useFormErrors, rules, type RuleResult } from "./forms/validation";
 
 // overlays
 export { Modal } from "./overlays/Modal";
-export { Drawer } from "./overlays/Drawer";
+export { Drawer, useDrawerPending } from "./overlays/Drawer";
 export { ConfirmDialog } from "./overlays/ConfirmDialog";
 export { HelpTip } from "./overlays/HelpTip";
 export { ToastProvider, useToast } from "./overlays/Toast";

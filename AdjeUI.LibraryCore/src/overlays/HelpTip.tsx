@@ -62,7 +62,8 @@ export function HelpTip({
         tabIndex={0}
         role="button"
         aria-label={label ?? "More info"}
-        className={`inline-flex items-center justify-center rounded-full transition-colors outline-none ${
+        // Too small for the focus outline inside it: drawn just outside the icon.
+        className={`inline-flex items-center justify-center rounded-full transition-colors focus-visible:outline-offset-1 ${
           open ? "text-[var(--accent-blue)]" : "text-muted hover:text-[var(--accent-blue)]"
         }`}
       >

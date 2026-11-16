@@ -3,7 +3,7 @@
 Installable package (via a git dependency, no need to publish it to npm) with
 the components and styles shared by the Adje apps: **MisFinanzas**,
 **Adje Store**, **Solaula** and whatever comes next. Web only (React/Next);
-the old Flutter version was retired. Current version: **1.0.4**.
+the old Flutter version was retired. Current version: **1.0.0**.
 
 ## Repository layout
 
@@ -244,27 +244,6 @@ affects all of them.
 
 ## Changelog
 
-### 1.0.4
-
-- **One focus style for every control** (`theme.css`): a 2px accent outline, inside the
-  control and only from the keyboard, in place of each browser's own (a click left a
-  black outline the side nav or a card could cut).
-
-### 1.0.3
-
-- **`AvatarStack` keeps the first face on top:** each face lies over the next one and
-  the "+N" chip lowest, so the one listed first (a class's main teacher) is never covered.
-
-### 1.0.2
-
-- **`SectionTitle` takes a `tag`:** a node beside the title, such as a count `Pill`
-  ("Students 14"), in place of writing the count into the title text.
-
-### 1.0.1
-
-- **`initials()` skips punctuation:** only words with letters or digits count, so
-  "French · Evening" gives "FE" instead of "F·". Used by `Avatar` and `AvatarStack`.
-
 ### 1.0.0
 
 - **The numbering restarts at 1.0.0.** Same code and API as 4.18.0: nothing renamed,
@@ -277,6 +256,24 @@ affects all of them.
 - Apps whose Tailwind `content` glob is `./node_modules/adje-shared-ui/**/*.{ts,tsx}`
   need no change; a glob that names `adje-shared-ui/src/` must become
   `adje-shared-ui/AdjeUI.LibraryCore/src/`.
+
+Since then, without a new number:
+
+- **`initials()` skips punctuation:** only words with letters or digits count, so
+  "French · Evening" gives "FE" instead of "F·". Used by `Avatar` and `AvatarStack`.
+- **`SectionTitle` takes a `tag`:** a node beside the title, such as a count `Pill`
+  ("Students 14"), in place of writing the count into the title text.
+- **One focus style for every control** (`theme.css`): a 2px accent outline, inside the
+  control and only from the keyboard, in place of each browser's own (a click left a
+  black outline the side nav or a card could cut). `HelpTip`, too small to hold it inside,
+  draws it just outside its icon. On the app gradient (a primary `Button`, the chosen
+  `Segmented` option) it is white, a step further in; `Segmented`'s first and last buttons
+  take the frame's corners so their outline is not cut.
+- **A `Drawer` shows its content all at once:** `loading` (the owner's data) and `useDrawerPending`
+  (a part inside with its own) put a spinner in its place until everything is there, so a panel is
+  never seen filling in. The content is mounted meanwhile, hidden, so each part keeps loading.
+- **`SideNav` on a phone:** opening the panel moves the focus into it (the current item) and closing
+  it moves it back.
 
 ## Before 1.0.0 (old numbering)
 

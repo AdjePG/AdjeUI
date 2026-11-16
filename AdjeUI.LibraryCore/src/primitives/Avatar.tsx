@@ -75,8 +75,7 @@ export function Avatar({ name, src, color, size = "md", shape = "circle", decora
   );
 }
 
-/** Overlapping avatars with a "+N" chip for the ones that do not fit. The first lies on top (the one
- * listed first matters most: a class's main teacher), each next one under the one before. */
+/** Overlapping avatars with a "+N" chip for the ones that do not fit. */
 export function AvatarStack({
   items,
   max = 4,
@@ -94,14 +93,18 @@ export function AvatarStack({
   const shown = items.slice(0, max);
   const rest = items.length - shown.length;
   const ring = "ring-2 ring-[var(--card)]";
-
   return (
     <span className={`inline-flex items-center ${className}`}>
       {shown.map((it, i) => (
-        // Each face over the next one: the first stays whole, the +N chip lies lowest.
-        <span key={it.key ?? i} className={`relative inline-flex ${i > 0 ? "-ml-2" : ""}`} style={{ zIndex: shown.length - i + 1 }}>
-          <Avatar name={it.name} src={it.src} color={it.color} size={size} shape={shape} className={ring} />
-        </span>
+        <Avatar
+          key={it.key ?? i}
+          name={it.name}
+          src={it.src}
+          color={it.color}
+          size={size}
+          shape={shape}
+          className={`${ring} ${i > 0 ? "-ml-2" : ""}`}
+        />
       ))}
       {rest > 0 && (
         <span

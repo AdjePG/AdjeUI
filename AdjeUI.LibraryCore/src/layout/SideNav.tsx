@@ -20,7 +20,7 @@
 //     LinkComponent={Link}                       // next/link
 //     bottom={<SideNavUser name="Adrià" items={[…]} />}
 //   />
-import { ElementType, ReactNode, useEffect, type ComponentPropsWithoutRef } from "react";
+import { ElementType, ReactNode, useEffect, useRef, type ComponentPropsWithoutRef } from "react";
 import { ChevronsLeft, ChevronsRight, ChevronsUpDown, X } from "lucide-react";
 import { sideNavState, useIsMobile, useSideNavCompact, useSideNavState } from "./sideNavState";
 import { Popover } from "../overlays/Popover";
@@ -136,6 +136,19 @@ export function SideNav({
 
   useEscape(sideNavState.close, open);
 
+  // Opened on a phone, the panel covers the page: the focus goes in (to the current item) and, when it closes,
+  // back where it was, so the keyboard never moves through what cannot be seen.
+  const navRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const back = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const nav = navRef.current;
+    (nav?.querySelector<HTMLElement>('[aria-current="page"]') ?? nav?.querySelector<HTMLElement>("a[href], button:not([disabled])"))?.focus();
+    return () => {
+      if (nav?.contains(document.activeElement)) back?.focus();
+    };
+  }, [open]);
+
   const logoNode = logo && (
     <A href={logoHref} className="flex items-center gap-2 px-2 py-2 select-none min-w-0 overflow-hidden" onClick={sideNavState.close}>
       {logo}
@@ -148,6 +161,7 @@ export function SideNav({
   return (
     <>
       <nav
+        ref={navRef}
         className="sidenav h-full flex flex-col bg-[var(--secondary)] border-r border-[var(--border)] px-3 py-4 gap-3"
         data-open={open || undefined}
         data-moving={moving || undefined}

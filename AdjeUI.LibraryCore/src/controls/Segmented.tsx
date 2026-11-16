@@ -10,10 +10,11 @@ import { useFieldLabelId } from "../forms/Field";
 // and Select. If it does not fit, arrows appear at the ends instead of a
 // scrollbar; `max-w-full` lets it shrink without overflowing its parent.
 
-const SIZES: Record<ControlSize, { height: string; text: string; sides: string; radius: string }> = {
-  sm: { height: "h-[var(--control-h-sm)]", text: "text-[12px]", sides: "px-2.5", radius: "rounded-lg" },
-  md: { height: "h-[var(--control-h)]", text: "text-[13px]", sides: "px-3.5", radius: "rounded-xl" },
-  lg: { height: "h-[var(--control-h-lg)]", text: "text-[15px]", sides: "px-[18px]", radius: "rounded-xl" },
+// `ends`: the first and last buttons take the frame's inner corners, so their focus outline is not cut.
+const SIZES: Record<ControlSize, { height: string; text: string; sides: string; radius: string; ends: string }> = {
+  sm: { height: "h-[var(--control-h-sm)]", text: "text-[12px]", sides: "px-2.5", radius: "rounded-lg", ends: "first:rounded-l-[7px] last:rounded-r-[7px]" },
+  md: { height: "h-[var(--control-h)]", text: "text-[13px]", sides: "px-3.5", radius: "rounded-xl", ends: "first:rounded-l-[11px] last:rounded-r-[11px]" },
+  lg: { height: "h-[var(--control-h-lg)]", text: "text-[15px]", sides: "px-[18px]", radius: "rounded-xl", ends: "first:rounded-l-[11px] last:rounded-r-[11px]" },
 };
 
 export type SegmentedOption<T extends string = string> = {
@@ -58,7 +59,7 @@ export function Segmented<T extends string = string>({
                 title={o.title}
                 aria-pressed={active}
                 aria-label={o.label == null ? o.title : undefined}
-                className={`inline-flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap transition ${t.height} ${
+                className={`inline-flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap transition ${t.height} ${t.ends} ${
                   o.label == null ? "aspect-square px-0" : t.sides
                 } ${active ? "bg-app-gradient text-white" : "hover:bg-[var(--hover)]"}`}
               >
