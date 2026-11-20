@@ -22,8 +22,9 @@ export function SectionTitle({
   right?: ReactNode;
 }) {
   return (
-    // Centred with its actions; from the top only when a subtitle makes it two lines.
-    <div className={`flex ${subtitle ? "items-start" : "items-center"} justify-between gap-3 mb-3`}>
+    // Centred with its actions; from the top only when a subtitle makes it two lines. As tall as a small button with or
+    // without one, so sections side by side line up.
+    <div className={`flex min-h-[var(--control-h-sm)] ${subtitle ? "items-start" : "items-center"} justify-between gap-3 mb-3`}>
       <div>
         <h2 className="text-[17px] font-semibold flex items-center gap-2.5">
           {icon && <IconChip>{icon}</IconChip>}
