@@ -1,6 +1,6 @@
 // AdjeUI main barrel. One component (or tight family) per file, by category:
 //   primitives/  surfaces and basic pieces (Card, Pill, Overline, IconChip, Avatar, Empty, Skeleton, Spinner, CodeBlock)
-//   controls/    buttons and toggles (Button, IconButton, Segmented, Tabs, Switch, ChoiceOption, ScrollArrows, Toolbar)
+//   controls/    buttons and toggles (Button, IconButton, PlainButton, Segmented, Tabs, Switch, ChoiceOption, ScrollArrows, Toolbar)
 //   forms/       Field, Input, PasswordInput, Textarea, Select, ChipEditor, validation
 //   overlays/    layers (Modal, Drawer, ConfirmDialog, HelpTip, Toast, Popover, Menu, useShortcuts)
 //   data/        Stat, ProgressBar, Pagination, Table, Calendar
@@ -24,6 +24,7 @@ export { tokenize, splitLines, type Token, type TokenType } from "./primitives/h
 // controls
 export { Button, type ButtonVariant, type ControlSize } from "./controls/Button";
 export { IconButton } from "./controls/IconButton";
+export { PlainButton } from "./controls/PlainButton";
 export { Segmented, type SegmentedOption } from "./controls/Segmented";
 export { Tabs } from "./controls/Tabs";
 export { Switch, type SwitchSize } from "./controls/Switch";

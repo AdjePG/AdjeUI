@@ -272,6 +272,9 @@ Since then, without a new number:
 - **A `Drawer` opens with its content whole:** while `loading` (the owner's data) or a part inside
   with its own (`useDrawerPending`) still loads, the panel is mounted but not shown, and it slides in
   once everything is there. Never a spinner nor a panel filling in; load the data ahead and it opens at once.
+- **New `PlainButton`:** a button with no look of its own (a tree's item, a table's cell) that brings
+  `type="button"`, the focus outline and the disabled look, so an app never writes a bare `<button>`.
+- **`SectionTitle` is as tall as a small button,** with or without one, so sections side by side line up.
 - **`SideNav` on a phone:** opening the panel moves the focus into it (the current item) and closing
   it moves it back.
 
