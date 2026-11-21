@@ -4,7 +4,7 @@
 //   forms/       Field, Input, PasswordInput, Textarea, Select, ChipEditor, validation
 //   overlays/    layers (Modal, Drawer, ConfirmDialog, HelpTip, Toast, Popover, Menu, useShortcuts)
 //   data/        Stat, ProgressBar, Pagination, Table, Calendar
-//   layout/      PageHeader, SectionTitle, Collapsible, Carousel, SideNav family, OverlayScrollbar, useTheme
+//   layout/      PageHeader, SectionTitle, SectionNav, Collapsible, Carousel, SideNav family, OverlayScrollbar, useTheme
 //   tokens/      fixed palette (15 colours x 10 shades) and tone colours
 //   internal/    private helpers, not exported
 // Rich text lives in its own entrypoint: "adje-shared-ui/rich-text".
@@ -70,6 +70,7 @@ export { calendarKey, type CalendarBand } from "./data/calendarDays";
 export { Carousel } from "./layout/Carousel";
 export { PageHeader } from "./layout/PageHeader";
 export { SectionTitle } from "./layout/SectionTitle";
+export { SectionNav, type SectionNavItem } from "./layout/SectionNav";
 export { Collapsible } from "./layout/Collapsible";
 export { SideNav, SideNavBrand, SideNavButton, SideNavUser, SideNavAction } from "./layout/SideNav";
 export { sideNavState, useSideNavState, useSideNavCompact, useIsMobile } from "./layout/sideNavState";

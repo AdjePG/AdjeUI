@@ -259,6 +259,18 @@ affects all of them.
 
 Since then, without a new number:
 
+- **`SectionNav`** (new, layout): a settings page's sections as a list beside them, a column
+  when wide and a sideways row on a phone; `danger` and `apart` for the section that deletes.
+- **`Field` takes `layout`:** `"row"` puts the label on the left and the control on the right
+  (stacked again on a phone), as a settings page lists its fields; `"toggle"` keeps a Switch
+  at the end of its label.
+- **The closed mobile `SideNav` casts no shadow:** only while it is open or sliding; closed,
+  off the left edge, its shadow fell over the page.
+- **`Table` takes `scrollY`:** its own box scrolls down as well as sideways, with the
+  header pinned, so the sideways bar stays in sight however long the table (the wrapper
+  needs a height); a hairline under the header and over the bottom marks rows hidden
+  above and below, as the side ones do. `useScrollEdges` also gives `above`, `below` and
+  `sideBar`, the width of a vertical bar.
 - **`initials()` skips punctuation:** only words with letters or digits count, so
   "French · Evening" gives "FE" instead of "F·". Used by `Avatar` and `AvatarStack`.
 - **`SectionTitle` takes a `tag`:** a node beside the title, such as a count `Pill`

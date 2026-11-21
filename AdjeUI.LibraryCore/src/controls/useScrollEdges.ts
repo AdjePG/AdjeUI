@@ -9,10 +9,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 //   <div ref={ref} onScroll={measure} className="overflow-x-auto">…</div>
 //
 // `start` = there is more to the left, `end` = more to the right. `bar` is the
-// height of the box's own horizontal scrollbar, for whatever is drawn beside it.
+// height of the box's own horizontal scrollbar and `sideBar` the width of its
+// vertical one (a box that also scrolls down), for whatever is drawn beside them;
+// `above` and `below` say the same as `start` and `end` for a box that scrolls down.
 export function useScrollEdges<T extends HTMLElement>() {
   const ref = useRef<T>(null);
-  const [edges, setEdges] = useState({ start: false, end: false, bar: 0 });
+  const [edges, setEdges] = useState({ start: false, end: false, above: false, below: false, bar: 0, sideBar: 0 });
 
   const measure = useCallback(() => {
     const el = ref.current;
@@ -21,8 +23,15 @@ export function useScrollEdges<T extends HTMLElement>() {
     // forever at the end of the track.
     const start = el.scrollLeft > 1;
     const end = el.scrollLeft + el.clientWidth < el.scrollWidth - 1;
+    const above = el.scrollTop > 1;
+    const below = el.scrollTop + el.clientHeight < el.scrollHeight - 1;
     const bar = el.offsetHeight - el.clientHeight;
-    setEdges((e) => (e.start === start && e.end === end && e.bar === bar ? e : { start, end, bar }));
+    const sideBar = el.offsetWidth - el.clientWidth;
+    setEdges((e) =>
+      e.start === start && e.end === end && e.above === above && e.below === below && e.bar === bar && e.sideBar === sideBar
+        ? e
+        : { start, end, above, below, bar, sideBar },
+    );
   }, []);
 
   useEffect(() => {

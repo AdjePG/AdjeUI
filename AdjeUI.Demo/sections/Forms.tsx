@@ -8,6 +8,7 @@ import {
   Input,
   PasswordInput,
   Select,
+  Switch,
   Textarea,
   inputCls,
   rules,
@@ -25,6 +26,7 @@ export function FormsSection() {
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
   const [type, setType] = useState("");
+  const [isPublic, setIsPublic] = useState(true);
   const [slug, setSlug] = useState("");
   const [price, setPrice] = useState("");
   const [url, setUrl] = useState("");
@@ -179,6 +181,20 @@ export function FormsSection() {
             <code className="text-[11px] font-mono text-muted truncate flex-1">{rich || '""'}</code>
           </div>
         </Block>
+        <Block name='Field layout: "row" (label left, control right; stacked on a phone) and "toggle" (a Switch at the end), in a settings card'>
+          <Card className="!p-0 divide-y divide-[var(--border)] [&>*]:px-5 [&>*]:py-4">
+            <Field label="Academy name" layout="row" required>
+              <Input defaultValue="Escuela de Idiomas" />
+            </Field>
+            <Field label="Tagline" layout="row">
+              <Input placeholder="Real English, for busy people" />
+            </Field>
+            <Field label="Public page" layout="toggle" help={<p>Anyone can see your page and your courses.</p>}>
+              <Switch checked={isPublic} onChange={setIsPublic} label="Public page" />
+            </Field>
+          </Card>
+        </Block>
+
         <Block name="Sizes (size sm · md · lg): Input, native date, Select and Button measure the same at each size">
           <div className="flex flex-col gap-2 w-full">
             {(["sm", "md", "lg"] as const).map((s) => (

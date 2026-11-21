@@ -19,6 +19,12 @@ import { useScrollEdges } from "../controls/useScrollEdges";
 // under it; the left line is then drawn on that column's edge, which is where
 // the hidden content actually is. The pinned cells take `--card` as their
 // background: pass `stickyBg` when the table sits on another surface.
+//
+// `scrollY` makes its own box scroll down too, with the header pinned, so the
+// sideways bar stays in sight however long the table: give the wrapper a
+// height (`wrapperClassName`, e.g. "min-h-0 flex-1" in a flex column). A
+// hairline under the header and over the bottom marks rows hidden above and
+// below, as the side ones do.
 export function Table({
   children,
   minWidth = 520,
@@ -26,6 +32,7 @@ export function Table({
   wrapperClassName = "",
   stickyFirst = false,
   stickyBg = "var(--card)",
+  scrollY = false,
 }: {
   children: ReactNode;
   /** Below this width (px) the table scrolls sideways. */
@@ -38,8 +45,10 @@ export function Table({
   stickyFirst?: boolean;
   /** Background of the pinned cells when the table is not on --card. */
   stickyBg?: string;
+  /** Scroll down inside its own box as well, the header pinned (the wrapper needs a height). */
+  scrollY?: boolean;
 }) {
-  const { ref, measure, start, end, bar } = useScrollEdges<HTMLDivElement>();
+  const { ref, measure, start, end, above, below, bar, sideBar } = useScrollEdges<HTMLDivElement>();
   // The pinned column's width, for the left line drawn on its edge; the cell
   // watched is picked again whenever the rows change.
   const [pinW, setPinW] = useState(0);
@@ -64,22 +73,33 @@ export function Table({
       mo.disconnect();
     };
   }, [stickyFirst, ref]);
+  // Pinned 1px past the edge: at a fractional position, what scrolls under it would peek out by a hairline.
   const sticky = stickyFirst
-    ? "[&_tr>*:first-child]:sticky [&_tr>*:first-child]:left-0 [&_tr>*:first-child]:z-[2] [&_tr>*:first-child]:bg-[var(--sticky-bg)]"
+    ? "[&_tr>*:first-child]:sticky [&_tr>*:first-child]:-left-px [&_tr>*:first-child]:z-[2] [&_tr>*:first-child]:bg-[var(--sticky-bg)]"
+    : "";
+  // The header rides on top of the rows (and its pinned corner on top of both); the header and its rows take the
+  // background too, so the seams between header rows, at fractional positions, hide what scrolls under them.
+  // Rows hidden above: a hairline on the header's own bottom edge (separate borders let the row group draw it).
+  const pinnedHead = scrollY
+    ? `[&_thead]:sticky [&_thead]:top-0 [&_thead]:z-[3] [&_thead]:bg-[var(--sticky-bg)] [&_thead_tr]:bg-[var(--sticky-bg)] [&_thead_th]:bg-[var(--sticky-bg)] [&_thead_tr>*:first-child]:z-[4] ${above ? "[&_thead]:shadow-[0_1px_0_var(--border)]" : ""}`
     : "";
   return (
-    <div className={`relative ${wrapperClassName}`} style={stickyFirst ? ({ "--sticky-bg": stickyBg } as CSSProperties) : undefined}>
-      {/* code-scroll: a thin horizontal bar (custom-scrollbar hides overflow-x). */}
-      <div ref={ref} onScroll={measure} className="overflow-x-auto overflow-y-hidden code-scroll">
+    <div
+      className={`relative ${scrollY ? "flex flex-col" : ""} ${wrapperClassName}`}
+      style={stickyFirst || scrollY ? ({ "--sticky-bg": stickyBg } as CSSProperties) : undefined}
+    >
+      {/* code-scroll: thin bars (custom-scrollbar hides overflow-x). */}
+      <div ref={ref} onScroll={measure} className={`${scrollY ? "min-h-0 flex-1 overflow-auto" : "overflow-x-auto overflow-y-hidden"} code-scroll`}>
         <table
-          className={`w-full text-[13px] [&_th]:font-medium [&_th]:text-left [&_th]:text-muted [&_th]:px-2 [&_th]:py-2 [&_th]:whitespace-nowrap [&_td]:px-2 [&_td]:py-2 [&_tbody_tr]:border-t [&_tbody_tr]:border-[var(--border)] ${sticky} ${className}`}
+          className={`w-full text-[13px] [&_th]:font-medium [&_th]:text-left [&_th]:text-muted [&_th]:px-2 [&_th]:py-2 [&_th]:whitespace-nowrap [&_td]:px-2 [&_td]:py-2 [&_tbody_tr]:border-t [&_tbody_tr]:border-[var(--border)] ${sticky} ${pinnedHead} ${className}`}
           style={{ minWidth }}
         >
           {children}
         </table>
       </div>
       {start && <span aria-hidden className="pointer-events-none absolute top-0 z-[3] w-px bg-[var(--border)]" style={{ left: stickyFirst ? pinW : 0, bottom: bar }} />}
-      {end && <span aria-hidden className="pointer-events-none absolute right-0 top-0 z-[3] w-px bg-[var(--border)]" style={{ bottom: bar }} />}
+      {end && <span aria-hidden className="pointer-events-none absolute top-0 z-[3] w-px bg-[var(--border)]" style={{ right: sideBar, bottom: bar }} />}
+      {scrollY && below && <span aria-hidden className="pointer-events-none absolute left-0 z-[3] h-px bg-[var(--border)]" style={{ right: sideBar, bottom: bar }} />}
     </div>
   );
 }

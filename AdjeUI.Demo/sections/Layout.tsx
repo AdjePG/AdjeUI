@@ -23,6 +23,7 @@ import {
   IconChip,
   Overline,
   PageHeader,
+  SectionNav,
   SectionTitle,
   Toolbar,
   useTheme,
@@ -36,6 +37,7 @@ export function LayoutSection() {
   const { toast } = useToast();
   const { cycleTheme, themeLabel, ThemeIcon } = useTheme("adjeui-demo-theme");
   const [headerTab, setHeaderTab] = useState("series");
+  const [settingsSection, setSettingsSection] = useState<"general" | "look" | "people" | "delete">("general");
   const [site, setSite] = useState("academy");
   const current = SITES.find((s) => s.id === site)!;
 
@@ -147,6 +149,22 @@ export function LayoutSection() {
           right={<Button size="sm" variant="outline"><Plus size={13} /> Action</Button>}
         />
         <SectionTitle title="Minimal SectionTitle (title only)" />
+
+        <Block name="SectionNav: a settings page's sections (a column when wide, a sideways row on a phone)">
+          <Frame className="grid gap-4 p-4 md:grid-cols-[200px_minmax(0,1fr)]">
+            <SectionNav
+              value={settingsSection}
+              onChange={setSettingsSection}
+              items={[
+                { value: "general", label: "General", icon: <Settings size={16} /> },
+                { value: "look", label: "Look", icon: <Layers size={16} /> },
+                { value: "people", label: "People", icon: <BookOpen size={16} /> },
+                { value: "delete", label: "Delete space", icon: <LogOut size={16} />, danger: true, apart: true },
+              ]}
+            />
+            <div className="text-[13px] text-muted">Open: {settingsSection}</div>
+          </Frame>
+        </Block>
 
         <Collapsible title="Collapsible: how is AdjeUI organized?" icon={<Package size={14} />} defaultOpen>
           <p>

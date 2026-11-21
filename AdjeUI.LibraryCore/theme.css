@@ -244,6 +244,7 @@ html :where(.card) {
   scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 .code-scroll::-webkit-scrollbar {
+  width: 10px;
   height: 10px;
 }
 .code-scroll::-webkit-scrollbar-track {
@@ -458,13 +459,17 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     height: 100dvh;
     z-index: 60;
     transform: translateX(-100%);
-    box-shadow: 0 0 40px -8px #0006;
   }
   /* The slide only while it is being opened or closed (data-moving, set by
      sideNavState): always on, crossing 768px while resizing would animate the
-     panel over the page. */
+     panel over the page. The shadow only while it is out or moving: closed, it
+     would fall over the page's left edge. */
   .sidenav[data-moving] {
     transition: transform 0.22s ease-out;
+  }
+  .sidenav[data-open],
+  .sidenav[data-moving] {
+    box-shadow: 0 0 40px -8px #0006;
   }
   .sidenav[data-open] {
     transform: none;

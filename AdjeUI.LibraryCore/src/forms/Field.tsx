@@ -34,6 +34,11 @@ export function useFieldErrorId(): string | undefined {
 // pointing at the control, never a <label> wrapped around it: a wrapping label
 // activates the first button inside (a chip's remove button, a Segmented's
 // first option, a Select's trigger).
+//
+// `layout`: "stacked" (default) puts the label over the control; "row" puts it
+// on the left and the control on the right (stacked again on a phone), as a
+// settings page lists its fields; "toggle" keeps a Switch on the right of its
+// label on every screen.
 export function Field({
   label,
   children,
@@ -42,6 +47,7 @@ export function Field({
   error,
   required,
   as = "div",
+  layout = "stacked",
 }: {
   label: string;
   children: ReactNode;
@@ -59,6 +65,8 @@ export function Field({
    * native input that is not an AdjeUI control.
    */
   as?: "label" | "div";
+  /** Label over the control ("stacked"), beside it ("row"), or a Switch at its end ("toggle"). */
+  layout?: "stacked" | "row" | "toggle";
 }) {
   const id = useId();
   const wraps = as === "label";
@@ -78,9 +86,20 @@ export function Field({
       {required && <span className="text-[var(--negative)] ml-1">*</span>}
     </>
   );
+  const stacked = layout === "stacked";
+  const control = (
+    <>
+      <FieldCtx.Provider value={ctx}>{children}</FieldCtx.Provider>
+      {error && (
+        <span id={ctx.errorId} role="alert" className="flex items-center gap-1 text-[12px] text-[var(--negative)]">
+          <AlertCircle size={12} className="shrink-0" /> {error}
+        </span>
+      )}
+    </>
+  );
   return (
-    <Tag className="flex flex-col gap-1 text-sm">
-      <span className="text-muted flex items-center gap-1.5">
+    <Tag className={`text-sm ${LAYOUT[layout]}`}>
+      <span className={`flex items-center gap-1.5 ${stacked ? "text-muted" : "min-w-0 font-medium text-[var(--foreground)]"}`}>
         {wraps ? (
           <span id={ctx.labelId}>{text}</span>
         ) : (
@@ -91,12 +110,13 @@ export function Field({
         {help && <HelpTip>{help}</HelpTip>}
         {right && <span className="ml-auto">{right}</span>}
       </span>
-      <FieldCtx.Provider value={ctx}>{children}</FieldCtx.Provider>
-      {error && (
-        <span id={ctx.errorId} role="alert" className="flex items-center gap-1 text-[12px] text-[var(--negative)]">
-          <AlertCircle size={12} className="shrink-0" /> {error}
-        </span>
-      )}
+      {stacked ? control : <div className={`flex min-w-0 flex-col gap-1 ${layout === "toggle" ? "shrink-0 items-end" : ""}`}>{control}</div>}
     </Tag>
   );
 }
+
+const LAYOUT = {
+  stacked: "flex flex-col gap-1",
+  row: "grid gap-2 sm:grid-cols-[minmax(0,13rem)_minmax(0,1fr)] sm:items-center sm:gap-x-6",
+  toggle: "flex items-center justify-between gap-4",
+} as const;
